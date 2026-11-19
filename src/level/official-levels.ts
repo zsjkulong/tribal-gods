@@ -112,7 +112,7 @@ async function assemble(
   return {
     v: 2,
     ...meta,
-    author: 'Tribal Gods',
+    author: '众神之怒',
     terrain: await packTerrain(map.heights),
     trees,
     monuments: monuments.map((m) => ({ ...placeNear(map, m.x, m.z), spell: m.spell, mode: 'teach' as const })),

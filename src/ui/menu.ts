@@ -208,7 +208,7 @@ export class Menu {
       this.navBtn('玩法说明', 'info', () => this.show('help')),
     );
     return h('div.menu-title', {},
-      h('div.menu-logo', { html: `<h1>${carve('Tribal')}${carve('Gods')}</h1><div class="rule cloth"></div><p>一个圆圆的小世界，一个不断壮大的部落，以及一位能与天空对话的首领。</p>` }),
+      h('div.menu-logo', { html: `<h1>${carve('众神之怒')}</h1><div class="rule cloth"></div><p>一个圆圆的小世界，一个不断壮大的部落，以及一位能与天空对话的首领。</p>` }),
       nav,
       h('div.menu-foot', { text: 'F1 玩法说明 · Esc 返回' }),
     );

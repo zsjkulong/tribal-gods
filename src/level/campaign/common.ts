@@ -61,7 +61,7 @@ export async function makeLevel(r: LevelRecipe): Promise<LevelData> {
   const level: LevelData = {
     v: 2,
     name: r.name,
-    author: 'Tribal Gods',
+    author: '众神之怒',
     desc: r.desc,
     terrain: await packTerrain(map.heights),
     trees: r.terrain.trees(r.treeDensity ?? 0.02, clear),

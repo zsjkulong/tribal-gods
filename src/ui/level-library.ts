@@ -81,26 +81,26 @@ export class LevelLibrary {
     const header = document.createElement('div');
     header.className = 'lib-head';
     const title = document.createElement('h2');
-    title.innerHTML = carve('Level library');
+    title.innerHTML = carve('关卡库');
 
     this.search = document.createElement('input');
-    this.search.placeholder = 'Search…';
+    this.search.placeholder = '搜索…';
     this.search.style.width = '10rem';
     this.search.addEventListener('input', () => this.render());
     this.search.addEventListener('keydown', (e) => e.stopPropagation());
 
-    this.minStars = this.select(['Any rating', '★+', '★★+', '★★★+', '★★★★+', '★★★★★']);
-    this.sortBy = this.select(['Newest', 'Name', 'Rating']);
-    this.shelf = this.select(['All shelves', 'Official', 'Campaign', 'My levels']);
+    this.minStars = this.select(['任意星级', '★+', '★★+', '★★★+', '★★★★+', '★★★★★']);
+    this.sortBy = this.select(['最新', '名称', '星级']);
+    this.shelf = this.select(['全部关卡', '官方', '战役', '我的关卡']);
 
     const importBtn = document.createElement('button');
     importBtn.className = 'tg-btn';
-    importBtn.innerHTML = `${icon('plus', 14)}<span>Import code</span>`;
+    importBtn.innerHTML = `${icon('plus', 14)}<span>导入代码</span>`;
     importBtn.addEventListener('click', () => void this.importCode());
 
     const close = document.createElement('button');
     close.className = 'tg-btn';
-    close.innerHTML = `${icon('close', 14)}<span>Close</span>`;
+    close.innerHTML = `${icon('close', 14)}<span>关闭</span>`;
     close.addEventListener('click', () => {
       this.hide();
       hooks.onClose();
@@ -164,7 +164,7 @@ export class LevelLibrary {
       if (getRating(e.id) < minStars) return false;
       if (!q) return true;
       const name = e.campaign?.title ?? e.level?.name ?? OFFICIAL_NAMES[e.id] ?? e.id;
-      const author = e.level?.author ?? 'Tribal Gods';
+      const author = e.level?.author ?? '众神之怒';
       return (name + ' ' + author).toLowerCase().includes(q);
     });
 
@@ -191,13 +191,13 @@ export class LevelLibrary {
     const card = document.createElement('div');
     card.className = 'lib-card tg-panel mat-hide';
     const name = e.campaign ? `${e.campaign.chapter}. ${e.campaign.title}` : e.level?.name ?? OFFICIAL_NAMES[e.id] ?? e.id;
-    const author = e.level?.author ?? 'Tribal Gods';
-    const desc = e.campaign ? (e.campaign.locked ? 'Locked — reach this chapter in the campaign.' : e.campaign.tagline) : e.level?.desc ?? OFFICIAL_DESCS[e.id] ?? '';
+    const author = e.level?.author ?? '众神之怒';
+    const desc = e.campaign ? (e.campaign.locked ? '已锁定——在战役中解锁本章后可见。' : e.campaign.tagline) : e.level?.desc ?? OFFICIAL_DESCS[e.id] ?? '';
 
     const head = document.createElement('div');
     head.innerHTML =
       `<div class="name">${escapeHtml(name)}${e.campaign ? '<span class="off">campaign</span>' : e.official ? '<span class="off">official</span>' : ''}</div>` +
-      `<div class="by">by ${escapeHtml(author)}</div>`;
+      `<div class="by">作者：${escapeHtml(author)}</div>`;
     const blurb = document.createElement('div');
     blurb.className = 'desc';
     blurb.textContent = desc;
@@ -272,14 +272,14 @@ export class LevelLibrary {
   }
 
   private async importCode(): Promise<void> {
-    const code = prompt('Paste a level code (TG2.… or TG1.…):');
+    const code = prompt('粘贴关卡代码（TG2.… 或 TG1.…）：');
     if (!code) return;
     try {
       const level = await codeToLevel(code);
       saveLevel(level);
       this.render();
     } catch (err) {
-      alert(`Could not import: ${(err as Error).message}`);
+      alert(`导入失败：${(err as Error).message}`);
     }
   }
 

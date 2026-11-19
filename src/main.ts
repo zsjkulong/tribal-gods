@@ -45,6 +45,7 @@ import { installMaterials } from './ui/materials';
 import { SculptBrush } from './ui/brush';
 import { appState } from './ui/app-state';
 import { clearSave, clock, readSave, savedTally, writeSave } from './ui/autosave';
+import { showInterstitialAd } from './platform/4399-ads';
 import { CampaignController } from './ui/campaign';
 import { Editor } from './ui/editor';
 import { registerGameOverAction } from './ui/game-over';
@@ -227,6 +228,7 @@ const menu = new Menu((settings) => {
   campaign.leave();
   appState.mode = 'game';
   newWorld(settings);
+  levelAdShown = false; // 新的遭遇战，插屏只在玩家按暂停时弹出
 });
 menu.settingsHooks = {
   inGame: () => menu.inGame,
@@ -241,6 +243,7 @@ function openGameMenu(screen: 'pause' | 'help' = 'pause'): void {
   pausedBeforeMenu = appState.paused;
   appState.paused = true;
   autosave();
+  if (screen === 'pause') payAdThisLevel(); // 暂停按钮：每关一次 4399 插屏广告
   menu.openInGame(screen);
 }
 menu.onResume = () => {
@@ -252,6 +255,18 @@ menu.onRestart = () => {
   restart();
 };
 menu.onQuit = () => quitToMenu();
+/**
+ * 4399 插屏广告：每关最多弹出一次（从暂停按钮唤起）。
+ * 插屏由平台接管覆盖层、玩家点击关闭，无需暂停/恢复模拟。
+ * 非 4399 环境自动静默跳过。
+ */
+let levelAdShown = false;
+function payAdThisLevel(): void {
+  if (levelAdShown) return;
+  levelAdShown = true;
+  showInterstitialAd();
+}
+
 function restart(): void {
   if (campaign.active) {
     appState.mode = 'menu';
@@ -262,6 +277,7 @@ function restart(): void {
   } else {
     appState.mode = 'game';
     newWorld(lastStart.settings);
+    levelAdShown = false;
   }
 }
 function quitToMenu(): void {
@@ -327,6 +343,7 @@ menu.onContinue = () => {
   if (at) rig.target.set(at.x * 2, 0, at.z * 2);
   rig.zoom = CAMERA.defaultZoom;
   appState.mode = 'game';
+  levelAdShown = false; // 继续游戏的这局，暂停时仍可再弹一次插屏
 };
 addEventListener('visibilitychange', () => {
   if (document.hidden) autosave();
@@ -356,6 +373,8 @@ async function startLevel(level: LevelData, asTest = false, rules?: ScenarioRule
   centerOnHome();
   ui?.reset();
   appState.mode = 'game';
+  // 新关卡：重置插屏额度（不打扰编辑器试玩 asTest），暂停一次后由按钮唤起。
+  if (!asTest) levelAdShown = false;
   lastStart = { level };
   testingLevel = asTest ? level : null;
   autosaveClock = 0;

@@ -207,16 +207,16 @@ export async function levelToCode(level: LevelData): Promise<string> {
 export async function codeToLevel(code: string): Promise<LevelData> {
   const trimmed = code.trim();
   const prefix = [CODE_PREFIX, ...LEGACY_PREFIXES].find((p) => trimmed.startsWith(p));
-  if (!prefix) throw new Error('Not a Tribal Gods level code (missing TG2. prefix)');
+  if (!prefix) throw new Error('这不是部落之神的关卡代码（缺少 TG2. 前缀）');
   let level: AnyLevelData;
   try {
     const inflated = await pump(base64ToBytes(trimmed.slice(prefix.length)), new DecompressionStream('deflate-raw'));
     level = JSON.parse(new TextDecoder().decode(inflated)) as AnyLevelData;
   } catch {
-    throw new Error('Level code is damaged');
+    throw new Error('关卡代码已损坏');
   }
   if ((level.v !== 1 && level.v !== 2) || !level.terrain || !level.homes?.player) {
-    throw new Error('Level code is damaged or from an unknown version');
+    throw new Error('关卡代码已损坏，或来自未知版本');
   }
   return migrateLevel(level);
 }
