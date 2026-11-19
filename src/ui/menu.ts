@@ -82,6 +82,8 @@ css('menu', `
 .sk .rivals i { width: 0.6rem; height: 0.6rem; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,0.6); }
 `);
 
+const DIFFICULTY_NAMES: Record<Difficulty, string> = { easy: '简单', normal: '普通', hard: '困难' };
+
 type Screen = 'title' | 'skirmish' | 'settings' | 'help' | 'pause';
 
 export class Menu {
@@ -178,8 +180,8 @@ export class Menu {
     const el =
       this.screen === 'title' ? this.titleScreen()
       : this.screen === 'skirmish' ? this.skirmishScreen()
-      : this.screen === 'settings' ? this.card('Settings', settingsPanel(this.settingsHooks), () => this.show(this.backTo))
-      : this.screen === 'help' ? this.card('How to play', h('div', { html: helpHtml() }), () => this.show(this.backTo))
+      : this.screen === 'settings' ? this.card('设置', settingsPanel(this.settingsHooks), () => this.show(this.backTo))
+      : this.screen === 'help' ? this.card('玩法说明', h('div', { html: helpHtml() }), () => this.show(this.backTo))
       : this.pauseScreen();
     this.overlay.replaceChildren(el);
     el.querySelector<HTMLElement>('.tg-btn.primary, .tg-btn')?.focus({ preventScroll: true });
@@ -196,24 +198,24 @@ export class Menu {
   private titleScreen(): HTMLElement {
     this.backTo = 'title';
     const saved = this.onContinue ? this.continueLabel() : null;
-    const nav = h('nav.menu-nav', { 'aria-label': 'Main menu' },
-      saved ? this.navBtn('Continue', 'play', () => { this.hide(); this.onContinue!(); }, true, saved) : null,
-      this.navBtn('Campaign', 'objective', this.onCampaign ? () => { this.hide(); this.onCampaign!(); } : null, !saved && !!this.onCampaign, this.onCampaign ? '' : 'coming soon'),
-      this.navBtn('Skirmish', 'attack', () => this.show('skirmish'), !this.onCampaign),
-      this.navBtn('Levels', 'book', () => { this.hide(); this.onLevels?.(); }),
-      this.navBtn('Editor', 'hammer', () => { this.hide(); this.onEditor?.(); }),
-      this.navBtn('Settings', 'settings', () => this.show('settings')),
-      this.navBtn('How to play', 'info', () => this.show('help')),
+    const nav = h('nav.menu-nav', { 'aria-label': '主菜单' },
+      saved ? this.navBtn('继续游戏', 'play', () => { this.hide(); this.onContinue!(); }, true, saved) : null,
+      this.navBtn('战役', 'objective', this.onCampaign ? () => { this.hide(); this.onCampaign!(); } : null, !saved && !!this.onCampaign, this.onCampaign ? '' : '敬请期待'),
+      this.navBtn('遭遇战', 'attack', () => this.show('skirmish'), !this.onCampaign),
+      this.navBtn('关卡', 'book', () => { this.hide(); this.onLevels?.(); }),
+      this.navBtn('编辑器', 'hammer', () => { this.hide(); this.onEditor?.(); }),
+      this.navBtn('设置', 'settings', () => this.show('settings')),
+      this.navBtn('玩法说明', 'info', () => this.show('help')),
     );
     return h('div.menu-title', {},
-      h('div.menu-logo', { html: `<h1>${carve('Tribal')}${carve('Gods')}</h1><div class="rule cloth"></div><p>A small round world, a tribe that grows, and a leader who speaks with the sky.</p>` }),
+      h('div.menu-logo', { html: `<h1>${carve('Tribal')}${carve('Gods')}</h1><div class="rule cloth"></div><p>一个圆圆的小世界，一个不断壮大的部落，以及一位能与天空对话的首领。</p>` }),
       nav,
-      h('div.menu-foot', { text: 'F1 how to play · Esc back' }),
+      h('div.menu-foot', { text: 'F1 玩法说明 · Esc 返回' }),
     );
   }
 
   private card(title: string, body: HTMLElement, onBack: () => void, footer: HTMLElement[] = []): HTMLElement {
-    const back = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': 'Back', html: `<span style="display:inline-flex;transform:scaleX(-1)">${icon('arrowRight', 18)}</span>` });
+    const back = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': '返回', html: `<span style="display:inline-flex;transform:scaleX(-1)">${icon('arrowRight', 18)}</span>` });
     back.addEventListener('click', onBack);
     const head = h('header', {}, back, h('h2', { html: carve(title) }), h('span.grow'));
     const card = h('div.menu-card.tg-panel.mat-hide', {}, head, h('div.body', {}, body));
@@ -233,7 +235,7 @@ export class Menu {
       const b = h('button.sk-civ', { type: 'button', role: 'radio', style: `--ac:${ac}` },
         h('span.crest', { html: icon('leader', 26) }),
         h('b', { text: civ.name }),
-        h('span.lead', { text: `led by ${civ.leaderTitle}` }),
+        h('span.lead', { text: `由${civ.leaderTitle}领导` }),
         h('p', { text: civ.blurb }),
       );
       b.dataset.civ = civ.id;
@@ -244,7 +246,7 @@ export class Menu {
       civs.appendChild(b);
     }
     paint();
-    body.appendChild(h('section', {}, h('h3', { text: 'Your people' }), civs));
+    body.appendChild(h('section', {}, h('h3', { text: '你的部族' }), civs));
 
     // Difficulty + rivals
     const diffDesc = h('div.seg-desc');
@@ -254,7 +256,7 @@ export class Menu {
       diffDesc.textContent = DIFFICULTIES[this.difficulty].label;
     };
     for (const id of Object.keys(DIFFICULTIES) as Difficulty[]) {
-      const b = h('button.tg-btn', { type: 'button', role: 'radio', text: id[0].toUpperCase() + id.slice(1) });
+      const b = h('button.tg-btn', { type: 'button', role: 'radio', text: DIFFICULTY_NAMES[id] });
       b.dataset.v = id;
       b.addEventListener('click', () => {
         this.difficulty = id;
@@ -268,7 +270,7 @@ export class Menu {
     const rivals = h('div.seg', { role: 'radiogroup' });
     const paintRivals = () => {
       for (const b of rivals.children) b.classList.toggle('on', Number((b as HTMLElement).dataset.v) === this.enemies);
-      rivalsDesc.textContent = this.enemies === 1 ? 'One planet, two gods.' : `One planet, ${this.enemies + 1} gods — they fight each other too.`;
+      rivalsDesc.textContent = this.enemies === 1 ? '一颗星球，两位神祇。' : `一颗星球，${this.enemies + 1}位神祇——他们彼此也会争斗。`;
     };
     for (let n = 1; n <= 3; n++) {
       const dots = TRIBE_IDS.slice(1, 1 + n).map((t) => `<i style="background:#${TRIBE_COLORS[t].toString(16).padStart(6, '0')}"></i>`).join('');
@@ -282,29 +284,29 @@ export class Menu {
     }
     paintRivals();
     body.appendChild(h('section', {}, h('div.sk-opts', {},
-      h('div', {}, h('h3', { text: 'Difficulty' }), diff, diffDesc),
-      h('div', {}, h('h3', { text: 'Rival tribes' }), rivals, rivalsDesc),
+      h('div', {}, h('h3', { text: '难度' }), diff, diffDesc),
+      h('div', {}, h('h3', { text: '对手部落' }), rivals, rivalsDesc),
     )));
 
-    const start = h('button.tg-btn.primary', { type: 'button', html: `${icon('play', 16)}<span>Begin</span>` });
+    const start = h('button.tg-btn.primary', { type: 'button', html: `${icon('play', 16)}<span>开始</span>` });
     start.addEventListener('click', () => {
       this.hide();
       this.onSkirmish?.(this.settings);
     });
-    const card = this.card('Skirmish', body, () => this.show('title'), [start]);
+    const card = this.card('遭遇战', body, () => this.show('title'), [start]);
     queueMicrotask(() => start.focus());
     return card;
   }
 
   private pauseScreen(): HTMLElement {
     this.backTo = 'pause';
-    const card = h('div.pause-card.tg-panel.mat-hide', {}, h('h2', { html: carve('Paused') }));
+    const card = h('div.pause-card.tg-panel.mat-hide', {}, h('h2', { html: carve('已暂停') }));
     card.append(
-      this.navBtn('Resume', 'play', () => this.onResume?.(), true),
-      this.navBtn('Settings', 'settings', () => this.show('settings')),
-      this.navBtn('How to play', 'info', () => this.show('help')),
-      this.navBtn('Restart', 'arrowRight', () => this.onRestart?.()),
-      this.navBtn('Main menu', 'menu', () => this.onQuit?.()),
+      this.navBtn('继续游戏', 'play', () => this.onResume?.(), true),
+      this.navBtn('设置', 'settings', () => this.show('settings')),
+      this.navBtn('玩法说明', 'info', () => this.show('help')),
+      this.navBtn('重新开始', 'arrowRight', () => this.onRestart?.()),
+      this.navBtn('主菜单', 'menu', () => this.onQuit?.()),
     );
     return card;
   }

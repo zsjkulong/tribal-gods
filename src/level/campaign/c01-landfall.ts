@@ -87,9 +87,9 @@ const O = { kin: 0, kindle: 1, level: 2, huts: 3, raid: 4, stone: 5, host: 6 };
 export const scenario: CampaignScenario = {
   id: 'c01_landfall',
   chapter: 1,
-  title: 'Landfall',
-  tagline: 'Raise a road out of the sea. Then a mountain.',
-  teaches: 'Causeway, Kindle, Level, Dwellings, Blast & Lightning, a great spell',
+  title: '登陆',
+  tagline: '自海中筑起一条路。然后，一座山。',
+  teaches: '石道、感化、平整、民居、冲击与闪电、一则大术',
   async build() {
     const t = new Terrain(10101);
     const { home, sandbar, meadow, meadow2, slope, lightning, strand, headland, landing } = LAYOUT;
@@ -129,45 +129,45 @@ export const scenario: CampaignScenario = {
       .addGrove(slope.x + 8, slope.z - 12, 7, 0.6).addGrove(meadow2.x + 6, meadow2.z + 8, 6, 0.5);
     const raid = (n: number) => ({ type: 'spawn' as const, tribe: 'violet' as const, units: { warrior: n }, x: landing.x, z: landing.z, march: home });
     const events: ScenarioEvent[] = [
-      { when: { type: 'time', at: 2 }, message: 'Kin on the sandbar! The last boat ran aground across the channel. Raise a Causeway to them.', focus: sandbar, actions: [] },
-      { when: { type: 'time', at: 20 }, message: 'Wanderers on the north meadow. Kindle them into the tribe.', focus: meadow, actions: [] },
+      { when: { type: 'time', at: 2 }, message: '沙洲上的族人！最后一条船在对岸水道搁浅了。为他们筑起一条石道。', focus: sandbar, actions: [] },
+      { when: { type: 'time', at: 20 }, message: '北边草甸上有漂泊者。用感化让他们加入部落。', focus: meadow, actions: [] },
       // Recovery: a Causeway that missed (or was spent elsewhere) leaves the kin
       // stranded for good — so while they still wait and no Causeway is in
       // hand, the tide-song lends another.
       {
         when: { type: 'all', of: [{ type: 'not', of: { type: 'objective', index: O.kin } }, { type: 'noCasts', spell: 'landbridge' }] },
         repeat: { every: CAUSEWAY_AGAIN, times: 8, while: true },
-        message: 'The kin still wait across the channel. The tide-song gives you another Causeway — from the shore, straight at the sandbar.',
+        message: '族人仍在对岸水道边等候。潮汐之歌再予你一条石道——从岸边直指沙洲。',
         focus: sandbar,
         actions: [{ type: 'gift', tribe: 'player', spell: 'landbridge', charges: 1 }],
       },
       {
         when: { type: 'objective', index: O.kin },
-        message: 'The kin are home — and they remember the Levelling chant. Cut shelves into the hillside so the village can rise.',
+        message: '族人们回来了——他们还记得平整的吟唱。在山坡上开出平台，让村落得以拔地而起。',
         focus: slope,
         actions: [{ type: 'teach', tribe: 'player', spell: 'flatten' }, { type: 'gift', tribe: 'player', spell: 'flatten', charges: 2 }],
       },
-      { when: { type: 'objective', index: O.level }, message: 'Good ground. Place Dwellings on it — the villagers will raise them.', focus: slope, actions: [] },
+      { when: { type: 'objective', index: O.level }, message: '好一片平地。在上面放置民居——村民们会自己动手建造。', focus: slope, actions: [] },
       // The first sails: a visible countdown, and the strand stone wakes.
       {
         when: { type: 'objective', index: O.huts },
-        message: 'Sails off the Black Strand! Unmoored raiders, ashore in forty-five heartbeats. The stone above the strand has woken: kneel there for Lightning.',
+        message: '黑沙滩外有船帆！无根族的掠夺者，四十五次心跳后上岸。沙滩上方的石阵苏醒了：在那里跪下，换取闪电。',
         focus: strand,
         actions: [{ type: 'openStone', index: 0 }],
       },
-      { when: { type: 'objective', index: O.huts }, delay: 45, message: 'Their boats are running in to the Black Strand! Blast them as they step ashore.', focus: landing, actions: [raid(WAVE)] },
+      { when: { type: 'objective', index: O.huts }, delay: 45, message: '他们的船正冲向黑沙滩！用冲击轰击刚上岸的敌人。', focus: landing, actions: [raid(WAVE)] },
       // The host.
       {
         when: { type: 'objective', index: O.raid },
         delay: 8,
-        message: 'The horizon is full of sails — the whole Unmoored fleet. The headland stone burns with the mountain’s fire: kneel there, and it will lend you one Volcano.',
+        message: '海平线上满是船帆——无根族的整支舰队。海角石阵正燃着那座山的火焰：在那里跪下，它会借你一次火山。',
         focus: headland,
         actions: [{ type: 'openStone', index: 1 }],
       },
       {
         when: { type: 'objective', index: O.raid },
         delay: FLEET_DELAY,
-        message: 'The host is landing on the Black Strand. They will mass there before they march — wake the mountain under them!',
+        message: '大部队正在黑沙滩登陆。他们会在列阵之后才进军——把火山唤到他们脚下！',
         focus: strand,
         actions: [{ type: 'spawn', tribe: 'violet', units: HOST, x: landing.x, z: landing.z, march: strand, hold: HOST_HOLD }],
       },
@@ -177,17 +177,17 @@ export const scenario: CampaignScenario = {
         when: { type: 'objective', index: O.raid },
         delay: FLEET_DELAY + HOST_HOLD - 15,
         unless: { type: 'spellCast', spell: 'volcano', x: strand.x, z: strand.z, radius: 9 },
-        message: 'Drums on the strand — the host is about to march on the village! Both stones wake again: Lightning above the strand, the mountain on the headland.',
+        message: '沙滩上响起了战鼓——大部队即将向村落进军！两座石阵再次苏醒：沙洲上方的闪电，与岬角上的火山。',
         focus: strand,
         actions: [{ type: 'openStone', index: 0 }, { type: 'openStone', index: 1 }],
       },
-      { when: { type: 'spellCast', spell: 'volcano', x: strand.x, z: strand.z, radius: 9 }, delay: 3, message: 'The Black Strand is a mountain now. Let the Unmoored tell their children.', focus: strand, actions: [] },
+      { when: { type: 'spellCast', spell: 'volcano', x: strand.x, z: strand.z, radius: 9 }, delay: 3, message: '黑沙滩如今已是一座山。让无根族去讲给他们的孩子听吧。', focus: strand, actions: [] },
       // Fail: too many of us fall.
-      { when: { type: 'killed', tribe: 'player', count: 10, kind: 'brave' }, actions: [{ type: 'defeat', reason: 'Ten of our people lie on the sand. The Lantern-folk take to the boats again.' }] },
+      { when: { type: 'killed', tribe: 'player', count: 10, kind: 'brave' }, actions: [{ type: 'defeat', reason: '十名族人倒在了沙滩上。灯民只得回到船上，再次远航。' }] },
     ];
     return makeLevel({
-      name: 'Landfall',
-      desc: 'Campaign I. Kin on a sandbar, a slope to Level, and the Unmoored fleet on the horizon.',
+      name: '登陆',
+      desc: '战役一。沙洲上的族人、待平整的山坡，还有海平线上无根族的舰队。',
       terrain: t,
       homes: { player: home, violet: landing },
       monuments: [
@@ -203,7 +203,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert'],
               gifts: { landbridge: 1 },
@@ -212,32 +212,32 @@ export const scenario: CampaignScenario = {
               startWood: 15,
             },
           },
-          { id: 'violet', name: 'the Unmoored', ...RAIDER_TRIBE },
+          { id: 'violet', name: '无根族', ...RAIDER_TRIBE },
         ],
         objectives: [
-          { objective: { type: 'rescueStranded', count: KIN.brave + KIN.warrior }, text: 'Raise a Causeway to the kin on the sandbar' },
-          { objective: { type: 'convertWanderers', count: 3 }, text: 'Kindle the wanderers on the north meadow' },
-          { objective: { type: 'castSpell', spell: 'flatten', count: 2, x: slope.x, z: slope.z, radius: LAYOUT.slopeRadius }, text: 'Level the hillside (twice)', after: O.kin },
-          { objective: { type: 'buildCount', kind: 'hut', count: HUTS }, text: `Raise ${HUTS} Dwellings`, after: O.level },
-          { objective: { type: 'killUnits', tribe: 'violet', count: WAVE - 1 }, text: 'Drive the raiders off the Black Strand', after: O.huts },
-          { objective: { type: 'claimMonument', index: 1 }, text: 'Kneel at the headland stone', after: O.raid },
-          { objective: { type: 'killUnits', tribe: 'violet', count: 9 }, text: 'Break the Unmoored host', after: O.raid },
-          { objective: { type: 'castSpell', spell: 'volcano', x: strand.x, z: strand.z, radius: 9 }, text: 'Bury the host under a mountain', optional: true, after: O.raid },
-          { objective: { type: 'loseAtMost', count: 0, kind: 'brave' }, text: 'Lose no villagers', optional: true },
-          { objective: { type: 'convertWanderers', count: 8 }, text: 'Kindle every wanderer on the Hook', optional: true },
-          { objective: { type: 'winWithin', seconds: 720 }, text: 'Win within 12 minutes', optional: true },
+          { objective: { type: 'rescueStranded', count: KIN.brave + KIN.warrior }, text: '为沙洲上的族人筑起一条石道' },
+          { objective: { type: 'convertWanderers', count: 3 }, text: '感化北边草甸上的漂泊者' },
+          { objective: { type: 'castSpell', spell: 'flatten', count: 2, x: slope.x, z: slope.z, radius: LAYOUT.slopeRadius }, text: '平整山坡（两次）', after: O.kin },
+          { objective: { type: 'buildCount', kind: 'hut', count: HUTS }, text: `建起${HUTS}座民居`, after: O.level },
+          { objective: { type: 'killUnits', tribe: 'violet', count: WAVE - 1 }, text: '将沙洲上的掠夺者赶下海', after: O.huts },
+          { objective: { type: 'claimMonument', index: 1 }, text: '在海角石阵前跪下', after: O.raid },
+          { objective: { type: 'killUnits', tribe: 'violet', count: 9 }, text: '击溃无根族的大部队', after: O.raid },
+          { objective: { type: 'castSpell', spell: 'volcano', x: strand.x, z: strand.z, radius: 9 }, text: '用一座火山埋葬来袭的大军', optional: true, after: O.raid },
+          { objective: { type: 'loseAtMost', count: 0, kind: 'brave' }, text: '不损失任何村民', optional: true },
+          { objective: { type: 'convertWanderers', count: 8 }, text: '感化海钩上的每一名漂泊者', optional: true },
+          { objective: { type: 'winWithin', seconds: 720 }, text: '在12分钟内获胜', optional: true },
         ],
         events,
         briefing: {
-          title: 'Landfall',
+          title: '登陆',
           body:
-            'The Long Tide took the old shore, and the boats carried the Lantern-folk to this hook of land. ' +
-            'The last boat ran aground on a sandbar across the channel, and the water is rising round it. ' +
-            'You are their leader, and the land listens to you: raise a road out of the sea, make room for roofs — and be ready, because the Unmoored raid every shore that smokes.',
+            '长潮吞没了旧日海岸，船只把灯民带到了这钩形土地上。' +
+            '最后一条船在对岸水道搁浅，海水正在它四周上涨。' +
+            '你是他们的首领，大地会听从你的号令：从海中筑起一条路，为屋舍开出一片地——并保持警惕，因为无根族掠夺每一座升起炊烟的海岸。',
           tips: [
-            'Select your leader, pick a spell (or press its key) and click where it should land. Causeway runs from her feet to the mark.',
-            'Kneel at a standing stone to take what it offers — but a kneeling leader is helpless, and any blow breaks the ritual.',
-            'If ten villagers die, the landing fails. Keep the raiders off the village.',
+            '选中你的首领，选择一个法术（或按它的快捷键），然后点击目标位置。石道会从她脚下延伸到你指定的地点。',
+            '在立石前跪下，以获取它提供的力量——但跪拜中的首领毫无防备，任何一击都会打断仪式。',
+            '如果十名村民倒下，登陆便告失败。别让掠夺者靠近村落。',
           ],
         },
       },

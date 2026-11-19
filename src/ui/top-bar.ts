@@ -78,10 +78,10 @@ export class TopBar {
       return el;
     };
 
-    const wood = stat('wood', 'wood', 'wood', 'wood');
-    tip(wood, () => `<h4>Wood</h4><p>Villagers fell trees and haul the logs home. Buildings, training and growing dwellings all cost wood.</p>`);
+    const wood = stat('wood', 'wood', 'wood', '木材');
+    tip(wood, () => `<h4>木材</h4><p>村民砍倒树木并把原木拖回家。建造建筑、训练单位和提升民居都要消耗木材。</p>`);
 
-    const pop = stat('pop', 'population', 'pop', 'housed');
+    const pop = stat('pop', 'population', 'pop', '已入住');
     this.idleBtn = h('button.tb-idle.tg-hit', { type: 'button', html: icon('idle', 14) + '<span>0</span>' });
     this.idleBtn.addEventListener('click', () => ctx.actions.nextIdleVillager());
     this.v.popL.textContent = '';
@@ -89,25 +89,25 @@ export class TopBar {
     this.v.popL.append(this.v.housed, this.idleBtn);
     tip(pop, () => {
       const s = ctx.world.tribeSummary('player');
-      return `<h4>Population</h4><p>${s.population} people of a possible ${s.popCap}. ${s.housed} live in dwellings, which breed new villagers and feed your mana.</p>` +
-        `<p class="hint">Build more Dwellings to raise the cap.</p>`;
+      return `<h4>人口</h4><p>${s.population} 人，上限 ${s.popCap} 人。${s.housed} 人居住在民居中——民居会孕育新的村民，并供养你的法力。</p>` +
+        `<p class="hint">建造更多民居可提升人口上限。</p>`;
     });
-    tip(this.idleBtn, () => `<h4>Idle villagers <span class="kbd">${labelFor('idle-villager')}</span></h4><p>Click to jump to the next villager with nothing to do.</p>`);
+    tip(this.idleBtn, () => `<h4>闲置村民 <span class="kbd">${labelFor('idle-villager')}</span></h4><p>点击跳到下一个无事可做的村民。</p>`);
 
-    const mana = stat('mana', 'mana', 'mana', 'mana');
+    const mana = stat('mana', 'mana', 'mana', '法力');
     tip(mana, () => {
       const t = ctx.world.tribes.player;
-      return `<h4>Mana</h4><p>Your people's faith, flowing into every spell that is charging. More people, more homes and more prayer mean faster charges.</p>` +
-        (t && t.manaRate === 0 && t.income > 0 ? `<p class="why">Nothing is charging — mana is going to waste.</p>` : '');
+      return `<h4>法力</h4><p>你子民的信仰，流入每一个正在充能的法术。更多人口、更多民居和更多祈祷意味着更快的充能。</p>` +
+        (t && t.manaRate === 0 && t.income > 0 ? `<p class="why">没有法术在充能——法力正在白白流失。</p>` : '');
     });
 
-    this.prayStat = stat('pray', 'prayer', 'pray', 'praying');
-    tip(this.prayStat, () => `<h4>Praying</h4><p>Villagers inside a Shrine pray instead of working. Each one speeds every charging spell.</p>`);
+    this.prayStat = stat('pray', 'prayer', 'pray', '祈祷中');
+    tip(this.prayStat, () => `<h4>祈祷</h4><p>在神龛内的村民会放下工作开始祈祷。每多一个祈祷者，所有充能法术的速度都会加快。</p>`);
 
-    this.leaderStat = stat('leader', 'leader', 'leader', 'leader', 'button') as HTMLButtonElement;
+    this.leaderStat = stat('leader', 'leader', 'leader', '首领', 'button') as HTMLButtonElement;
     this.leaderStat.classList.add('tg-hit');
     this.leaderStat.addEventListener('click', () => ctx.actions.centreOnLeader());
-    tip(this.leaderStat, () => `<h4>Your leader <span class="kbd">${labelFor('centre-leader')}</span></h4><p>Casts every spell. If they fall, they return to the home circle while your tribe lives.</p><p class="hint">Click to look at them.</p>`);
+    tip(this.leaderStat, () => `<h4>你的首领 <span class="kbd">${labelFor('centre-leader')}</span></h4><p>首领能施放一切法术。只要部落还在，即便他们倒下，也会在氏族石阵处归来。</p><p class="hint">点击来查看他。</p>`);
     parent.appendChild(left);
 
     // --- Right cluster: clock, speed, menu ---
@@ -115,26 +115,26 @@ export class TopBar {
     const clock = h('div.tb-clock', { html: icon('clock', 16) });
     this.v.clock = h('span');
     clock.appendChild(this.v.clock);
-    tip(clock, () => `<h4>Time</h4><p>How long this scenario has been running.</p>`);
+    tip(clock, () => `<h4>时间</h4><p>本场景已经进行了多久。</p>`);
     const speed = h('div.tb-speed');
-    this.pauseBtn = h('button.tg-btn', { type: 'button', 'aria-label': 'Pause', html: icon('pause', 16) });
+    this.pauseBtn = h('button.tg-btn', { type: 'button', 'aria-label': '暂停', html: icon('pause', 16) });
     this.pauseBtn.addEventListener('click', () => ctx.actions.togglePause());
-    tip(this.pauseBtn, () => `<h4>${appState.paused ? 'Resume' : 'Pause'} <span class="kbd">${labelFor('pause')}</span></h4><p>Time stops; you can still look around, select and plan.</p>`);
+    tip(this.pauseBtn, () => `<h4>${appState.paused ? '继续' : '暂停'} <span class="kbd">${labelFor('pause')}</span></h4><p>时间停止；你仍然可以环顾四周、选择单位和制定计划。</p>`);
     speed.appendChild(this.pauseBtn);
     for (const n of SPEEDS) {
-      const b = h('button.tg-btn', { type: 'button', text: `${n}×`, 'aria-label': `Speed ${n}×` });
+      const b = h('button.tg-btn', { type: 'button', text: `${n}×`, 'aria-label': `速度 ${n}×` });
       b.addEventListener('click', () => ctx.actions.setSpeed(n));
-      tip(b, () => `<h4>Speed ${n}× <span class="kbd">${labelFor('speed-down')}</span><span class="kbd">${labelFor('speed-up')}</span></h4><p>${n === 1 ? 'Normal pace.' : `Time runs ${n} times as fast.`}</p>`);
+      tip(b, () => `<h4>速度 ${n}× <span class="kbd">${labelFor('speed-down')}</span><span class="kbd">${labelFor('speed-up')}</span></h4><p>${n === 1 ? '正常节奏。' : `时间以 ${n} 倍速流逝。`}</p>`);
       speed.appendChild(b);
       this.speedBtns.push(b);
     }
-    const menu = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': 'Menu', html: icon('menu', 18) });
+    const menu = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': '菜单', html: icon('menu', 18) });
     menu.addEventListener('click', () => ctx.actions.openMenu());
-    tip(menu, () => `<h4>Menu <span class="kbd">Esc</span></h4><p>Settings, how to play, restart, leave.</p>`);
+    tip(menu, () => `<h4>菜单 <span class="kbd">Esc</span></h4><p>设置、玩法说明、重新开始、退出。</p>`);
     right.append(clock, speed, menu);
     parent.appendChild(right);
 
-    this.pausedBanner = h('div.tb-paused.tg-panel.mat-hide.passthrough', { html: carve('Paused') });
+    this.pausedBanner = h('div.tb-paused.tg-panel.mat-hide.passthrough', { html: carve('已暂停') });
     this.pausedBanner.hidden = true;
     parent.appendChild(this.pausedBanner);
   }
@@ -144,18 +144,18 @@ export class TopBar {
     const s = w.tribeSummary('player');
     setText(this.v.wood, String(s.wood));
     setText(this.v.pop, `${s.population}/${s.popCap}`);
-    setText(this.v.housed, `${s.housed} housed`);
+    setText(this.v.housed, `${s.housed} 人入住`);
     setText(this.idleBtn.lastElementChild!, String(s.idleVillagers));
     setClass(this.idleBtn, 'has', s.idleVillagers > 0);
     setText(this.v.mana, fmtRate(w.tribes.player?.income ?? s.manaRate));
     // Idle mana is only a problem when something could be filling: all full is good news.
     const idle = s.manaRate === 0 && (w.tribes.player?.income ?? 0) > 0;
     const allFull = SPELLS.every((d) => { const st = w.spellState('player', d.id); return !st.known || st.charges >= st.max; });
-    setText(this.v.manaL, !idle ? 'mana' : allFull ? 'spells full' : 'nothing charging');
+    setText(this.v.manaL, !idle ? '法力' : allFull ? '法术已满' : '无充能进行中');
     setText(this.v.pray, String(s.praying));
     setClass(this.prayStat, 'dim', s.praying === 0);
-    setText(this.v.leader, s.leaderAlive ? 'Alive' : s.leaderRespawn > 0 ? fmtEta(s.leaderRespawn) : 'Lost');
-    setText(this.v.leaderL, s.leaderAlive ? 'leader' : s.leaderRespawn > 0 ? 'returning in' : 'leader');
+    setText(this.v.leader, s.leaderAlive ? '在世' : s.leaderRespawn > 0 ? fmtEta(s.leaderRespawn) : '阵亡');
+    setText(this.v.leaderL, s.leaderAlive ? '首领' : s.leaderRespawn > 0 ? '即将归来' : '首领');
     setClass(this.leaderStat, 'down', !s.leaderAlive);
     setText(this.v.clock, fmtClock(w.elapsed));
     setClass(this.pauseBtn, 'on', appState.paused);

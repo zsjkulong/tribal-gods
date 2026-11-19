@@ -160,35 +160,35 @@ export class WorldHover {
     const def = UNITS[u.kind];
     const w = this.ctx.world;
     if (u.tribe === 'player') {
-      return `<h4>${escapeHtml(def.name)}</h4><p>${escapeHtml(activityText(u))}</p><div class="act">Click to select</div>`;
+      return `<h4>${escapeHtml(def.name)}</h4><p>${escapeHtml(activityText(u))}</p><div class="act">点击选中</div>`;
     }
     if (u.tribe === 'wild' && u.joins) {
-      return `<div class="sub">Stranded · ${escapeHtml(tribeLabelOf(w, u.joins))}</div><h4>${escapeHtml(def.name)}</h4>` +
-        `<p>Cut off from home. They join the moment a walking route links them to your home — raise land to reach them.</p>`;
+      return `<div class="sub">流落在外 · ${escapeHtml(tribeLabelOf(w, u.joins))}</div><h4>${escapeHtml(def.name)}</h4>` +
+        `<p>与家园隔绝。一旦有一条可通行的道路将他们与你的家连接起来，他们就会加入——升出地面去接应他们吧。</p>`;
     }
     if (u.tribe === 'wild' && (u.guardOf ?? -1) >= 0) {
-      const act = w.foeOfTribe('player', u) ? (this.haveOwnPeople() ? `${Verb} to attack` : 'Awake and fighting') : 'Wakes when a ritual begins at its stone';
-      return `<div class="sub">Guardian of a stone</div><h4>${escapeHtml(def.name)}</h4><div class="act">${act}</div>`;
+      const act = w.foeOfTribe('player', u) ? (this.haveOwnPeople() ? `${Verb}攻击` : '已苏醒，正四处迎战') : '仪式开始时，它的石阵守卫会苏醒';
+      return `<div class="sub">石阵守卫</div><h4>${escapeHtml(def.name)}</h4><div class="act">${act}</div>`;
     }
     if (u.tribe === 'wild') {
-      return `<div class="sub">Wanderer · no tribe</div><h4>${escapeHtml(def.name)}</h4><p>${escapeHtml(def.blurb)}</p>` +
-        `<div class="act">Kindle converts wanderers to your tribe</div>`;
+      return `<div class="sub">漂泊者 · 无部落</div><h4>${escapeHtml(def.name)}</h4><p>${escapeHtml(def.blurb)}</p>` +
+        `<div class="act">施放感化可将漂泊者收入你的部落</div>`;
     }
     const who = tribeLabelOf(w, u.tribe);
-    const act = this.haveOwnPeople() ? `${Verb} to attack` : 'Click to look';
+    const act = this.haveOwnPeople() ? `${Verb}攻击` : '点击查看';
     return `<div class="sub">${escapeHtml(who)}</div><h4>${escapeHtml(def.name)}</h4><div class="act">${act}</div>`;
   }
 
   private buildingTag(b: Building, Verb: string): string {
     const w = this.ctx.world;
     if (b.tribe === 'player') {
-      let act = 'Click to select';
+      let act = '点击选中';
       if (this.haveOwnPeople() && (b.kind === 'tower' || b.kind === 'shrine') && b.progress >= 1) {
-        act += ` · right-click to ${b.kind === 'tower' ? 'man it' : 'pray there'}`;
+        act += ` · 右键${b.kind === 'tower' ? '派人驻守' : '前往祈祷'}`;
       }
-      return `<h4>${escapeHtml(buildingName(b))}</h4>${b.progress < 1 ? `<p>${Math.floor(b.progress * 100)}% built</p>` : ''}<div class="act">${act}</div>`;
+      return `<h4>${escapeHtml(buildingName(b))}</h4>${b.progress < 1 ? `<p>已建造 ${Math.floor(b.progress * 100)}%</p>` : ''}<div class="act">${act}</div>`;
     }
-    const act = this.haveOwnPeople() ? `${Verb} to attack it` : 'Click to look';
+    const act = this.haveOwnPeople() ? `${Verb}攻击它` : '点击查看';
     return `<div class="sub">${escapeHtml(tribeLabelOf(w, b.tribe))}</div><h4>${escapeHtml(BUILDINGS[b.kind].name)}</h4><div class="act">${act}</div>`;
   }
 
@@ -198,22 +198,22 @@ export class WorldHover {
     const s = spellDef(m.spell);
     const blocked = stoneBlocked(w, m);
     const ritual = ritualAt(w, index);
-    let html = `<div class="sub">Standing stone · tier ${s.tier}</div><h4>${escapeHtml(stoneName(m))}</h4>` +
+    let html = `<div class="sub">立石阵 · 第${s.tier}阶</div><h4>${escapeHtml(stoneName(m))}</h4>` +
       `<div class="spell">${spellIcon(m.spell, 22)}<span>${escapeHtml(stoneTerms(m))}</span></div>` +
-      `<p>A ritual of ${fmtSeconds(ritualSeconds(m))}. Damage to the leader breaks it — bring an escort.</p>`;
+      `<p>仪式需时${fmtSeconds(ritualSeconds(m))}。首领受到的伤害会打断仪式——请带上护卫。</p>`;
     const guards = stoneGuards(m);
     if (guards) html += `<div class="why">${escapeHtml(guards)}</div>`;
     const ours = ritual?.tribe === 'player';
     if (ritual) {
-      const who = ours ? 'Your leader is' : `<b>${escapeHtml(tribeLabelOf(w, ritual.tribe))}</b> are`;
+      const who = ours ? '你的首领正在' : `<b>${escapeHtml(tribeLabelOf(w, ritual.tribe))}</b>正在`;
       html += ritual.communing
-        ? `<p>${who} communing: ${Math.round(ritual.progress * 100)}%${ritual.contested ? ' — <b>contested</b>, held still by enemies in the ring' : ''}</p>`
-        : `<p>A broken ritual (${ours ? 'yours' : escapeHtml(tribeLabelOf(w, ritual.tribe))}) — ${Math.round(ritual.progress * 100)}%, fading.</p>`;
+        ? `<p>${who}举行共感仪式：${Math.round(ritual.progress * 100)}%${ritual.contested ? ' —— <b>僵持中</b>，因敌人站在石圈内而被拖住' : ''}</p>`
+        : `<p>一次被打断的仪式（${ours ? '你们的' : escapeHtml(tribeLabelOf(w, ritual.tribe))}）—— ${Math.round(ritual.progress * 100)}%，正在消逝。</p>`;
     }
-    if (ours && ritual?.communing) html += `<div class="act">Keep foes off her until it is done</div>`;
+    if (ours && ritual?.communing) html += `<div class="act">看好她，别让敌人靠近，直到仪式完成</div>`;
     else if (blocked) html += `<div class="why">${escapeHtml(blocked)}</div>`;
-    else if (this.leaderSelected()) html += `<div class="act">${Verb} to send your leader to commune</div>`;
-    else html += `<div class="act">Select your leader, then ${Verb.toLowerCase()} the stone</div>`;
+    else if (this.leaderSelected()) html += `<div class="act">${Verb}派首领前去共感</div>`;
+    else html += `<div class="act">先选中你的首领，再${Verb}石阵</div>`;
     return html;
   }
 }

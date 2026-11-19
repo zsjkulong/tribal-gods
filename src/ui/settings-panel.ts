@@ -80,9 +80,9 @@ export function settingsPanel(hooks: SettingsHooks): HTMLDivElement {
 
   // Sound: master volume + mute (core/audio.ts remembers both).
   const pct = h('span.pct');
-  const slider = h('input', { type: 'range', min: '0', max: '100', step: '1', 'aria-label': 'Volume' });
+  const slider = h('input', { type: 'range', min: '0', max: '100', step: '1', 'aria-label': '音量' });
   slider.value = String(Math.round(getVolume() * 100));
-  const paintVol = () => (pct.textContent = isMuted() ? 'muted' : `${slider.value}%`);
+  const paintVol = () => (pct.textContent = isMuted() ? '已静音' : `${slider.value}%`);
   slider.addEventListener('input', () => {
     setVolume(Number(slider.value) / 100);
     if (isMuted()) setMuted(false);
@@ -94,52 +94,52 @@ export function settingsPanel(hooks: SettingsHooks): HTMLDivElement {
   const mute = toggle(() => !isMuted(), (on) => {
     setMuted(!on);
     paintVol();
-  }, 'Sound on');
+  }, '声音开关');
   const paintMute = () => {
     mute.classList.toggle('on', !isMuted());
     mute.setAttribute('aria-checked', String(!isMuted()));
   };
   paintVol();
-  row('Sound', h('div.vol', {}, mute, slider, pct), 'Master volume for effects and the quiet ambient bed. The switch mutes everything.');
+  row('声音', h('div.vol', {}, mute, slider, pct), '各种音效与微妙环境声的主音量。开关可一键静音。');
 
   const note = h('div.set-note');
   note.hidden = true;
-  row('Graphics', seg<QualitySetting>([['auto', 'Auto'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High']], () => settings.quality, (q) => {
+  row('画质', seg<QualitySetting>([['auto', '自动'], ['low', '低'], ['medium', '中'], ['high', '高']], () => settings.quality, (q) => {
     setQuality(q);
     const needsReload = hooks.onQuality?.(q) ?? true;
     note.hidden = !needsReload;
     if (needsReload) {
       note.replaceChildren(
-        h('span', { text: 'Applied. Terrain detail follows the next time the game loads.' }),
+        h('span', { text: '已应用。地形细节将在下次加载游戏时生效。' }),
       );
     }
-  }), 'Applies at once. Auto starts high and steps down if frames get slow. Low suits older laptops.');
+  }), '立即生效。自动档从高画质起步，帧率下降时自动降档。低画质适合较旧的笔记本。');
   root.appendChild(note);
 
-  row('Interface size', seg<string>([['auto', 'Auto'], ['0.9', '90%'], ['1', '100%'], ['1.15', '115%'], ['1.3', '130%']], () => String(settings.uiScale), (v) => {
+  row('界面缩放', seg<string>([['auto', '自动'], ['0.9', '90%'], ['1', '100%'], ['1.15', '115%'], ['1.3', '130%']], () => String(settings.uiScale), (v) => {
     settings.uiScale = v === 'auto' ? 'auto' : Number(v);
     saveSettings();
     applyUiScale();
-  }), 'Auto fits the window: smaller on a laptop, larger on a big screen.');
+  }), '自动档随窗口自适应：在笔记本上更小，在大屏幕上更大。');
 
-  row('Edge panning', toggle(() => settings.edgePan, (v) => {
+  row('边缘平移', toggle(() => settings.edgePan, (v) => {
     settings.edgePan = v;
     saveSettings();
     hooks.onEdgePan(v);
-  }, 'Edge panning'), 'Move the view when the cursor touches the edge of the window.');
+  }, '边缘平移'), '光标触及窗口边缘时移动视角。');
 
-  row('Left-click orders', toggle(() => settings.leftClickOrders, (v) => {
+  row('左键下达指令', toggle(() => settings.leftClickOrders, (v) => {
     settings.leftClickOrders = v;
     saveSettings();
-  }, 'Left-click orders'), 'With your people selected, clicking the ground (or an enemy, a stone, your tower) sends them, like a right-click. Clicking your own people or buildings still selects them.');
+  }, '左键下达指令'), '选中你的族人后，点击地面（或敌人、石阵、你的瞭望塔）即可派他们行动，效果等同右键点击。点击你自己的族人或建筑仍为选中。');
 
   const hintsRow = h('div', { style: 'display:flex;gap:0.75rem;align-items:center' },
     toggle(() => settings.hints, (v) => {
       settings.hints = v;
       saveSettings();
-    }, 'Hints'),
-    h('button.tg-btn', { type: 'button', text: 'Show all hints again', onclick: () => hooks.onResetHints() }),
+    }, '提示'),
+    h('button.tg-btn', { type: 'button', text: '再次显示全部提示', onclick: () => hooks.onResetHints() }),
   );
-  row('Hints', hintsRow, 'Small tips during your first games.');
+  row('提示', hintsRow, '新手游戏过程中出现的小提示。');
   return root;
 }

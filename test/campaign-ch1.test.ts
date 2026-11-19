@@ -61,7 +61,7 @@ describe('chapter 1, Landfall: the map', () => {
     w.units.find((u) => u.tribe === 'player' && u.kind === 'brave')!.hp = 0;
     run(w, 0.5);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/Ten/);
+    expect(w.gameOverReason).toMatch(/十名族人倒在了沙滩上/);
   });
 });
 
@@ -127,7 +127,7 @@ describe('chapter 1, Landfall: a human-paced player wins it beat by beat', () =>
     // The land is changed for good: a mountain where the beach was (the world runs on past the victory card).
     run(w, 15);
     expect(w.map.heightAt(Math.round(volcanoAt!.x), Math.round(volcanoAt!.z + 3))).toBeGreaterThan(5);
-    expect(w.objectives.find((o) => o.text.startsWith('Bury'))!.done).toBe(true);
+    expect(w.objectives.find((o) => o.text.startsWith('用一座火山埋葬'))!.done).toBe(true);
   }, 60_000);
 });
 
@@ -144,7 +144,7 @@ describe('chapter 1, Landfall: nobody is soft-locked', () => {
     expect(w.spellState('player', 'landbridge').gifted).toBe(0);
     run(w, 12);
     expect(w.spellState('player', 'landbridge').gifted).toBe(1);
-    expect(w.messages.some((m) => /another Causeway/.test(m.text))).toBe(true);
+    expect(w.messages.some((m) => /潮汐之歌再予你一条石道/.test(m.text))).toBe(true);
     // Holding one: no more come.
     run(w, 40);
     expect(w.spellState('player', 'landbridge').gifted).toBe(1);
@@ -172,4 +172,3 @@ describe('chapter 1, Landfall: nobody is soft-locked', () => {
     expect(w.monumentAvailable(m)).toBe(true);
   }, 30_000);
 });
-

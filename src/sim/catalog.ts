@@ -28,10 +28,15 @@ export type TribeId = (typeof TRIBE_IDS)[number];
 export type Tribe = TribeId | 'wild';
 
 /** What a tribe is called when its scenario doesn't name it. */
+const FALLBACK_TRIBE_NAMES: Record<TribeId, string> = {
+  player: '你的部落',
+  red: '赤色部落',
+  gold: '金色部落',
+  violet: '紫色部落',
+};
 export function tribeName(rules: ScenarioRules, id: TribeId): string {
   const named = rules.tribes.find((t) => t.id === id)?.name;
-  if (named) return named;
-  return id === 'player' ? 'your tribe' : `the ${id[0].toUpperCase()}${id.slice(1)} tribe`;
+  return named ?? FALLBACK_TRIBE_NAMES[id];
 }
 
 export const TRIBE_COLORS: Record<Tribe, number> = {
@@ -74,44 +79,44 @@ export interface UnitDef {
 
 export const UNITS: Record<UnitKind, UnitDef> = {
   brave: {
-    kind: 'brave', name: 'Villager',
-    blurb: 'Chops, hauls, builds, raises families, prays. The tribe itself.',
+    kind: 'brave', name: '村民',
+    blurb: '砍木、搬运、建造、生儿育女、祈祷。部落本身。',
     hp: 12, dmg: 1.2, range: 1.1, cooldown: 1.4, sight: 0, speed: 1.8, armor: 0,
     trainWood: 0, trainSeconds: 0, height: 2.3,
   },
   warrior: {
-    kind: 'warrior', name: 'Warrior',
-    blurb: 'Spear and hide shield. Wins any fight it can reach.',
+    kind: 'warrior', name: '战士',
+    blurb: '长矛与皮盾。够得着的仗，它不会输。',
     hp: 30, dmg: 4, range: 1.3, cooldown: 1.1, sight: 9, speed: 1.9, armor: 0.1,
     trainedAt: 'warriorHut', trainWood: 2, trainSeconds: 5, height: 2.5,
   },
   firewarrior: {
-    kind: 'firewarrior', name: 'Emberthrower',
-    blurb: 'Hurls burning pitch from range. Sets buildings alight. Fragile.',
+    kind: 'firewarrior', name: '掷火者',
+    blurb: '远程投掷燃烧的沥青，点燃建筑。身板脆弱。',
     hp: 15, dmg: 5, range: 6.5, cooldown: 1.7, sight: 10, speed: 1.7, armor: 0,
     trainedAt: 'fireHut', trainWood: 3, trainSeconds: 6, height: 2.4,
   },
   warden: {
-    kind: 'warden', name: 'Warden',
-    blurb: 'Tower shield and stone maul. Slow, nearly unkillable, wrecks buildings. Shrugs off half of any spell.',
+    kind: 'warden', name: '守卫者',
+    blurb: '巨盾与石槌。缓慢、几乎杀不死，专拆建筑。任何法术都只能让它打个趔趄。',
     hp: 60, dmg: 3, range: 1.3, cooldown: 1.6, sight: 7, speed: 1.3, armor: 0.35,
     trainedAt: 'wardenHall', trainWood: 5, trainSeconds: 9, height: 2.8,
   },
   chanter: {
-    kind: 'chanter', name: 'Chanter',
-    blurb: 'Unarmed. Enemies who hear the chant stop fighting and, in time, change sides. Another chanter breaks the spell.',
+    kind: 'chanter', name: '咏唱者',
+    blurb: '手无寸铁。听到咏唱的敌人会罢手，假以时日便倒戈。另一名咏唱者会破解此术。',
     hp: 14, dmg: 0, range: 5, cooldown: 0, sight: 8, speed: 1.6, armor: 0,
     trainedAt: 'chantHall', trainWood: 4, trainSeconds: 8, height: 2.4,
   },
   shaman: {
-    kind: 'shaman', name: 'Leader',
-    blurb: 'Your one voice in the world. Casts every spell. Returns to the home circle after death — while the tribe lives.',
+    kind: 'shaman', name: '首领',
+    blurb: '你在世间的唯一化身。可施放一切法术。只要部落尚存，死后便会回到家园图腾处。',
     hp: 45, dmg: 0, range: 0, cooldown: 0, sight: 0, speed: 2.2, armor: 0,
     trainWood: 0, trainSeconds: 0, height: 3.0,
   },
   wildman: {
-    kind: 'wildman', name: 'Wanderer',
-    blurb: 'Belongs to no tribe. Yet.',
+    kind: 'wildman', name: '漂泊者',
+    blurb: '不属于任何部落。暂时如此。',
     hp: 10, dmg: 0, range: 0, cooldown: 0, sight: 0, speed: 1.3, armor: 0,
     trainWood: 0, trainSeconds: 0, height: 2.2,
   },
@@ -146,43 +151,43 @@ export interface BuildingDef {
 
 export const BUILDINGS: Record<BuildingKind, BuildingDef> = {
   hut: {
-    kind: 'hut', name: 'Dwelling',
-    blurb: 'Homes breed villagers and feed your mana. A full dwelling grows — twice — into something larger.',
+    kind: 'hut', name: '民居',
+    blurb: '家园养育村民，也滋养你的法力。住满的民居会长大——两次——成为更大的样子。',
     wood: 5, buildSeconds: 30, hp: 40, size: 3, requires: [], height: 4.5,
   },
   lumberyard: {
-    kind: 'lumberyard', name: 'Lumberyard',
-    blurb: 'A second place to drop wood. Villagers working nearby fell trees a third faster and replant what they cut.',
+    kind: 'lumberyard', name: '伐木场',
+    blurb: '存放木材的第二个去处。在附近劳作的村民伐木快三分之一，砍完还会补种。',
     wood: 6, buildSeconds: 25, hp: 35, size: 3, requires: ['hut'], height: 3.5,
   },
   warriorHut: {
-    kind: 'warriorHut', name: 'War Lodge',
-    blurb: 'Turns villagers into Warriors.',
+    kind: 'warriorHut', name: '战团木屋',
+    blurb: '将村民训练成战士。',
     wood: 8, buildSeconds: 35, hp: 55, size: 3, requires: ['hut'], trains: 'warrior', height: 5,
   },
   fireHut: {
-    kind: 'fireHut', name: 'Ember Lodge',
-    blurb: 'Turns villagers into Emberthrowers.',
+    kind: 'fireHut', name: '余烬木屋',
+    blurb: '将村民训练成掷火者。',
     wood: 10, buildSeconds: 38, hp: 50, size: 3, requires: ['warriorHut'], trains: 'firewarrior', height: 5,
   },
   tower: {
-    kind: 'tower', name: 'Watchtower',
-    blurb: 'Garrison up to two fighters; they see farther and hit harder from the top.',
+    kind: 'tower', name: '瞭望塔',
+    blurb: '最多驻守两名战士；登得高，看得远，出手也更狠。',
     wood: 6, buildSeconds: 22, hp: 60, size: 3, requires: ['hut'], height: 7,
   },
   shrine: {
-    kind: 'shrine', name: 'Shrine',
-    blurb: 'Villagers sent here pray instead of work. Each one speeds every spell that is charging.',
+    kind: 'shrine', name: '祭坛',
+    blurb: '被派来此处的村民祈祷而非劳作。每一名祈祷者都让正在蓄能的法术更快成形。',
     wood: 12, buildSeconds: 45, hp: 60, size: 5, requires: ['hut'], height: 6,
   },
   wardenHall: {
-    kind: 'wardenHall', name: 'Warden Hall',
-    blurb: 'Turns villagers into Wardens.',
+    kind: 'wardenHall', name: '守卫者大厅',
+    blurb: '将村民训练成守卫者。',
     wood: 14, buildSeconds: 50, hp: 80, size: 5, requires: ['warriorHut'], trains: 'warden', height: 6,
   },
   chantHall: {
-    kind: 'chantHall', name: 'Chant Hall',
-    blurb: 'Turns villagers into Chanters.',
+    kind: 'chantHall', name: '咏唱大厅',
+    blurb: '将村民训练成咏唱者。',
     wood: 12, buildSeconds: 45, hp: 50, size: 3, requires: ['shrine'], trains: 'chanter', height: 5.5,
   },
 };
@@ -198,9 +203,9 @@ export const BUILD_ORDER: BuildingKind[] = [
  * it). Tier is 0..2; capacity and breeding improve with each.
  */
 export const DWELLING_TIERS = [
-  { name: 'Small Dwelling', capacity: 3, breedSeconds: 24, growWood: 0, growSeconds: 0 },
-  { name: 'Dwelling', capacity: 4, breedSeconds: 20, growWood: 4, growSeconds: 40 },
-  { name: 'Great Dwelling', capacity: 6, breedSeconds: 16, growWood: 7, growSeconds: 70 },
+  { name: '小民居', capacity: 3, breedSeconds: 24, growWood: 0, growSeconds: 0 },
+  { name: '民居', capacity: 4, breedSeconds: 20, growWood: 4, growSeconds: 40 },
+  { name: '大民居', capacity: 6, breedSeconds: 16, growWood: 7, growSeconds: 70 },
 ] as const;
 
 export const ECONOMY = {
@@ -263,36 +268,36 @@ export interface SpellDef {
 /** Display order = panel order, grouped by tier. */
 export const SPELLS: SpellDef[] = [
   // --- Tier 1: the everyday toolkit -----------------------------------------
-  { id: 'blast', name: 'Blast', tier: 1, chargeMana: 14, maxCharges: 4, range: 14, radius: 4.5, castSeconds: 0.7, duration: 0, aim: 'area', anywhere: true, starter: true,
-    blurb: 'A crater, and everyone near it thrown clear.' },
-  { id: 'convert', name: 'Kindle', tier: 1, chargeMana: 12, maxCharges: 3, range: 12, radius: 5, castSeconds: 0.9, duration: 0, aim: 'area', anywhere: false, starter: true,
-    blurb: 'Wanderers in the circle join your tribe.' },
-  { id: 'flatten', name: 'Level', tier: 1, chargeMana: 22, maxCharges: 3, range: 14, radius: 5, castSeconds: 0.9, duration: 2.5, aim: 'area', anywhere: true, starter: false,
-    blurb: 'Smooths the ground flat. Makes room to build; ruins a hillside defence.' },
-  { id: 'bloom', name: 'Bloom', tier: 1, chargeMana: 24, maxCharges: 2, range: 12, radius: 6, castSeconds: 1.0, duration: 6, aim: 'area', anywhere: false, starter: false,
-    blurb: 'Felled trees regrow at once, new ones sprout, and your people in the circle are healed.' },
-  { id: 'ward', name: 'Stone Ward', tier: 1, chargeMana: 26, maxCharges: 2, range: 12, radius: 6, castSeconds: 0.8, duration: 22, aim: 'area', anywhere: false, starter: false,
-    blurb: 'Your people and buildings in the circle take half damage for a while.' },
+  { id: 'blast', name: '冲击', tier: 1, chargeMana: 14, maxCharges: 4, range: 14, radius: 4.5, castSeconds: 0.7, duration: 0, aim: 'area', anywhere: true, starter: true,
+    blurb: '炸出一个大坑，把附近的家伙全掀翻。' },
+  { id: 'convert', name: '感化', tier: 1, chargeMana: 12, maxCharges: 3, range: 12, radius: 5, castSeconds: 0.9, duration: 0, aim: 'area', anywhere: false, starter: true,
+    blurb: '圈中的漂泊者加入你的部落。' },
+  { id: 'flatten', name: '平整', tier: 1, chargeMana: 22, maxCharges: 3, range: 14, radius: 5, castSeconds: 0.9, duration: 2.5, aim: 'area', anywhere: true, starter: false,
+    blurb: '将地面抹平。腾出建造之地，也毁掉依坡而设的防线。' },
+  { id: 'bloom', name: '萌发', tier: 1, chargeMana: 24, maxCharges: 2, range: 12, radius: 6, castSeconds: 1.0, duration: 6, aim: 'area', anywhere: false, starter: false,
+    blurb: '被砍倒的树立即重生，新芽萌出；圈内的子民同时得到救治。' },
+  { id: 'ward', name: '石之庇护', tier: 1, chargeMana: 26, maxCharges: 2, range: 12, radius: 6, castSeconds: 0.8, duration: 22, aim: 'area', anywhere: false, starter: false,
+    blurb: '圈内的子民与建筑，一段时间内只承受一半伤害。' },
   // --- Tier 2: decide a battle ----------------------------------------------
-  { id: 'lightning', name: 'Lightning', tier: 2, chargeMana: 34, maxCharges: 3, range: 16, radius: 1.5, castSeconds: 0.8, duration: 0, aim: 'point', anywhere: true, starter: false,
-    blurb: 'One bolt. Kills what it hits, arcs to two more, sets wood alight.' },
-  { id: 'warsong', name: 'Warsong', tier: 2, chargeMana: 36, maxCharges: 2, range: 10, radius: 7, castSeconds: 1.0, duration: 25, aim: 'area', anywhere: false, starter: false,
-    blurb: 'Your fighters in the circle move and strike a third faster.' },
-  { id: 'swamp', name: 'Mire', tier: 2, chargeMana: 38, maxCharges: 2, range: 14, radius: 4, castSeconds: 1.0, duration: 45, aim: 'area', anywhere: false, starter: false,
-    blurb: 'Ground that swallows whoever walks in — yours included.' },
-  { id: 'landbridge', name: 'Causeway', tier: 2, chargeMana: 40, maxCharges: 2, range: 22, radius: 2.5, castSeconds: 1.2, duration: 4, aim: 'line', anywhere: true, starter: false,
-    blurb: 'Raises a road of land from your leader to the mark, across water or ravine.' },
-  { id: 'cyclone', name: 'Cyclone', tier: 2, chargeMana: 55, maxCharges: 2, range: 15, radius: 3, castSeconds: 1.2, duration: 14, aim: 'point', anywhere: true, starter: false,
-    blurb: 'A wandering funnel that lifts people, drops them, and peels roofs off.' },
+  { id: 'lightning', name: '闪电', tier: 2, chargeMana: 34, maxCharges: 3, range: 16, radius: 1.5, castSeconds: 0.8, duration: 0, aim: 'point', anywhere: true, starter: false,
+    blurb: '一道雷霆。击中即灭，跳向另外两个目标，并点燃木料。' },
+  { id: 'warsong', name: '战歌', tier: 2, chargeMana: 36, maxCharges: 2, range: 10, radius: 7, castSeconds: 1.0, duration: 25, aim: 'area', anywhere: false, starter: false,
+    blurb: '圈内的战士移动与出击都快三分之一。' },
+  { id: 'swamp', name: '泥沼', tier: 2, chargeMana: 38, maxCharges: 2, range: 14, radius: 4, castSeconds: 1.0, duration: 45, aim: 'area', anywhere: false, starter: false,
+    blurb: '吞噬一切踏入者的地面——你自己的子民也不例外。' },
+  { id: 'landbridge', name: '石道', tier: 2, chargeMana: 40, maxCharges: 2, range: 22, radius: 2.5, castSeconds: 1.2, duration: 4, aim: 'line', anywhere: true, starter: false,
+    blurb: '从首领脚下到标记处升起一条陆路，横跨水面与深谷。' },
+  { id: 'cyclone', name: '龙卷', tier: 2, chargeMana: 55, maxCharges: 2, range: 15, radius: 3, castSeconds: 1.2, duration: 14, aim: 'point', anywhere: true, starter: false,
+    blurb: '游荡的漏斗旋风，把人卷上天、摔下来，再掀飞屋脊。' },
   // --- Tier 3: reshape the planet -------------------------------------------
-  { id: 'emberfall', name: 'Emberfall', tier: 3, chargeMana: 80, maxCharges: 1, range: 16, radius: 8, castSeconds: 1.6, duration: 9, aim: 'area', anywhere: true, starter: false,
-    blurb: 'Burning stones rain on the circle. Forests and villages catch.' },
-  { id: 'sink', name: 'Undertow', tier: 3, chargeMana: 90, maxCharges: 1, range: 14, radius: 7, castSeconds: 1.6, duration: 10, aim: 'area', anywhere: true, starter: false,
-    blurb: 'The land in the circle slides, slowly and for good, under the sea.' },
-  { id: 'earthquake', name: 'Quake', tier: 3, chargeMana: 100, maxCharges: 1, range: 16, radius: 9, castSeconds: 1.6, duration: 5, aim: 'line', anywhere: true, starter: false,
-    blurb: 'A fault tears open along the line. Buildings on it fall.' },
-  { id: 'volcano', name: 'Volcano', tier: 3, chargeMana: 160, maxCharges: 1, range: 16, radius: 9, castSeconds: 2.2, duration: 14, aim: 'area', anywhere: true, starter: false,
-    blurb: 'A mountain of fire where there was none. Permanent.' },
+  { id: 'emberfall', name: '落烬', tier: 3, chargeMana: 80, maxCharges: 1, range: 16, radius: 8, castSeconds: 1.6, duration: 9, aim: 'area', anywhere: true, starter: false,
+    blurb: '燃烧的碎石如雨般洒落圈内。森林与村庄纷纷点燃。' },
+  { id: 'sink', name: '回澜', tier: 3, chargeMana: 90, maxCharges: 1, range: 14, radius: 7, castSeconds: 1.6, duration: 10, aim: 'area', anywhere: true, starter: false,
+    blurb: '圈中的陆地缓缓沉入海面之下，永不回头。' },
+  { id: 'earthquake', name: '地裂', tier: 3, chargeMana: 100, maxCharges: 1, range: 16, radius: 9, castSeconds: 1.6, duration: 5, aim: 'line', anywhere: true, starter: false,
+    blurb: '沿线撕开一道断层。其上的建筑尽数倒塌。' },
+  { id: 'volcano', name: '火山', tier: 3, chargeMana: 160, maxCharges: 1, range: 16, radius: 9, castSeconds: 2.2, duration: 14, aim: 'area', anywhere: true, starter: false,
+    blurb: '在原本空无一物处，升起一座火焰之山。永存不移。' },
 ];
 
 export const spellDef = (id: SpellId): SpellDef => SPELLS.find((s) => s.id === id)!;

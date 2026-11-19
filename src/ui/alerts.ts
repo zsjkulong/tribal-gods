@@ -119,14 +119,14 @@ export class AlertFeed {
         alertSound('attack');
       } else if (e.type === 'landing' && e.tribe && e.tribe !== 'player' && e.tribe !== 'wild' && w.hostile('player', e.tribe as never)) {
         // The event goes out as the boats set off (sim LANDING): they are landing, not landed.
-        this.push({ kind: 'attack', text: `Boats running in: ${(e.magnitude ?? 0) > 1 ? `${e.magnitude} raiders` : 'a raider'} landing`, tone: 'bad', x: e.x, z: e.z });
+        this.push({ kind: 'attack', text: `船队入侵：${(e.magnitude ?? 0) > 1 ? `${e.magnitude}名劫掠者` : '一名劫掠者'}正在登陆`, tone: 'bad', x: e.x, z: e.z });
         alertSound('attack');
       } else if (e.type === 'rescued' && e.tribe === 'player') {
         rescued = { n: (rescued?.n ?? 0) + 1, x: e.x, z: e.z };
       }
     }
     if (rescued) {
-      this.push({ kind: 'leaderBack', text: rescued.n > 1 ? `${rescued.n} of your stranded people are home` : 'One of your stranded people is home', tone: 'good', x: rescued.x, z: rescued.z });
+      this.push({ kind: 'leaderBack', text: rescued.n > 1 ? `${rescued.n}名漂泊的族人回到了家园` : '一名漂泊的族人回到了家园', tone: 'good', x: rescued.x, z: rescued.z });
       alertSound('good');
     }
     if (this.prev && w.elapsed < this.prev.t) this.reset(); // world was reset under us

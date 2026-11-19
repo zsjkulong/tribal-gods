@@ -91,19 +91,19 @@ export class GameOverScreen {
       if (r) actions.push(...(Array.isArray(r) ? r : [r]));
     }
     actions.push(
-      { label: 'Keep watching', icon: 'eye', run: () => this.hide() },
-      { label: 'Restart', icon: 'arrowRight', primary: !actions.some((a) => a.primary), run: () => { this.hide(); this.defaults.onRestart(); } },
-      { label: 'Main menu', icon: 'menu', run: () => { this.hide(); this.defaults.onMenu(); } },
+      { label: '继续观望', icon: 'eye', run: () => this.hide() },
+      { label: '重新开始', icon: 'arrowRight', primary: !actions.some((a) => a.primary), run: () => { this.hide(); this.defaults.onRestart(); } },
+      { label: '返回主菜单', icon: 'menu', run: () => { this.hide(); this.defaults.onMenu(); } },
     );
     const stat = (v: string, l: string) => `<div class="go-stat"><b>${v}</b><span>${l}</span></div>`;
     const card = h('div.go-card.tg-panel.mat-hide', {
       html:
         `<div class="go-badge">${icon(win ? 'trophy' : 'skull', 34)}</div>` +
-        `<h1>${carve(win ? 'Victory' : 'Defeat')}</h1>` +
+        `<h1>${carve(win ? '胜利' : '战败')}</h1>` +
         `<p class="why"></p>` +
-        `<div class="go-stats">${stat(fmtClock(stats.seconds), 'time')}${stat(String(stats.peakPopulation), 'peak people')}${stat(String(stats.spellsCast), 'spells cast')}${stat(String(stats.buildings), 'buildings')}</div>`,
+        `<div class="go-stats">${stat(fmtClock(stats.seconds), '时长')}${stat(String(stats.peakPopulation), '人口峰值')}${stat(String(stats.spellsCast), '施放法术')}${stat(String(stats.buildings), '建筑')}</div>`,
     });
-    (card.querySelector('.why') as HTMLElement).textContent = reason ?? (win ? 'The planet is yours.' : 'Your tribe has fallen silent.');
+    (card.querySelector('.why') as HTMLElement).textContent = reason ?? (win ? '这里已是你的天下。' : '你的部落已归于沉寂。');
     const row = h('div.go-actions');
     let focus: HTMLButtonElement | null = null;
     for (const a of actions) {

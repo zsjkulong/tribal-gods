@@ -26,18 +26,18 @@ export const LAYOUT = {
 
 /** Where and when the sea comes in: lowland first, then nearer the hill. */
 export const TIDE: Array<{ at: number; x: number; z: number; say?: string }> = [
-  { at: 150, ...polar(62, 62, 44, 160), say: 'The sea takes the western fields.' },
+  { at: 150, ...polar(62, 62, 44, 160), say: '大海吞没了西边的田地。' },
   { at: 200, ...polar(62, 62, 42, 230) },
   { at: 250, ...polar(62, 62, 44, 110) },
-  { at: 300, ...polar(62, 62, 40, 190), say: 'The water is at the edge of the village.' },
+  { at: 300, ...polar(62, 62, 40, 190), say: '水已经漫到了村子的边缘。' },
   { at: 350, ...polar(62, 62, 44, 280) },
   { at: 400, ...polar(62, 62, 42, 60) },
-  { at: 450, x: 28, z: 74, say: 'The old village is going under.' },
+  { at: 450, x: 28, z: 74, say: '旧村庄正在沉没。' },
   { at: 500, ...polar(62, 62, 34, 140) },
   { at: 560, ...polar(62, 62, 33, 210) },
   { at: 620, ...polar(62, 62, 35, 320) },
   { at: 680, ...polar(62, 62, 32, 90) },
-  { at: 740, ...polar(62, 62, 34, 250), say: 'Only the hills are left.' },
+  { at: 740, ...polar(62, 62, 34, 250), say: '只剩下山丘了。' },
   { at: 820, ...polar(62, 62, 30, 175) },
   { at: 900, ...polar(62, 62, 30, 40) },
 ];
@@ -45,9 +45,9 @@ export const TIDE: Array<{ at: number; x: number; z: number; say?: string }> = [
 export const scenario: CampaignScenario = {
   id: 'c09_when_the_tide_came',
   chapter: 9,
-  title: 'When the Tide Came',
-  tagline: 'The sea is taking the island. Climb, and hold the top.',
-  teaches: 'Relocating under pressure, holding a point',
+  title: '潮起之时',
+  tagline: '大海正在蚕食这座岛。往高处走，守住山顶。',
+  teaches: '在重压下迁徙、守住一个据点',
   async build() {
     const t = new Terrain(90909);
     const { home, gold, summit, ward } = LAYOUT;
@@ -67,8 +67,8 @@ export const scenario: CampaignScenario = {
       actions: [{ type: 'strike', spell: 'sink', x: p.x, z: p.z, tribe: 'gold' }],
     }));
     return makeLevel({
-      name: 'When the Tide Came',
-      desc: 'Campaign IX. The sea takes the lowlands. Hold the summit of the Last Hill.',
+      name: '潮起之时',
+      desc: '战役九。大海吞没低地。守住最后之丘的山巅。',
       terrain: t,
       homes: { player: home, gold },
       civs: { gold: 'dynasty' },
@@ -77,7 +77,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'flatten', 'bloom', 'lightning'],
               buildings: ['hut', 'lumberyard', 'warriorHut', 'fireHut', 'tower', 'shrine'],
@@ -86,7 +86,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'gold', name: 'the Saltborn', ai: true,
+            id: 'gold', name: '盐裔', ai: true,
             personality: { target: 'player', harassAt: 4, assaultAt: 9 },
             loadout: {
               spells: ['blast', 'convert', 'sink', 'lightning'],
@@ -97,24 +97,24 @@ export const scenario: CampaignScenario = {
           },
         ],
         objectives: [
-          { objective: { type: 'holdPoint', x: summit.x, z: summit.z, radius: 6, seconds: 150 }, text: 'Hold the crown of the Last Hill (2½ minutes, uncontested)' },
-          { objective: { type: 'destroyTribe', tribe: 'gold' }, text: 'Drive the Saltborn into the sea', optional: true },
+          { objective: { type: 'holdPoint', x: summit.x, z: summit.z, radius: 6, seconds: 150 }, text: '守住最后之丘的山巅（两分半，无人争抢）' },
+          { objective: { type: 'destroyTribe', tribe: 'gold' }, text: '把盐裔赶进大海', optional: true },
         ],
         fail: [{ type: 'timeLimit', seconds: 1500 }],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Level a terrace on the Last Hill now, while the lowlands are still dry.', focus: LAYOUT.summit, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '趁低地还没有被淹没，先在最后之丘上整平一层梯田。', focus: LAYOUT.summit, actions: [] },
           ...tide,
         ],
         briefing: {
-          title: 'When the Tide Came',
+          title: '潮起之时',
           body:
-            'It has come. The sea is rising over the island in a slow, grinding swallow, field by field, and our village sits on the first fields it wants. ' +
-            'The Saltborn learned the tide’s own song — Undertow — and they will use it on whatever we build. ' +
-            'In the middle of the island stands the Last Hill. Whoever holds its crown when the water stops holds the island.',
+            '那一天来了。海水正以一种缓慢而碾磨的吞没之势漫上岛屿，一片田地接着一片田地，而我们的村庄就落在它最想要的初几片田地上。' +
+            '盐裔学会了潮汐自己的歌谣——回澜——无论我们建起什么，他们都会用它来对付。' +
+            '岛屿中央矗立着最后之丘。当海水停息之时，谁守住了它的山巅，谁就守住了这座岛。',
           tips: [
-            'Do not wait for the water. Start building on the terraces early — Level makes room on the slopes.',
-            'Holding the crown needs your people on it and no enemy in the circle, for two and a half minutes straight.',
-            'A Watchtower on the top terrace covers the crown.',
+            '不要等水。早点在梯田上开工——整平能在坡地上腾出空间。',
+            '守住山巅需要你的人站在上面，且圈内没有敌人，并且一分一秒都不能中断地持续两分半。',
+            '在最高一层梯田上建一座瞭望塔，就能覆盖整座山巅。',
           ],
         },
       },

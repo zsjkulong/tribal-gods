@@ -43,10 +43,10 @@ describe('deriveAlerts', () => {
 
 describe('castsBetween', () => {
   it('a rival beginning a ritual at a stone is an alert you can jump to', () => {
-    const r = { index: 0, tribe: 'red', who: 'the Ashmark', spell: 'lightning' as const, x: 30, z: 40 };
+    const r = { index: 0, tribe: 'red', who: '灰痕族', spell: 'lightning' as const, x: 30, z: 40 };
     const a = deriveAlerts(snap(), snap({ t: 1, rituals: [r] }), mem());
     expect(a).toHaveLength(1);
-    expect(a[0]).toMatchObject({ kind: 'ritual', text: 'The Ashmark are communing at the Lightning stone', x: 30, z: 40 });
+    expect(a[0]).toMatchObject({ kind: 'ritual', text: '灰痕族正在闪电石阵举行共感仪式', x: 30, z: 40 });
     // Still going: no repeat.
     expect(deriveAlerts(snap({ rituals: [r] }), snap({ t: 1, rituals: [r] }), mem())).toEqual([]);
   });
@@ -56,7 +56,7 @@ describe('castsBetween', () => {
   });
   it('the sim saying your ritual was interrupted is an alert, but not for a rival', () => {
     const a = ritualBrokenAlert({ type: 'communeInterrupted', tribe: 'player', x: 3, z: 4, magnitude: 0.4 }, 'swamp');
-    expect(a).toMatchObject({ kind: 'ritualBroken', text: "Your leader's ritual at the Mire stone was broken at 40%", x: 3, z: 4 });
+    expect(a).toMatchObject({ kind: 'ritualBroken', text: '你的首领在泥沼石阵的共感仪式，进行到40%被强行打断', x: 3, z: 4 });
     expect(ritualBrokenAlert({ type: 'communeInterrupted', tribe: 'red', x: 3, z: 4 }, 'swamp')).toBeNull();
   });
   it('counts spent charges, not gifts received', () => {

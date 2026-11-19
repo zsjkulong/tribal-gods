@@ -41,9 +41,9 @@ const SKERRIES = [
 export const scenario: CampaignScenario = {
   id: 'c04_scattered_shallows',
   chapter: 4,
-  title: 'The Scattered Shallows',
-  tagline: 'Three isles, two gaps, and a stone that lends two bridges.',
-  teaches: 'Causeway by gift, Ember Lodge, spending scarce casts',
+  title: '星罗浅滩',
+  tagline: '三座岛屿、两道水堑，还有一座借你两条石桥的石阵。',
+  teaches: '以赠礼习得石道、余烬木屋、精打细算每一道法术',
   async build() {
     const t = new Terrain(40404);
     const { home, causewayStone, holm, red } = LAYOUT;
@@ -58,8 +58,8 @@ export const scenario: CampaignScenario = {
     t.pad(home.x, home.z, 6, 2.4, 4).pad(red.x, red.z, 8, 2.5, 5).pad(holm.x, holm.z, 3, 2.6, 4);
     t.addGrove(home.x - 2, home.z + 9, 7, 0.9).addGrove(red.x - 4, red.z - 11, 10, 0.7).addGrove(holm.x, holm.z + 6, 5, 0.5);
     return makeLevel({
-      name: 'The Scattered Shallows',
-      desc: 'Campaign IV. Three isles. Causeway is a gift — two casts, then a long sleep.',
+      name: '星罗浅滩',
+      desc: '战役四。三座岛屿。石道是一份赠礼——两次施放，然后长眠。',
       terrain: t,
       homes: { player: home, red },
       civs: { red: 'north' },
@@ -72,7 +72,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'bloom', 'flatten'],
               buildings: ['hut', 'lumberyard', 'warriorHut', 'fireHut', 'tower'],
@@ -81,7 +81,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'red', name: 'the Ashmark', ai: true,
+            id: 'red', name: '灰痕族', ai: true,
             personality: { passive: true, wakeAt: 540, harassAt: 6, assaultAt: 10, maxArmy: 10, maxDwellings: 6 },
             loadout: {
               spells: ['blast', 'convert', 'lightning'],
@@ -90,24 +90,24 @@ export const scenario: CampaignScenario = {
           },
         ],
         objectives: [
-          { objective: { type: 'claimMonument', index: 1 }, text: 'Learn Stone Ward on the Holm' },
-          { objective: { type: 'destroyTribe', tribe: 'red' }, text: 'Drive the Ashmark from the eastern isle' },
-          { objective: { type: 'reachPopulation', count: 35 }, text: 'Grow the tribe to 35', optional: true },
+          { objective: { type: 'claimMonument', index: 1 }, text: '在中洲石阵学会石之庇护' },
+          { objective: { type: 'destroyTribe', tribe: 'red' }, text: '把灰痕族赶出东岛' },
+          { objective: { type: 'reachPopulation', count: 35 }, text: '让部族壮大到35人', optional: true },
         ],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'The stone on our shore lends Causeway — two roads out of the sea. Kneel there, then bridge to the Holm.', focus: LAYOUT.causewayStone, actions: [] },
-          { when: { type: 'spellCast', spell: 'landbridge' }, message: 'The sea gives way. One road left before the stone sleeps — spend it well.', actions: [] },
+          { when: { type: 'time', at: 2 }, message: '我们岸边的石阵借出石道——两条出自大海的路。去那里跪下，然后架桥通往中洲。', focus: LAYOUT.causewayStone, actions: [] },
+          { when: { type: 'spellCast', spell: 'landbridge' }, message: '大海让开了一条路。石阵沉睡之前还剩一条路——请好好使用它。', actions: [] },
         ],
         briefing: {
-          title: 'The Scattered Shallows',
+          title: '星罗浅滩',
           body:
-            'The Ashmark fled east over the water and took the biggest isle in the Shallows. We have the smallest. ' +
-            'Between us lies the Holm, with a stone that teaches the ward, and open sea either side of it. ' +
-            'On our own shore stands a stone that lends Causeway — two roads of raised land, and then it sleeps for seven minutes. Choose where each road goes.',
+            '灰痕族渡海东逃，占据了浅滩里最大的那座岛。我们只有最小的这座。' +
+            '两岛之间是中洲，那里有一座传授庇护之道的石阵，它的两侧都是开阔的海面。' +
+            '我们自己的岸上立着一座借出石道的石阵——可以升起两条陆地之路，然后它会沉睡七分钟。想清楚每一条路该通向何方。',
           tips: [
-            'Commune at the gift stone: you get two free Causeway casts, known spell or not.',
-            'Causeway runs from your leader to the mark, up to 22 tiles. Stand on the shore, aim at the far shore.',
-            'Emberthrowers from the Ember Lodge outrange Watchtowers. Bring them to a siege.',
+            '与赠礼石阵交流：无论你是否习得该法术，都能得到两次免费的掷道。',
+            '石道从你的首领脚下延伸到你指定的地点，最多22格。站在岸边，瞄准对岸。',
+            '余烬木屋训练出的掷火者，射程比瞭望塔还远。带他们去围攻。',
           ],
         },
       },

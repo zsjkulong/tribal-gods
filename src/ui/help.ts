@@ -34,35 +34,43 @@ css('help', `
 `);
 
 const concepts = (): Array<{ icon: UiIconName; title: string; text: string }> => [
-  { icon: 'population', title: 'Your tribe', text: 'Villagers fell trees, haul wood, raise buildings and move into dwellings, which breed more villagers. You guide them; they get on with life.' },
-  { icon: 'mana', title: 'Mana and charges', text: 'Faith flows from your people into every spell that is charging. A spell holds a few charges; casting spends one. Switch spells off (right-click) to charge the rest faster.' },
-  { icon: 'leader', title: 'Your leader', text: 'The only one who casts. Pick a spell, click the world: the leader walks into range and casts. If they fall, they return to the home circle while the tribe lives.' },
-  { icon: 'stone', title: 'Standing stones', text: `Each stone shows the spell it holds. Select your leader and ${orderVerb(settings.leftClickOrders)} the stone: the leader performs a ritual there to learn the spell for good, or to borrow a few casts. Damage breaks the ritual, so bring an escort.` },
-  { icon: 'hammer', title: 'Buildings and training', text: 'Lodges turn villagers into fighters — queue them on the building. A watchtower holds two fighters; a shrine full of praying villagers charges spells faster.' },
-  { icon: 'trophy', title: 'Winning', text: 'Each scenario has objectives (top right). In a skirmish: be the last tribe standing.' },
+  { icon: 'population', title: '你的部落', text: '村民会伐木、运木、建造建筑并入住房屋（房屋会孕育更多村民）。你引导他们，他们自会生活。' },
+  { icon: 'mana', title: '法力与充能', text: '信仰会从你的族人流向每个正在充能的法术。每个法术可储存若干次充能；施放一次消耗一层。关闭法术（右键点击）可让其余法术充能更快。' },
+  { icon: 'leader', title: '你的首领', text: '唯一能施法的人。选择一个法术，点击世界：首领走进射程并施放。若他们倒下，只要部落还在，就会回到家园石圈。' },
+  { icon: 'stone', title: '立石阵', text: `每座石阵都显示它所承载的法术。选中你的首领并${orderVerb(settings.leftClickOrders)}石阵：首领会在那里举行仪式，永久习得该法术，或借得几次施放。伤害会打断仪式，所以要带上护卫。` },
+  { icon: 'hammer', title: '建筑与训练', text: '备役木屋把村民训练成战士——在建筑上排队即可。瞭望塔可容纳两名战士；坐满祈祷村民的神龛能让法术充能更快。' },
+  { icon: 'trophy', title: '胜利', text: '每个模式都有目标（右上角）。在遭遇战中：成为最后一个存活的部落。' },
 ];
 
 const GROUPS: HotkeyGroup[] = ['Camera', 'Selection', 'Spells', 'Build', 'Game'];
+
+const GROUP_LABELS: Record<HotkeyGroup, string> = {
+  Camera: '镜头',
+  Selection: '选择',
+  Spells: '法术',
+  Build: '建造',
+  Game: '游戏',
+};
 
 function row(keys: string[], label: string, ic = ''): string {
   return `<div class="help-row"><span class="keys">${keys.map((k) => `<span class="kbd">${escapeHtml(k)}</span>`).join('')}</span>${ic}<span>${label}</span></div>`;
 }
 
 export function helpHtml(): string {
-  let html = `<div class="help"><section><h3>${carve('The idea')}</h3><div class="help-cards">`;
+  let html = `<div class="help"><section><h3>${carve('核心理念')}</h3><div class="help-cards">`;
   for (const c of concepts()) html += `<div class="help-card"><span class="ic">${icon(c.icon, 20)}</span><div><b>${c.title}</b><p>${c.text}</p></div></div>`;
-  html += `</div></section><section><h3>${carve('Controls')}</h3><div class="help-keys">`;
+  html += `</div></section><section><h3>${carve('操作')}</h3><div class="help-keys">`;
   for (const g of GROUPS) {
-    html += `<div class="help-group${g === 'Spells' || g === 'Build' ? ' compact' : ''}"><h4>${g}</h4>`;
+    html += `<div class="help-group${g === 'Spells' || g === 'Build' ? ' compact' : ''}"><h4>${GROUP_LABELS[g]}</h4>`;
     for (const d of describedControls(settings.leftClickOrders).filter((x) => x.group === g)) html += row(d.keys, d.desc);
     if (g === 'Selection') {
-      html += row(['1', '–', '9'], 'Select a control group (twice: jump to it)');
-      html += row(['Ctrl', '1', '–', '9'], 'Make the selection a control group');
+      html += row(['1', '–', '9'], '选择控制组（按两次：镜头跳转过去）');
+      html += row(['Ctrl', '1', '–', '9'], '将当前选中设为控制组');
     }
     for (const hk of HOTKEYS.filter((x) => x.group === g && !x.action.startsWith('group-') && x.code !== 'Backspace')) {
       if (hk.action.startsWith('spell:')) {
         const id = hk.action.slice(6) as SpellId;
-        html += row([keyLabel(hk)], `${escapeHtml(SPELLS.find((s) => s.id === id)!.name)} <span style="color:var(--text-3)">· tier ${SPELLS.find((s) => s.id === id)!.tier}</span>`, spellIcon(id, 18));
+        html += row([keyLabel(hk)], `${escapeHtml(SPELLS.find((s) => s.id === id)!.name)} <span style="color:var(--text-3)">· 第${SPELLS.find((s) => s.id === id)!.tier}阶</span>`, spellIcon(id, 18));
       } else if (hk.action.startsWith('build:')) {
         const kind = hk.action.slice(6) as BuildingKind;
         html += row([keyLabel(hk)], escapeHtml(BUILDINGS[kind].name), buildingIcon(kind, 18));

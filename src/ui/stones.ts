@@ -52,38 +52,38 @@ export function ritualOf(world: World, unitId: number): { index: number; ritual:
   return r ? { index, ritual: r } : null;
 }
 
-/** "Lightning stone" */
+/** "闪电石阵" */
 export function stoneName(m: Monument): string {
-  return `${spellDef(m.spell).name} stone`;
+  return `${spellDef(m.spell).name}石阵`;
 }
 
 /** One line: what it holds and on what terms. */
 export function stoneTerms(m: Monument): string {
   return m.mode === 'teach'
-    ? `Teaches ${spellDef(m.spell).name} for good`
-    : `Lends ${m.charges ?? 2} free cast${(m.charges ?? 2) === 1 ? '' : 's'} of ${spellDef(m.spell).name}`;
+    ? `可永久习得${spellDef(m.spell).name}`
+    : `借出 ${m.charges ?? 2} 次免费施放${spellDef(m.spell).name}`;
 }
 
 /** The guardians' line for a tooltip, or null when the stone has none. */
 export function stoneGuards(m: Monument): string | null {
   const g = m.guards ? (Object.entries(m.guards) as Array<[UnitKind, number]>).filter(([, n]) => n > 0) : [];
   if (g.length === 0) return null;
-  const who = g.map(([k, n]) => `${n} ${UNITS[k].name}${n === 1 ? '' : 's'}`).join(', ');
-  return m.guardsAwake ? `Guarded — ${who}, awake and fighting!` : `Guarded — ${who} wake when a ritual begins`;
+  const who = g.map(([k, n]) => `${n} ${UNITS[k].name}`).join('、');
+  return m.guardsAwake ? `有守卫——${who}，已苏醒且正四处迎战！` : `有守卫——${who}会在仪式开始时苏醒`;
 }
 
 /** Why the stone can't be communed with now, or null. */
 export function stoneBlocked(world: World, m: Monument): string | null {
   if (world.monumentAvailable(m)) return null;
-  if (m.asleep) return 'Asleep — not yet awake to anyone';
-  if (m.mode === 'teach' && m.claimedBy) return m.claimedBy === 'player' ? 'Your tribe already learned it here' : 'Already claimed';
-  if (m.sleep > 0) return `Sleeping — wakes in ${fmtSeconds(Math.ceil(m.sleep))}`;
-  if (m.opensAt && world.elapsed < m.opensAt) return `Wakes in ${fmtSeconds(Math.ceil(m.opensAt - world.elapsed))}`;
-  return 'Not open now';
+  if (m.asleep) return '沉睡着——还未向任何人苏醒';
+  if (m.mode === 'teach' && m.claimedBy) return m.claimedBy === 'player' ? '你的部落已经在这里习得该法术' : '已被他人占据';
+  if (m.sleep > 0) return `沉睡——${fmtSeconds(Math.ceil(m.sleep))}后苏醒`;
+  if (m.opensAt && world.elapsed < m.opensAt) return `将在${fmtSeconds(Math.ceil(m.opensAt - world.elapsed))}后苏醒`;
+  return '此刻尚未开放';
 }
 
 /** Display name for a tribe ("the Ashmark", "your tribe"). */
 export function tribeLabelOf(world: World, t: Tribe): string {
-  if (t === 'wild') return 'wanderers';
+  if (t === 'wild') return '漂泊者';
   return tribeName(world.rules, t as TribeId);
 }

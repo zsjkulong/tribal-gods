@@ -90,7 +90,7 @@ describe('casting', () => {
 
   it('with no charge the cast is refused', () => {
     const w = setup();
-    expect(w.orderCast('player', 'blast', 24, 20)).toMatch(/charge/i);
+    expect(w.orderCast('player', 'blast', 24, 20)).toMatch(/充能/);
     expect(w.events.some((e) => e.type === 'denied')).toBe(true);
   });
 
@@ -132,7 +132,7 @@ describe('casting', () => {
     w.map.heights.fill(-3);
     for (let z = 15; z <= 25; z++) for (let x = 15; x <= 25; x++) w.map.heights[z * 128 + x] = 2;
     w.map.version++;
-    expect(w.orderCast('player', 'blast', 60, 20)).toMatch(/range/i);
+    expect(w.orderCast('player', 'blast', 60, 20)).toMatch(/范围/);
     expect(w.spellState('player', 'blast').charges).toBe(4);
   });
 
@@ -153,7 +153,7 @@ describe('casting', () => {
     for (let z = 18; z <= 22; z++) for (let x = 26; x <= 30; x++) w.map.heights[z * 128 + x] = -3;
     w.map.version++;
     expect(spellDef('convert').anywhere).toBe(false);
-    expect(w.orderCast('player', 'convert', 28, 20)).toMatch(/land/i);
+    expect(w.orderCast('player', 'convert', 28, 20)).toMatch(/陆地/);
     expect(w.orderCast('player', 'blast', 28, 20)).toBeNull();
   });
 });

@@ -57,9 +57,9 @@ const raid = (at: number, warriors: number, message: string) => ({
 export const scenario: CampaignScenario = {
   id: 'c02_speaking_stones',
   chapter: 2,
-  title: 'The Speaking Stones',
-  tagline: 'Two stones that remember. And sails on the eastern sea.',
-  teaches: 'Standing stones, towers, the first raid',
+  title: '会言之石',
+  tagline: '两座记得过去的石阵。以及东海上扬起的帆。',
+  teaches: '石阵、瞭望塔、第一次掠夺',
   async build() {
     const t = new Terrain(20202);
     const { home, bloom, level, ford, river } = LAYOUT;
@@ -77,8 +77,8 @@ export const scenario: CampaignScenario = {
     t.pad(home.x, home.z, 8, 2.4, 5);
     t.addGrove(bloom.x, bloom.z, 12, 0.8).addGrove(home.x + 8, home.z + 12, 8, 0.5).addGrove(84, 82, 10, 0.4);
     return makeLevel({
-      name: 'The Speaking Stones',
-      desc: 'Campaign II. A river island; two stones; raiders from the east.',
+      name: '会言之石',
+      desc: '战役二。河心岛、两座石阵、来自东方的掠夺者。',
       terrain: t,
       homes: { player: home, violet: LAYOUT.landing },
       monuments: [
@@ -89,46 +89,46 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: { spells: ['blast', 'convert'], buildings: ['hut', 'lumberyard', 'tower'], startUnits: { brave: 7, warrior: 4 }, startWood: 12 },
           },
-          { id: 'violet', name: 'the Unmoored', ...RAIDER_TRIBE },
+          { id: 'violet', name: '无根族', ...RAIDER_TRIBE },
         ],
         objectives: [
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Learn Bloom at the west-bank stone' },
-          { objective: { type: 'claimMonument', index: 1 }, text: 'Learn Level at the stone across the river' },
-          { objective: { type: 'survive', seconds: SURVIVE }, text: 'Weather the raids (8 minutes)' },
-          { objective: { type: 'buildCount', kind: 'tower', count: 1 }, text: 'Raise a Watchtower by the ford', optional: true },
-          { objective: { type: 'reachPopulation', count: 30 }, text: 'Grow the tribe to 30', optional: true },
-          { objective: { type: 'convertWanderers', count: 4 }, text: 'Kindle the wanderers by the shore', optional: true },
+          { objective: { type: 'claimMonument', index: 0 }, text: '在西岸石阵学会萌发' },
+          { objective: { type: 'claimMonument', index: 1 }, text: '在河对岸的石阵学会平整' },
+          { objective: { type: 'survive', seconds: SURVIVE }, text: '撑过掠夺狂潮（8分钟）' },
+          { objective: { type: 'buildCount', kind: 'tower', count: 1 }, text: '在渡口建起一座瞭望塔', optional: true },
+          { objective: { type: 'reachPopulation', count: 30 }, text: '让部族壮大到30人', optional: true },
+          { objective: { type: 'convertWanderers', count: 4 }, text: '感化岸边的漂泊者', optional: true },
         ],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Wanderers camped by the shore, a short walk south. Kindle them into the tribe.', focus: LAYOUT.camp, actions: [] },
-          { when: { type: 'time', at: 25 }, message: 'The stone in the old wood is watched. Whoever kneels there wakes its keepers — bring spears.', focus: LAYOUT.bloom, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '岸边宿着一群漂泊者，向南走几步就到。用感化让他们加入部落。', focus: LAYOUT.camp, actions: [] },
+          { when: { type: 'time', at: 25 }, message: '老林里的石阵有东西守着。谁在那里跪下，谁就会唤醒它的守护者——带上长矛。', focus: LAYOUT.bloom, actions: [] },
           {
             when: { type: 'commune', index: 1, tribe: 'player' },
-            message: 'A boat below the knoll — the Unmoored have seen the ritual! Guard the leader: one blow and it breaks.',
+            message: '山丘下泊来一条船——无根族看到了这场仪式！保护首领：只要挨一下，仪式就断了。',
             focus: LAYOUT.cove,
             actions: [{ type: 'spawn', tribe: 'violet', units: { warrior: 2 }, x: LAYOUT.cove.x, z: LAYOUT.cove.z, march: LAYOUT.level, hold: 40 }],
           },
           // The first raid waits for the knoll: it comes 20 s after the Level stone is learned, or at 3:20
           // at the latest. At a fixed 2:40 it landed on top of a slower player's knoll ritual, drew the
           // escort off after it, and the boat crew cut the kneeling leader down.
-          { ...raid(0, 2, 'Sails on the eastern beach — the Unmoored are coming for the ford.'), when: { type: 'any', of: [{ type: 'objective', index: 1 }, { type: 'time', at: 180 }] }, delay: 20 },
-          raid(290, 3, 'More Unmoored boats. They smell the smoke of your hearths.'),
-          raid(410, 4, 'The largest boat yet. Hold the ford!'),
-          { when: { type: 'time', at: SURVIVE }, actions: [{ type: 'message', text: 'The raiders turn back to the sea. Riverholm is yours.' }] },
+          { ...raid(0, 2, '东海滩上出现了帆影——无根族正朝渡口扑来。'), when: { type: 'any', of: [{ type: 'objective', index: 1 }, { type: 'time', at: 180 }] }, delay: 20 },
+          raid(290, 3, '更多的无根族船只。他们闻到了你炉膛里的烟火味。'),
+          raid(410, 4, '迄今为止最大的一条船。守住渡口！'),
+          { when: { type: 'time', at: SURVIVE }, actions: [{ type: 'message', text: '掠夺者转身退回大海。河心屿是你们的了。' }] },
         ],
         briefing: {
-          title: 'The Speaking Stones',
+          title: '会言之石',
           body:
-            'Riverholm has standing stones older than any tribe, and the old songs say a leader who sits with one comes away knowing a spell. ' +
-            'One stands in the wood on our bank; the other crowns a knoll across the cold river. ' +
-            'We are not the first boats to find this island. The Unmoored, whose isles drowned before ours, raid every shore that smokes — and the only crossing is the ford.',
+            '河心屿上的石阵比任何部族都要古老，古老的歌谣说，哪位首领与石阵相伴而坐，离去时便会知晓一道法术。' +
+            '一座矗立在我们岸边的老林中；另一座则冠于冷河对岸的山丘之上。' +
+            '我们不是头一批发现这座岛的船。无根族的岛屿比我们先沉没，他们劫掠每一座升起炊烟的海岸——而此地唯一的渡口就是那条水道。',
           tips: [
-            'At a stone your leader kneels for a while and learns its spell — but a kneeling leader is helpless, and one blow breaks the ritual.',
-            'Your spear-bearers fight best from a Watchtower — order them inside, near the ford.',
-            'Blast throws raiders clear; thrown into the river, they drown.',
+            '在石阵前，你的首领会跪拜片刻以学会它的法术——但跪拜之中的首领毫无防备，一击便会打断仪式。',
+            '你的持矛战士站在瞭望塔里战斗最为得力——命令他们进去，守在渡口附近。',
+            '冲击可以把掠夺者掀飞出去；被抛进河里，他们就会淹死。',
           ],
         },
       },

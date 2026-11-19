@@ -29,14 +29,14 @@ describe('campaign: every scenario', () => {
       expect(w.activeTribes()).toEqual(rules.tribes.map((t) => t.id).sort((a, b) => ['player', 'red', 'gold', 'violet'].indexOf(a) - ['player', 'red', 'gold', 'violet'].indexOf(b)));
       // Briefing: title, 3–5 sentences, 2–3 tips.
       expect(rules.briefing.title).toBe(s.title);
-      const sentences = rules.briefing.body.split(/[.!?](\s|$)/).filter((x) => x.trim().length > 3).length;
+      const sentences = rules.briefing.body.split(/[.!?。！？]/).filter((x) => x.trim().length > 3).length;
       expect(sentences).toBeGreaterThanOrEqual(3);
       expect(sentences).toBeLessThanOrEqual(5);
       expect(rules.briefing.tips.length).toBeGreaterThanOrEqual(2);
       expect(rules.briefing.tips.length).toBeLessThanOrEqual(3);
       expect(rules.objectives.some((o) => !o.optional)).toBe(true);
       // Every people is named by the scenario (briefings read names from the data).
-      for (const t of rules.tribes) expect(t.name, `${s.id}: ${t.id}`).toMatch(/^the /);
+      for (const t of rules.tribes) expect(t.name.trim().length, `${s.id}: ${t.id}`).toBeGreaterThan(0);
 
       // Homes: walkable, and tribes that build have room for a village.
       for (const t of rules.tribes) {

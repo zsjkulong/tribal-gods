@@ -92,10 +92,10 @@ css('selection-panel', `
 `);
 
 const tribeLabel = (ctx: UiContext, t: string): string => {
-  if (t === 'player') return 'Your tribe';
-  if (t === 'wild') return 'No tribe';
+  if (t === 'player') return '你的部落';
+  if (t === 'wild') return '无部落';
   const civ = ctx.world.tribes[t as TribeId]?.civ;
-  return `${civ ? CIVS[civ].name : t} · ${t}`;
+  return `${civ ? CIVS[civ].name : '未知部落'} · ${t}`;
 };
 
 export class SelectionPanel {
@@ -216,7 +216,7 @@ export class SelectionPanel {
       this.el.hidden = sig.startsWith('none');
       for (const k of this.el.querySelectorAll<HTMLElement>('[data-kind]')) {
         const kind = k.dataset.kind as UnitKind;
-        tip(k, () => `<h4>${UNITS[kind].name}</h4><p>${escapeHtml(UNITS[kind].blurb)}</p><p class="hint">Click: select only these. Shift-click: drop them.</p>`);
+        tip(k, () => `<h4>${UNITS[kind].name}</h4><p>${escapeHtml(UNITS[kind].blurb)}</p><p class="hint">点击：只选择这些。按住 Shift 点击：取消选择。</p>`);
       }
       for (const b of this.el.querySelectorAll<HTMLElement>('[data-tip]')) tip(b, () => b.dataset.tip!);
     }
@@ -240,7 +240,7 @@ export class SelectionPanel {
       const b = w.getBuilding(sel.building);
       if (!b) return;
       bar('hp', b.progress < 1 ? b.progress : b.hp / b.maxHp);
-      set('hpt', b.progress < 1 ? `${Math.floor(b.progress * 100)}% built` : `${Math.ceil(b.hp)} / ${b.maxHp}`);
+      set('hpt', b.progress < 1 ? `已建造 ${Math.floor(b.progress * 100)}%` : `${Math.ceil(b.hp)} / ${b.maxHp}`);
       if (b.kind === 'hut') {
         set('res', `${b.residents} / ${w.dwellingCapacity(b)}`);
         const next = DWELLING_TIERS[b.tier + 1];
@@ -249,10 +249,10 @@ export class SelectionPanel {
           bar('grow', b.fullTime / next.growSeconds);
           const wood = w.tribes[b.tribe]?.wood ?? 0;
           set('growt', !full
-            ? `Grows once full`
+            ? `满员后升级`
             : b.fullTime >= next.growSeconds && wood < next.growWood
-              ? `Needs ${next.growWood - wood} more wood to grow`
-              : `Grows in ${fmtEta(next.growSeconds - b.fullTime)}`);
+              ? `还缺 ${next.growWood - wood} 木材即可升级`
+              : `${fmtEta(next.growSeconds - b.fullTime)}后升级`);
         }
       }
       const trains = BUILDINGS[b.kind].trains;
@@ -262,25 +262,25 @@ export class SelectionPanel {
         bar('train', inside ? 1 - b.trainTime / def.trainSeconds : 0);
         const wood = w.tribes[b.tribe]?.wood ?? 0;
         set('traint', b.queue === 0
-          ? 'Queue empty'
+          ? '队列为空'
           : inside
-            ? `Training a ${def.name} · ${fmtEta(b.trainTime)}`
+            ? `正在训练${def.name} · ${fmtEta(b.trainTime)}`
             : b.trainee >= 0
-              ? 'A villager is on the way'
+              ? '村民正在赶来的路上'
               : wood < def.trainWood
-                ? `Needs ${def.trainWood - wood} more wood`
-                : 'Waiting for an idle villager');
+                ? `还缺 ${def.trainWood - wood} 木材`
+                : '等待一名闲置村民');
         set('qn', `${b.queue}`);
       }
     } else if (sel.monument !== null) {
       const m = w.monuments[sel.monument];
-      if (m) set('sleep', m.sleep > 0 ? `Sleeping — wakes in ${fmtEta(m.sleep)}` : '');
+      if (m) set('sleep', m.sleep > 0 ? `沉睡——${fmtEta(m.sleep)}后苏醒` : '');
       const r = ritualAt(w, sel.monument);
       const row = this.el.querySelector<HTMLElement>('[data-k="ritrow"]');
       if (row) row.hidden = !r;
       if (r) {
         bar('rit', r.progress);
-        set('ritt', `${r.tribe === 'player' ? 'Your leader' : 'A rival'} · ${Math.round(r.progress * 100)}%${!r.communing ? ' · broken, fading' : r.contested ? ' · contested' : ''}`);
+        set('ritt', `${r.tribe === 'player' ? '你的首领' : '敌对部落'} · ${Math.round(r.progress * 100)}%${!r.communing ? ' · 已中断，正在消逝' : r.contested ? ' · 僵持中' : ''}`);
       }
     } else if (units.length === 1 || sel.inspect !== null) {
       const u = units[0] ?? w.unitById(sel.inspect!);
@@ -289,8 +289,8 @@ export class SelectionPanel {
       if (r) {
         bar('rit', r.ritual.progress);
         set('ritt', r.ritual.contested
-          ? `${Math.round(r.ritual.progress * 100)}% · contested — enemies in the ring hold it still`
-          : `${Math.round(r.ritual.progress * 100)}% · ${fmtEta((1 - r.ritual.progress) * ritualSeconds(w.monuments[r.index]))} left`);
+          ? `${Math.round(r.ritual.progress * 100)}% · 僵持中——石圈内的敌人拖住了仪式`
+          : `${Math.round(r.ritual.progress * 100)}% · 剩余${fmtEta((1 - r.ritual.progress) * ritualSeconds(w.monuments[r.index]))}`);
       }
       bar('hp', u.hp / u.maxHp);
       set('hpt', `${Math.ceil(u.hp)} / ${u.maxHp}`);
@@ -326,34 +326,34 @@ export class SelectionPanel {
     let html = this.head(unitIcon(u.kind, 34), tc, name, tribeLabel(this.ctx, u.tribe), `<div class="sp-act" data-k="act"></div>`);
     html += this.hpRow();
     const chips: string[] = [];
-    if (u.wardTime > 0) chips.push(`<span class="sp-chip ward">${icon('shield', 12)}Stone Ward <span data-k="ward"></span></span>`);
-    if (u.warsongTime > 0) chips.push(`<span class="sp-chip song">${icon('speed', 12)}Warsong <span data-k="song"></span></span>`);
+    if (u.wardTime > 0) chips.push(`<span class="sp-chip ward">${icon('shield', 12)}石之庇护 <span data-k="ward"></span></span>`);
+    if (u.warsongTime > 0) chips.push(`<span class="sp-chip song">${icon('speed', 12)}战歌 <span data-k="song"></span></span>`);
     if (chips.length) html += `<div class="sp-row">${chips.join('')}</div>`;
     const stats: string[] = [];
-    if (def.dmg > 0) stats.push(`Damage <b>${def.dmg}</b>`);
-    if (def.range > 1.5) stats.push(`Range <b>${def.range}</b>`);
-    if (def.armor > 0) stats.push(`Armour <b>${Math.round(def.armor * 100)}%</b>`);
-    stats.push(`Speed <b>${def.speed}</b>`);
+    if (def.dmg > 0) stats.push(`伤害 <b>${def.dmg}</b>`);
+    if (def.range > 1.5) stats.push(`射程 <b>${def.range}</b>`);
+    if (def.armor > 0) stats.push(`护甲 <b>${Math.round(def.armor * 100)}%</b>`);
+    stats.push(`速度 <b>${def.speed}</b>`);
     html += `<div class="sp-stats">${stats.map((s) => `<span>${s}</span>`).join('')}</div>`;
     const verb = orderVerb(settings.leftClickOrders);
     if (u.tribe === 'player' && u.kind === 'shaman') {
       const r = ritualOf(this.ctx.world, u.id);
       if (r) {
-        html += `<div class="sp-row"><span class="lbl">Ritual</span><div class="sp-train"><div class="bar mana"><i data-k="rit"></i></div><span data-k="ritt"></span></div></div>` +
-          `<div class="sp-warn soft">${icon('shield', 14)}Communing leaves your leader open: damage breaks the ritual. Keep warriors close.</div>`;
+        html += `<div class="sp-row"><span class="lbl">仪式</span><div class="sp-train"><div class="bar mana"><i data-k="rit"></i></div><span data-k="ritt"></span></div></div>` +
+          `<div class="sp-warn soft">${icon('shield', 14)}共感仪式会让首领门户大开：受到的伤害会中断仪式。让战士守在身边。</div>`;
       } else {
-        html += `<div class="sp-note">Pick a spell, then click the world. To learn a spell, ${verb} a standing stone: your leader goes to commune there.</div>`;
+        html += `<div class="sp-note">选择一个法术，然后点击世界施放。若要习得法术，${verb}一座立石阵：你的首领会前往那里共感。</div>`;
       }
     } else if (u.tribe === 'player' && u.kind === 'brave') {
-      html += `<div class="sp-note">Villagers work on their own. Right-click a Shrine to pray there, or a lodge's queue will train them.</div>`;
+      html += `<div class="sp-note">村民会自行劳作。右键点击神龛可派他们前往祈祷，或由备役木屋的训练队列将他们训练成战士。</div>`;
     } else if (u.tribe === 'wild' && u.joins) {
-      html += `<div class="sp-note">Stranded kin of ${escapeHtml(tribeLabel(this.ctx, u.joins))}: not yours to command until a walking route links them to your home — then they join.</div>`;
+      html += `<div class="sp-note">${escapeHtml(tribeLabel(this.ctx, u.joins))}的流落族人：在一条可通行的道路将他们与你的家连接起来之前，你还不能号令他们——路通后他们就会加入。</div>`;
     } else if (u.tribe === 'wild' && (u.guardOf ?? -1) >= 0) {
-      html += `<div class="sp-note">A guardian of a standing stone. It stands still until a ritual begins there, then fights every tribe in reach.</div>`;
+      html += `<div class="sp-note">立石阵的守卫。它静静伫立，直到那里的仪式开始，之后会与范围内的一切部落交战。</div>`;
     } else if (u.tribe === 'wild') {
-      html += `<div class="sp-note">${escapeHtml(def.blurb)} Not yours to command: <b>Kindle</b> converts wanderers to your tribe.</div>`;
+      html += `<div class="sp-note">${escapeHtml(def.blurb)} 你还不能号令他们：<b>感化</b>可以将漂泊者收入你的部落。</div>`;
     } else if (u.tribe !== 'player') {
-      html += `<div class="sp-note">A rival's ${escapeHtml(def.name)}. Select your fighters and ${verb} it to attack.</div>`;
+      html += `<div class="sp-note">敌对部落的一名${escapeHtml(def.name)}。选中你的战士并${verb}它以发起攻击。</div>`;
     }
     return html;
   }
@@ -361,8 +361,8 @@ export class SelectionPanel {
   private renderGroup(units: Unit[]): string {
     const groups = groupByKind(units);
     const own = units.every((u) => u.tribe === 'player');
-    let html = `<div class="sp-head"><div class="sp-title"><div class="sp-name">${units.length} selected</div>` +
-      `<div class="sp-sub">${own ? `${orderVerb(settings.leftClickOrders) === 'click' ? 'Click' : 'Right-click'} the ground to send them` : 'Mixed'}</div></div></div>`;
+    let html = `<div class="sp-head"><div class="sp-title"><div class="sp-name">已选中 ${units.length} 个单位</div>` +
+      `<div class="sp-sub">${own ? `${orderVerb(settings.leftClickOrders)}地面以命令他们出发` : '混编'}</div></div></div>`;
     html += `<div class="sp-kinds">${groups
       .map((g) => `<button type="button" class="sp-kind" data-a="kind" data-kind="${g.kind}">${unitIcon(g.kind, 24)}<span><div class="n">${g.ids.length}</div><div class="k">${UNITS[g.kind].name}</div></span></button>`)
       .join('')}</div>`;
@@ -375,21 +375,21 @@ export class SelectionPanel {
     const def = BUILDINGS[b.kind];
     const ours = b.tribe === 'player';
     const tc = tribeCss(b.tribe);
-    const status = b.progress < 1 ? 'Under construction' : tribeLabel(this.ctx, b.tribe);
+    const status = b.progress < 1 ? '建造中' : tribeLabel(this.ctx, b.tribe);
     let html = this.head(buildingIcon(b.kind, 32), tc, buildingName(b), status);
-    if (b.burning > 0) html += `<div class="sp-warn">${icon('fire', 16)}Burning! Villagers nearby will put it out.</div>`;
+    if (b.burning > 0) html += `<div class="sp-warn">${icon('fire', 16)}着火了！附近的村民会去扑灭它。</div>`;
     html += this.hpRow();
 
     if (b.progress >= 1 && b.kind === 'hut') {
       const tier = DWELLING_TIERS[b.tier];
       const cap = w.dwellingCapacity(b);
-      html += `<div class="sp-row"><span class="lbl">Residents</span><div class="sp-pips">${Array.from({ length: cap }, (_, i) => `<i class="${i < b.residents ? 'on' : ''}"></i>`).join('')}</div><span data-k="res"></span></div>`;
+      html += `<div class="sp-row"><span class="lbl">住户</span><div class="sp-pips">${Array.from({ length: cap }, (_, i) => `<i class="${i < b.residents ? 'on' : ''}"></i>`).join('')}</div><span data-k="res"></span></div>`;
       const next = DWELLING_TIERS[b.tier + 1];
       if (next) {
-        html += `<div class="sp-row"><span class="lbl">Growth</span><div class="sp-train"><div class="bar gold"><i data-k="grow"></i></div><span data-k="growt"></span></div></div>` +
-          `<div class="sp-note">A full ${tier.name} grows into a ${next.name} (${next.capacity} beds) after ${next.growSeconds}s, for ${next.growWood} wood.</div>`;
+        html += `<div class="sp-row"><span class="lbl">升级</span><div class="sp-train"><div class="bar gold"><i data-k="grow"></i></div><span data-k="growt"></span></div></div>` +
+          `<div class="sp-note">一座满员的${tier.name}会在${next.growSeconds}秒后升级为${next.name}（${next.capacity} 张床），需花费 ${next.growWood} 木材。</div>`;
       } else {
-        html += `<div class="sp-note">Fully grown: ${tier.capacity} beds, a villager every ${tier.breedSeconds}s while there's room.</div>`;
+        html += `<div class="sp-note">已完全成长：${tier.capacity} 张床，只要有空位，每${tier.breedSeconds}秒就会诞生一名村民。</div>`;
       }
     }
 
@@ -397,15 +397,15 @@ export class SelectionPanel {
     if (b.progress >= 1 && trains) {
       const ud = UNITS[trains];
       if (ours) {
-        html += `<div class="sp-row"><span class="lbl">Training</span><div class="sp-train"><div class="bar mana"><i data-k="train"></i></div><span data-k="traint"></span></div></div>` +
-          `<div class="sp-row"><span class="lbl">Queue</span><div class="sp-queue">` +
+        html += `<div class="sp-row"><span class="lbl">训练</span><div class="sp-train"><div class="bar mana"><i data-k="train"></i></div><span data-k="traint"></span></div></div>` +
+          `<div class="sp-row"><span class="lbl">队列</span><div class="sp-queue">` +
           `<span class="sp-pips">${Array.from({ length: ECONOMY.trainQueueMax }, (_, i) => `<i class="${i < b.queue ? 'q' : ''}"></i>`).join('')}</span>` +
-          `<button type="button" class="tg-btn" data-a="q" data-n="1" data-tip="&lt;h4&gt;Train one ${ud.name}&lt;/h4&gt;&lt;p&gt;${ud.trainWood} wood and ${ud.trainSeconds}s each. An idle villager walks in and comes out a ${ud.name}.&lt;/p&gt;">${icon('plus', 14)}1</button>` +
+          `<button type="button" class="tg-btn" data-a="q" data-n="1" data-tip="&lt;h4&gt;训练一名${ud.name}&lt;/h4&gt;&lt;p&gt;每名需 ${ud.trainWood} 木材和 ${ud.trainSeconds} 秒。一名闲置村民走进去，出来时就是一名${ud.name}。&lt;/p&gt;">${icon('plus', 14)}1</button>` +
           `<button type="button" class="tg-btn" data-a="q" data-n="5">${icon('plus', 14)}5</button>` +
-          `<button type="button" class="tg-btn" data-a="q" data-n="-1" aria-label="Cancel one" data-tip="&lt;h4&gt;Cancel one&lt;/h4&gt;">${icon('minus', 14)}</button>` +
+          `<button type="button" class="tg-btn" data-a="q" data-n="-1" aria-label="取消一名" data-tip="&lt;h4&gt;取消一名&lt;/h4&gt;">${icon('minus', 14)}</button>` +
           `</div></div>`;
       } else {
-        html += `<div class="sp-note">Trains ${ud.name}s.</div>`;
+        html += `<div class="sp-note">训练${ud.name}。</div>`;
       }
     }
 
@@ -415,11 +415,11 @@ export class SelectionPanel {
         const u = b.garrison[i] !== undefined ? w.unitById(b.garrison[i]) : undefined;
         return u ? `<span title="${UNITS[u.kind].name}">${unitIcon(u.kind, 16)}</span>` : `<span class="empty">${icon('plus', 12)}</span>`;
       });
-      html += `<div class="sp-row"><span class="lbl">${b.kind === 'shrine' ? 'Praying' : 'Garrison'}</span><div class="sp-inside">${slots.join('')}</div></div>`;
+      html += `<div class="sp-row"><span class="lbl">${b.kind === 'shrine' ? '祈祷者' : '驻守'}</span><div class="sp-inside">${slots.join('')}</div></div>`;
       if (ours) {
         html += `<div class="sp-note">${b.kind === 'shrine'
-          ? `Select villagers and right-click the shrine to send them to pray (+${Math.round(ECONOMY.shrinePrayerBonus * 100)}% spell charging each).`
-          : 'Select fighters and right-click the tower to man it. They see farther and hit harder from the top.'}</div>`;
+          ? `选中村民并右键点击神龛，派他们前往祈祷（每名祈祷者法术充能加快 +${Math.round(ECONOMY.shrinePrayerBonus * 100)}%）。`
+          : '选中战士并右键点击瞭望塔派人驻守。他们在塔顶看得更远、打得更狠。'}</div>`;
       }
     }
 
@@ -429,10 +429,10 @@ export class SelectionPanel {
       const confirm = performance.now() < this.confirmDemolish;
       const acts: string[] = [];
       if (b.progress >= 1 && trains) {
-        acts.push(`<button type="button" class="tg-btn${this.rallyPick === b.id ? ' on' : ''}" data-a="rally" data-tip="&lt;h4&gt;Rally point&lt;/h4&gt;&lt;p&gt;Click, then click the ground: new ${UNITS[trains].name}s gather there. (Or right-click the ground with the lodge selected.)&lt;/p&gt;">${icon('rally', 14)}${this.rallyPick === b.id ? 'Click the ground…' : 'Rally point'}</button>`);
+        acts.push(`<button type="button" class="tg-btn${this.rallyPick === b.id ? ' on' : ''}" data-a="rally" data-tip="&lt;h4&gt;集结点&lt;/h4&gt;&lt;p&gt;点击，然后点击地面：新训练的${UNITS[trains].name}会在那里集合。（或选中备役木屋后右键点击地面。）&lt;/p&gt;">${icon('rally', 14)}${this.rallyPick === b.id ? '点击地面…' : '集结点'}</button>`);
       }
-      if (b.garrison.length > 0 && (b.kind === 'tower' || b.kind === 'shrine')) acts.push(`<button type="button" class="tg-btn" data-a="eject">${icon('eject', 14)}Send out</button>`);
-      acts.push(`<button type="button" class="tg-btn danger${confirm ? ' on' : ''}" data-a="demolish" style="margin-left:auto" data-tip="&lt;h4&gt;Demolish &lt;span class='kbd'&gt;${labelFor('demolish')}&lt;/span&gt;&lt;/h4&gt;&lt;p&gt;Tear it down. Half its wood (${Math.floor(def.wood / 2)}) comes back.&lt;/p&gt;">${icon('demolish', 14)}${confirm ? 'Click again to demolish' : 'Demolish'}</button>`);
+      if (b.garrison.length > 0 && (b.kind === 'tower' || b.kind === 'shrine')) acts.push(`<button type="button" class="tg-btn" data-a="eject">${icon('eject', 14)}遣出</button>`);
+      acts.push(`<button type="button" class="tg-btn danger${confirm ? ' on' : ''}" data-a="demolish" style="margin-left:auto" data-tip="&lt;h4&gt;拆除 &lt;span class='kbd'&gt;${labelFor('demolish')}&lt;/span&gt;&lt;/h4&gt;&lt;p&gt;将其拆毁。返还一半木材（${Math.floor(def.wood / 2)}）。&lt;/p&gt;">${icon('demolish', 14)}${confirm ? '再次点击确认拆除' : '拆除'}</button>`);
       html += `<div class="sp-actions">${acts.join('')}</div>`;
     }
     return html;
@@ -443,25 +443,25 @@ export class SelectionPanel {
     const m = w.monuments[index];
     const s = spellDef(m.spell);
     const avail = w.monumentAvailable(m);
-    let html = this.head(icon('stone', 32), avail ? 'var(--spirit)' : 'var(--rim-strong)', stoneName(m), `Standing stone · tier ${s.tier}`);
+    let html = this.head(icon('stone', 32), avail ? 'var(--spirit)' : 'var(--rim-strong)', stoneName(m), `立石阵 · 第${s.tier}阶`);
     html += `<div class="sp-spell">${spellIcon(m.spell, 26)}<div><b>${escapeHtml(stoneTerms(m))}</b><div class="sp-spell-blurb">${escapeHtml(s.blurb)}</div></div></div>`;
     let note: string;
     if (m.mode === 'teach') {
       note = avail
-        ? `The first leader to finish a ${ritualSeconds(m)}s ritual here learns ${escapeHtml(s.name)} for good. Damage breaks the ritual.`
-        : m.claimedBy === 'player' ? 'Your tribe learned this spell here.' : `Claimed by ${escapeHtml(tribeLabel(this.ctx, m.claimedBy ?? ''))}.`;
+        ? `第一个在此完成${ritualSeconds(m)}秒仪式的首领将永久习得${escapeHtml(s.name)}。受到的伤害会中断仪式。`
+        : m.claimedBy === 'player' ? '你的部落已经在这里习得该法术。' : `已被${escapeHtml(tribeLabel(this.ctx, m.claimedBy ?? ''))}占据。`;
     } else {
-      note = `A ${ritualSeconds(m)}s ritual earns ${m.charges ?? 2} free casts, known or not. Then it sleeps for ${m.cooldown ?? 90}s.`;
+      note = `一次${ritualSeconds(m)}秒的仪式可获得 ${m.charges ?? 2} 次免费施放，无论是否已习得。之后石阵将沉睡 ${m.cooldown ?? 90} 秒。`;
     }
     html += `<div class="sp-note">${note} <span data-k="sleep" class="sp-warnword"></span></div>`;
     const guards = stoneGuards(m);
     if (guards) html += `<div class="sp-warn soft">${icon('shield', 14)}${escapeHtml(guards)}</div>`;
-    html += `<div class="sp-row" data-k="ritrow"><span class="lbl">Ritual</span><div class="sp-train"><div class="bar mana"><i data-k="rit"></i></div><span data-k="ritt"></span></div></div>`;
+    html += `<div class="sp-row" data-k="ritrow"><span class="lbl">仪式</span><div class="sp-train"><div class="bar mana"><i data-k="rit"></i></div><span data-k="ritt"></span></div></div>`;
     const leader = w.leaderOf('player');
     if (avail) {
       const verb = orderVerb(settings.leftClickOrders);
-      html += `<div class="sp-note sp-how">${icon('leader', 14)} Select your leader (<span class="kbd">${labelFor('select-leader')}</span>) and ${verb} this stone.</div>` +
-        `<div class="sp-actions"><button type="button" class="tg-btn" data-a="commune" ${leader ? '' : 'disabled'}>${icon('worship', 14)}Send your leader</button></div>`;
+      html += `<div class="sp-note sp-how">${icon('leader', 14)} 选中你的首领（<span class="kbd">${labelFor('select-leader')}</span>）并${verb}这座石阵。</div>` +
+        `<div class="sp-actions"><button type="button" class="tg-btn" data-a="commune" ${leader ? '' : 'disabled'}>${icon('worship', 14)}派出首领</button></div>`;
     } else {
       const why = stoneBlocked(w, m);
       if (why) html += `<div class="sp-note sp-warnword">${escapeHtml(why)}</div>`;

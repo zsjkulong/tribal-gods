@@ -91,8 +91,8 @@ function buildHotkeys(): Hotkey[] {
 function groupHotkeys(): Hotkey[] {
   const out: Hotkey[] = [];
   for (let n = 1; n <= 9; n++) {
-    out.push({ action: `group-recall:${n}`, code: `Digit${n}`, group: 'Selection', desc: `Select group ${n} (twice: jump to it)` });
-    out.push({ action: `group-set:${n}`, code: `Digit${n}`, ctrl: true, group: 'Selection', desc: `Make the selection group ${n}` });
+    out.push({ action: `group-recall:${n}`, code: `Digit${n}`, group: 'Selection', desc: `选择控制组 ${n}（按两次：镜头跳转）` });
+    out.push({ action: `group-set:${n}`, code: `Digit${n}`, ctrl: true, group: 'Selection', desc: `将当前选中设为控制组 ${n}` });
   }
   return out;
 }
@@ -101,19 +101,19 @@ export const HOTKEYS: Hotkey[] = [
   ...spellHotkeys(),
   ...buildHotkeys(),
   ...groupHotkeys(),
-  { action: 'select-army', code: 'Comma', group: 'Selection', desc: 'Select every fighter' },
-  { action: 'idle-villager', code: 'Period', group: 'Selection', desc: 'Next idle villager' },
-  { action: 'select-leader', code: 'KeyL', group: 'Selection', desc: 'Select your leader' },
-  { action: 'centre-leader', code: 'Space', group: 'Camera', desc: 'Jump to your leader' },
-  { action: 'centre-home', code: 'KeyC', group: 'Camera', desc: 'Jump to your home circle' },
-  { action: 'pause', code: 'KeyP', group: 'Game', desc: 'Pause / resume' },
-  { action: 'speed-down', code: 'BracketLeft', group: 'Game', desc: 'Slower' },
-  { action: 'speed-up', code: 'BracketRight', group: 'Game', desc: 'Faster' },
-  { action: 'demolish', code: 'Delete', group: 'Selection', desc: 'Demolish the selected building' },
-  { action: 'demolish', code: 'Backspace', group: 'Selection', desc: 'Demolish (Mac delete key)' },
-  { action: 'cancel', code: 'Escape', group: 'Game', desc: 'Cancel aiming / placing; else open the menu' },
-  { action: 'help', code: 'F1', group: 'Game', desc: 'How to play' },
-  { action: 'debug', code: 'F3', group: 'Game', desc: 'Debug readout' },
+  { action: 'select-army', code: 'Comma', group: 'Selection', desc: '选中全部战士' },
+  { action: 'idle-villager', code: 'Period', group: 'Selection', desc: '下一个闲置村民' },
+  { action: 'select-leader', code: 'KeyL', group: 'Selection', desc: '选中你的首领' },
+  { action: 'centre-leader', code: 'Space', group: 'Camera', desc: '镜头跳转到首领' },
+  { action: 'centre-home', code: 'KeyC', group: 'Camera', desc: '镜头跳转到家园石圈' },
+  { action: 'pause', code: 'KeyP', group: 'Game', desc: '暂停 / 继续' },
+  { action: 'speed-down', code: 'BracketLeft', group: 'Game', desc: '放慢' },
+  { action: 'speed-up', code: 'BracketRight', group: 'Game', desc: '加快' },
+  { action: 'demolish', code: 'Delete', group: 'Selection', desc: '拆除选中的建筑' },
+  { action: 'demolish', code: 'Backspace', group: 'Selection', desc: '拆除（Mac 删除键）' },
+  { action: 'cancel', code: 'Escape', group: 'Game', desc: '取消瞄准 / 建造；否则打开菜单' },
+  { action: 'help', code: 'F1', group: 'Game', desc: '如何游玩' },
+  { action: 'debug', code: 'F3', group: 'Game', desc: '调试信息' },
 ];
 
 /**
@@ -123,23 +123,23 @@ export const HOTKEYS: Hotkey[] = [
  */
 export function describedControls(leftClickOrders: boolean): Array<{ keys: string[]; desc: string; group: HotkeyGroup }> {
   return [
-    { keys: ['W', 'A', 'S', 'D'], desc: 'Pan (or arrow keys)', group: 'Camera' },
-    { keys: ['Q', 'E'], desc: 'Rotate (or middle-drag)', group: 'Camera' },
-    { keys: ['Wheel'], desc: 'Zoom toward the cursor', group: 'Camera' },
+    { keys: ['W', 'A', 'S', 'D'], desc: '平移视角（或方向键）', group: 'Camera' },
+    { keys: ['Q', 'E'], desc: '旋转视角（或按住中键拖动）', group: 'Camera' },
+    { keys: ['Wheel'], desc: '向光标方向缩放', group: 'Camera' },
     { keys: ['Click'], desc: leftClickOrders
-      ? 'Select your person, building or a stone. With people selected, click the ground or a target to send them'
-      : 'Select your person, building or a stone', group: 'Selection' },
-    { keys: ['Drag'], desc: 'Draw an area on the land: your people inside it are selected', group: 'Selection' },
-    { keys: ['Double-click'], desc: 'Select all of that kind on screen', group: 'Selection' },
-    { keys: ['Shift', 'Click'], desc: 'Add to / remove from the selection (Shift-drag too)', group: 'Selection' },
-    { keys: ['Right-click'], desc: 'Order: move, attack, garrison, commune, rally (Ctrl-click or a two-finger tap on a Mac)', group: 'Selection' },
-    { keys: ['Esc'], desc: 'Drop the selection', group: 'Selection' },
+      ? '选中你的族人、建筑或石阵。选中族人后，点击地面或目标即可派他们行动'
+      : '选中你的族人、建筑或石阵', group: 'Selection' },
+    { keys: ['Drag'], desc: '在地面上拖出区域：其中的族人将被选中', group: 'Selection' },
+    { keys: ['Double-click'], desc: '选中屏幕上全部同类单位', group: 'Selection' },
+    { keys: ['Shift', 'Click'], desc: '添加到 / 移出选择（Shift 拖动同样生效）', group: 'Selection' },
+    { keys: ['Right-click'], desc: '下达指令：移动、攻击、驻守、共感、集结（Mac 上用 Ctrl 点击或双指轻点）', group: 'Selection' },
+    { keys: ['Esc'], desc: '取消选择', group: 'Selection' },
   ];
 }
 
 /** The word hints and tooltips use for "give an order" under the current setting. */
 export function orderVerb(leftClickOrders: boolean): string {
-  return leftClickOrders ? 'click' : 'right-click';
+  return leftClickOrders ? '左键点击' : '右键点击';
 }
 
 /** 'KeyR' → 'R', 'Digit1' → '1', 'Space' → 'Space'… */

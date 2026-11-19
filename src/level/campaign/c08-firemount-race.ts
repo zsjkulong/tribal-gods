@@ -32,9 +32,9 @@ export const LAYOUT = {
 export const scenario: CampaignScenario = {
   id: 'c08_firemount_race',
   chapter: 8,
-  title: 'The Firemount Race',
-  tagline: 'The mountain’s stone wakes in the fourth minute. Be there.',
-  teaches: 'Timing, contested stones, a deadline',
+  title: '火岳竞逐',
+  tagline: '山巅的石阵在第四分钟苏醒。你必须在那里。',
+  teaches: '把握时机、争夺石阵、一条限期',
   async build() {
     const t = new Terrain(80808);
     const { home, red, summit, bay } = LAYOUT;
@@ -53,8 +53,8 @@ export const scenario: CampaignScenario = {
     t.pad(home.x, home.z, 8, 2.4, 5).pad(red.x, red.z, 8, 2.6, 5);
     t.addGrove(home.x + 4, home.z + 16, 10, 0.7).addGrove(home.x + 12, home.z - 6, 8, 0.5).addGrove(red.x - 6, red.z + 16, 10, 0.7);
     return makeLevel({
-      name: 'The Firemount Race',
-      desc: 'Campaign VIII. Twin continents, one mountain, one stone that wakes at minute four.',
+      name: '火岳竞逐',
+      desc: '战役八。双大陆、一座山、一块在第四分钟苏醒的石阵。',
       terrain: t,
       homes: { player: home, red, violet: summit },
       civs: { red: 'north' },
@@ -71,7 +71,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'flatten', 'bloom', 'ward', 'landbridge'],
               buildings: ['hut', 'lumberyard', 'warriorHut', 'fireHut', 'tower', 'shrine'],
@@ -80,7 +80,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'red', name: 'the Ashmark', ai: true,
+            id: 'red', name: '灰痕族', ai: true,
             personality: { target: 'player', harassAt: 5, assaultAt: 11 },
             loadout: {
               spells: ['blast', 'convert', 'ward'],
@@ -88,31 +88,31 @@ export const scenario: CampaignScenario = {
               startUnits: { brave: 8, warrior: 2 },
             },
           },
-          { id: 'violet', name: 'the Keepers', ai: false, loadout: { spells: [], buildings: [], startUnits: { shaman: 0, brave: 0 } } },
+          { id: 'violet', name: '守山人', ai: false, loadout: { spells: [], buildings: [], startUnits: { shaman: 0, brave: 0 } } },
         ],
         objectives: [
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Be first to commune at the Firemount' },
-          { objective: { type: 'destroyTribe', tribe: 'red' }, text: 'Break the Ashmark before the half-hour' },
-          { objective: { type: 'destroyTribe', tribe: 'violet' }, text: 'Clear the Keepers from the mountain', optional: true },
+          { objective: { type: 'claimMonument', index: 0 }, text: '第一个在火岳之巅与石阵交流' },
+          { objective: { type: 'destroyTribe', tribe: 'red' }, text: '在半小时内击垮灰痕族' },
+          { objective: { type: 'destroyTribe', tribe: 'violet' }, text: '把守山人赶下山', optional: true },
         ],
         fail: [{ type: 'monumentTaken', index: 0 }, { type: 'timeLimit', seconds: 1800 }],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Causeway is ready: bridge the mere and the road to the Firemount is half as long.', focus: LAYOUT.bay, actions: [] },
-          { when: { type: 'commune', index: 0, tribe: 'red' }, message: 'The Ashmark leader kneels at the Firemount! Break her ritual — strike her, or put spears in the ring.', focus: LAYOUT.summit, actions: [] },
-          { when: { type: 'commune', index: 0, tribe: 'player' }, message: 'The ritual has begun: thirty-five heartbeats, and the mountain’s fire is ours. Keep every spear away from her.', focus: LAYOUT.summit, actions: [] },
-          { when: { type: 'time', at: OPENS_AT - 30 }, actions: [{ type: 'message', text: 'The Firemount rumbles. Its stone wakes in thirty heartbeats.' }] },
-          { when: { type: 'time', at: OPENS_AT }, actions: [{ type: 'message', text: 'The Firemount stone is awake.' }] },
+          { when: { type: 'time', at: 2 }, message: '石道已经备好：越过水泊架一座桥，通往火岳的路就缩短一半。', focus: LAYOUT.bay, actions: [] },
+          { when: { type: 'commune', index: 0, tribe: 'red' }, message: '灰痕族首领在火岳下跪了！打断她的仪式——攻击她，或者把长矛围进圈内。', focus: LAYOUT.summit, actions: [] },
+          { when: { type: 'commune', index: 0, tribe: 'player' }, message: '仪式已经开始了：三十五次心跳，山峦之火便归于我们。别让任何长矛靠近她。', focus: LAYOUT.summit, actions: [] },
+          { when: { type: 'time', at: OPENS_AT - 30 }, actions: [{ type: 'message', text: '火岳发出了轰鸣。它的石阵将在三十次心跳后苏醒。' }] },
+          { when: { type: 'time', at: OPENS_AT }, actions: [{ type: 'message', text: '火岳的石阵已经苏醒。' }] },
         ],
         briefing: {
-          title: 'The Firemount Race',
+          title: '火岳竞逐',
           body:
-            'Between the twin lands stands the Firemount, and on its crown a stone that teaches the mountain’s own fire. It sleeps until the fourth minute. ' +
-            'The Ashmark are closer to it than we are. If their leader sits with that stone first, we will not survive what she learns. ' +
-            'The Keepers guard the crown and fight anyone who climbs, and the tide gives us half an hour to finish the Ashmark after.',
+            '在两片大陆之间矗立着火岳，其山巅有一块记载着山峦之火本身的石阵。它沉睡直到第四分钟。' +
+            '灰痕族比我们离它更近。若是他们的首领先与那块石阵相伴而坐，我们便活不过她学成的那一天。' +
+            '守山人守护着山巅，凡攀爬者皆受其攻击，而潮汐只给我们半小时，在那之后了结灰痕族。',
           tips: [
-            'The ritual at the crown takes over half a minute, stops while enemy spears stand in the ring, and breaks at a blow. Bring spears.',
-            'Causeway across the mere shortens the walk. It is already in your book.',
-            'With Volcano learned, a single charge can unmake a town. It takes a long time to charge: start early.',
+            '山巅的仪式要花去半分钟有余，一旦敌方的长矛站进圈内便会中止，任何一击都会令它中断。带上长矛。',
+            '一条越过水泊的石道能缩短脚程。这道法术已经记在你的书里了。',
+            '习得火山之后，一次充能便可抹平一座城镇。充能要花很长时间：尽早开始。',
           ],
         },
       },

@@ -38,15 +38,15 @@ export interface BoonDef {
 }
 
 export const BOONS: Record<BoonId, BoonDef> = {
-  deepWell: { id: 'deepWell', name: 'Deep Well', blurb: 'Blast holds one more charge.', grant: { extraCharges: { blast: 1 } } },
-  kinfolk: { id: 'kinfolk', name: 'Kinfolk', blurb: 'Three more villagers at every landing.', grant: { startUnits: { brave: 3 } } },
-  secondHearth: { id: 'secondHearth', name: 'Second Hearth', blurb: 'Start with a Dwelling already standing.', grant: { startBuildings: ['hut'] } },
-  stockpile: { id: 'stockpile', name: 'Stockpile', blurb: 'Eight more wood at the start.', grant: { startWood: 8 } },
-  quickKindle: { id: 'quickKindle', name: 'Quick Kindle', blurb: 'Kindle charges a third faster and holds one more.', grant: { chargeCost: { convert: 0.75 }, extraCharges: { convert: 1 } } },
-  spearGuard: { id: 'spearGuard', name: 'Spear Guard', blurb: 'Two Warriors walk with your leader from the start.', grant: { startUnits: { warrior: 2 } } },
-  wardstone: { id: 'wardstone', name: 'Wardstone', blurb: 'Begin each scenario with one free Stone Ward.', grant: { gifts: { ward: 1 } } },
-  swiftBlast: { id: 'swiftBlast', name: 'Swift Blast', blurb: 'Blast charges a fifth faster.', grant: { chargeCost: { blast: 0.8 } } },
-  stormCarrier: { id: 'stormCarrier', name: 'Storm Carrier', blurb: 'Lightning holds one more charge.', grant: { extraCharges: { lightning: 1 } } },
+  deepWell: { id: 'deepWell', name: '深井', blurb: '冲击可多蓄一次充能。', grant: { extraCharges: { blast: 1 } } },
+  kinfolk: { id: 'kinfolk', name: '族人', blurb: '每章开局多三名村民。', grant: { startUnits: { brave: 3 } } },
+  secondHearth: { id: 'secondHearth', name: '双重炉火', blurb: '开局自带一座已建成的民居。', grant: { startBuildings: ['hut'] } },
+  stockpile: { id: 'stockpile', name: '储备', blurb: '开局多八单位木材。', grant: { startWood: 8 } },
+  quickKindle: { id: 'quickKindle', name: '速燃感化', blurb: '感化充能提速三分之一，且多一次充能。', grant: { chargeCost: { convert: 0.75 }, extraCharges: { convert: 1 } } },
+  spearGuard: { id: 'spearGuard', name: '长矛护卫', blurb: '开局有两名战士追随你的首领。', grant: { startUnits: { warrior: 2 } } },
+  wardstone: { id: 'wardstone', name: '庇护石', blurb: '每章开局免费获得一次石之庇护。', grant: { gifts: { ward: 1 } } },
+  swiftBlast: { id: 'swiftBlast', name: '迅疾冲击', blurb: '冲击充能提速五分之一。', grant: { chargeCost: { blast: 0.8 } } },
+  stormCarrier: { id: 'stormCarrier', name: '驭雷者', blurb: '闪电可多蓄一次充能。', grant: { extraCharges: { lightning: 1 } } },
 };
 
 /** Which chapters end with a boon choice, and the three on offer. */

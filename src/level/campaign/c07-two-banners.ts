@@ -37,9 +37,9 @@ export const LAYOUT = {
 export const scenario: CampaignScenario = {
   id: 'c07_two_banners',
   chapter: 7,
-  title: 'Two Banners',
-  tagline: 'The Ashmark and the Saltborn march together now.',
-  teaches: 'Chanters, two fronts, fords',
+  title: '双旗',
+  tagline: '灰痕族与盐裔，如今并肩进军。',
+  teaches: '咏唱者、双线作战、渡口',
   async build() {
     const t = new Terrain(70707);
     const { home, red, gold, trunk, west, east, fords, wedge, mire } = LAYOUT;
@@ -58,8 +58,8 @@ export const scenario: CampaignScenario = {
     t.addGrove(home.x + 16, home.z + 4, 9, 0.7).addGrove(home.x - 16, home.z + 6, 9, 0.6)
       .addGrove(red.x + 4, red.z + 14, 10, 0.6).addGrove(gold.x - 4, gold.z + 14, 10, 0.6).addGrove(wedge.x, wedge.z + 8, 6, 0.5);
     return makeLevel({
-      name: 'Two Banners',
-      desc: 'Campaign VII. A river delta, two allied rivals, and Chanters.',
+      name: '双旗',
+      desc: '战役七。一条河上三角洲、两个结盟的对手，以及咏唱者。',
       terrain: t,
       homes: { player: home, red, gold },
       civs: { red: 'north', gold: 'dynasty' },
@@ -71,7 +71,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'bloom', 'flatten', 'lightning'],
               buildings: ['hut', 'lumberyard', 'warriorHut', 'fireHut', 'tower', 'shrine', 'chantHall'],
@@ -80,7 +80,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'red', name: 'the Ashmark', ai: true, allies: ['gold'],
+            id: 'red', name: '灰痕族', ai: true, allies: ['gold'],
             personality: { target: 'player', harassAt: 5, assaultAt: 10 },
             loadout: {
               spells: ['blast', 'convert', 'lightning'],
@@ -89,7 +89,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'gold', name: 'the Saltborn', ai: true, allies: ['red'],
+            id: 'gold', name: '盐裔', ai: true, allies: ['red'],
             personality: { target: 'player', assaultAt: 12, prefer: ['firewarrior', 'warrior'] },
             loadout: {
               spells: ['blast', 'convert', 'ward'],
@@ -99,29 +99,29 @@ export const scenario: CampaignScenario = {
           },
         ],
         objectives: [
-          { objective: { type: 'destroyAll' }, text: 'Bring down both banners' },
-          { objective: { type: 'buildCount', kind: 'chantHall', count: 1 }, text: 'Raise a Chant Hall', optional: true },
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Learn Warsong in the fen', optional: true },
-          { objective: { type: 'castSpell', spell: 'swamp' }, text: 'Mire a ford under an army', optional: true },
+          { objective: { type: 'destroyAll' }, text: '让两面旗帜一同倒下' },
+          { objective: { type: 'buildCount', kind: 'chantHall', count: 1 }, text: '建起一座咏唱大厅', optional: true },
+          { objective: { type: 'claimMonument', index: 0 }, text: '在泽地学会战歌', optional: true },
+          { objective: { type: 'castSpell', spell: 'swamp' }, text: '在一支军队脚下化作泥沼', optional: true },
         ],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Wanderers on the slope east of the village. Kindle them, then fetch the Mire from the western stone — the fords are where they must cross.', focus: { x: 78, z: 30 }, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '村东的山坡上有漂泊者。感化他们，再去西边的石阵取来泥沼——渡口是他们必经之路。', focus: { x: 78, z: 30 }, actions: [] },
           {
             when: { type: 'time', at: 900 },
-            message: 'The Saltborn have had enough of the Ashmark’s war. The alliance is broken — they fight each other now.',
+            message: '盐裔受够了灰痕族的战争。联盟已然破裂——如今他们互相攻伐。',
             actions: [{ type: 'allies', tribe: 'gold', allies: [] }],
           },
         ],
         briefing: {
-          title: 'Two Banners',
+          title: '双旗',
           body:
-            'The Ashmark we drove from Twofold have found friends: the Saltborn, patient traders of the delta, who fear us more than they like them. ' +
-            'Their banners fly over both lobes of the Fan, and both armies will come for the delta head where we live. ' +
-            'We cannot out-breed two tribes. But a Chant can stop a spear mid-swing, and a long Chant turns the spear around.',
+            '我们把灰痕族赶出了双屿，他们找到了一群朋友：盐裔，三角洲上耐心的商贩，他们怕我们胜过喜欢自己的盟友。' +
+            '两面的旗帜飘扬在三角洲的两片陆地上，两支军队都会朝着我们居住的三角洲顶端进发。' +
+            '我们生育不过两个部族。但一支咏唱可以令长矛挥到一半便凝滞，而一支长久的咏唱，能让长矛掉转方向。',
           tips: [
-            'A Chant Hall needs a Shrine first. Chanters stop enemy fighters in earshot and, given time, bring them over.',
-            'Keep Chanters behind Warriors: they are unarmed, and another tribe’s Chanter breaks the spell.',
-            'Allies of convenience fall out. Hold on, and the banners may turn on each other.',
+            '咏唱大厅需要先建祭坛。咏唱者能让听力所及之处的敌兵停住脚步，假以时日，还能把他们争取过来。',
+            '让咏唱者待在战士身后：他们手无寸铁，而另一部族的咏唱者会打断法术。',
+            '因利害而结的盟迟早会散。坚持下去，说不定两面旗帜会自相残杀。',
           ],
         },
       },

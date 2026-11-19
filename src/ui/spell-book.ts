@@ -34,7 +34,7 @@ import { carve } from './lettering';
 import { activeSpell } from './tools';
 import { tip, toast } from './tooltip';
 
-const TIER_NAMES = ['', 'Everyday', 'Battle', 'World-shaping'];
+const TIER_NAMES = ['', '日常', '战斗', '开天辟地'];
 const ROMAN = ['', 'I', 'II', 'III'];
 
 css('spell-book', `
@@ -116,12 +116,12 @@ export class SpellBook {
   constructor(private readonly ctx: UiContext) {
     this.el = h('div.sb.tg-panel.mat-stone');
     this.flow = h('span.flow');
-    this.el.appendChild(h('div.tg-panel-head', { html: `${carve('Spells')}<span class="cloth" style="flex:1"></span>` }, this.flow));
+    this.el.appendChild(h('div.tg-panel-head', { html: `${carve('法术')}<span class="cloth" style="flex:1"></span>` }, this.flow));
 
     for (const tier of [1, 2, 3] as const) {
       const row = h('div.sb-row');
       const label = h('div.sb-tier', { html: carve(ROMAN[tier]) });
-      tip(label, () => `<h4>Tier ${ROMAN[tier]} · ${TIER_NAMES[tier]}</h4><p>${tier === 1 ? 'Cheap, quick to recharge — use them freely.' : tier === 2 ? 'Spells that decide a battle.' : 'Spells that reshape the planet. Plan minutes ahead.'}</p>`);
+      tip(label, () => `<h4>第${ROMAN[tier]}阶 · ${TIER_NAMES[tier]}</h4><p>${tier === 1 ? '代价低廉、恢复迅速——可以随意使用。' : tier === 2 ? '能决定一场战斗胜负的法术。' : '重塑世界地形的法术。提前几分钟开始谋划吧。'}</p>`);
       row.appendChild(label);
       for (const def of SPELLS.filter((s) => s.tier === tier)) row.appendChild(this.slot(def));
       this.el.appendChild(row);
@@ -135,7 +135,7 @@ export class SpellBook {
     const pips = h('div.sb-pips');
     const gift = h('div.sb-gift');
     const eta = h('div.sb-eta');
-    const toggle = h('button.sb-toggle', { type: 'button', 'aria-label': `Toggle charging ${def.name}`, html: icon('charging', 11) });
+    const toggle = h('button.sb-toggle', { type: 'button', 'aria-label': `切换${def.name}的充能`, html: icon('charging', 11) });
     el.prepend(sweep);
     el.append(h('span.kbd', { text: key }), pips, gift, eta, toggle);
     const slot: Slot = { def, el, sweep, pips, gift, eta, lastP: -1, lastCharges: -1, shown: '' };
@@ -171,13 +171,13 @@ export class SpellBook {
     const why = w.castCheck('player', id, at.x, at.z);
     // Land-only spells may refuse the leader's own tile for terrain reasons;
     // that's about the target, not the spell — aiming will show it.
-    if (why === 'Must target land' || why === 'Out of range') return null;
-    if (why === 'No charges ready') {
+    if (why === '必须瞄准陆地' || why === '超出范围') return null;
+    if (why === '没有充能可用') {
       // Not broken, just not ready: say what is happening and when.
       const s = w.spellState('player', id);
       const name = spellDef(id).name;
-      if (!s.charging) return `${name} is not charging — right-click it to pour mana in`;
-      return Number.isFinite(s.eta) ? `${name} is gathering power — ready in ${fmtEta(s.eta)}` : `${name} is gathering power`;
+      if (!s.charging) return `${name}未在充能——右键点击它来注入法力`;
+      return Number.isFinite(s.eta) ? `${name}正在积蓄力量——${fmtEta(s.eta)}后准备就绪` : `${name}正在积蓄力量`;
     }
     return why;
   }
@@ -188,7 +188,7 @@ export class SpellBook {
     if (why) {
       if (slotEl) {
         const r = slotEl.getBoundingClientRect();
-        toast(why, r.left + r.width / 2, r.top, /gathering power|not charging/.test(why) ? 'info' : 'bad');
+        toast(why, r.left + r.width / 2, r.top, /积蓄力量|未在充能|没有充能可用/.test(why) ? 'info' : 'bad');
         slotEl.classList.remove('deny');
         void slotEl.offsetWidth;
         slotEl.classList.add('deny');
@@ -202,49 +202,49 @@ export class SpellBook {
   private howToLearn(id: SpellId): string {
     const stones = this.ctx.world.monuments.filter((m) => m.spell === id);
     if (stones.some((m) => m.mode === 'teach' && this.ctx.world.monumentAvailable(m))) {
-      return 'Taught by a standing stone. Send your leader to commune with it (select the leader, right-click the stone).';
+      return '由一座立石阵传授。让首领前去与之共感（选中首领，右键点击石阵）。';
     }
-    if (stones.some((m) => m.mode === 'gift')) return 'A standing stone lends casts of this spell. Commune with it to borrow them.';
-    if (stones.length > 0) return 'Its stone has already been claimed.';
-    return 'No standing stone on this planet teaches it.';
+    if (stones.some((m) => m.mode === 'gift')) return '一座立石阵会借出该法术的施放次数。与之共感即可借用。';
+    if (stones.length > 0) return '它的石阵已被他人占据。';
+    return '这颗星球上没有任何石阵传授它。';
   }
 
   private tooltip(def: SpellDef): string {
     const s = this.ctx.world.spellState('player', def.id);
     const key = labelFor(`spell:${def.id}`);
-    const aim = def.aim === 'line' ? 'A line from your leader' : def.aim === 'point' ? 'A point' : 'An area';
+    const aim = def.aim === 'line' ? '从首领拉出的一条线' : def.aim === 'point' ? '一个点' : '一片区域';
     const charge = !s.known
       ? '—'
       : s.charges >= s.max
-        ? 'Full'
+        ? '已满'
         : !s.charging
-          ? 'Not charging'
-          : `in ${fmtEta(s.eta)}`;
+          ? '未在充能'
+          : `${fmtEta(s.eta)}后`;
     // The tribe's own numbers: campaign boons and loadouts change both.
     const cost = Math.round(s.chargeMana * 10) / 10;
     const manaLine = cost === def.chargeMana
       ? `${cost}`
-      : `${cost} <span style="color:var(--${cost < def.chargeMana ? 'good' : 'warn'})">(usually ${def.chargeMana})</span>`;
-    const bonus = s.bonusCharges ? ` <span style="color:var(--good)">(+${s.bonusCharges} from boons)</span>` : '';
+      : `${cost} <span style="color:var(--${cost < def.chargeMana ? 'good' : 'warn'})">（通常 ${def.chargeMana}）</span>`;
+    const bonus = s.bonusCharges ? ` <span style="color:var(--good)">（加成 +${s.bonusCharges}）</span>` : '';
     let html =
-      `<div class="sub">Tier ${ROMAN[def.tier]} · ${TIER_NAMES[def.tier]}</div>` +
+      `<div class="sub">第${ROMAN[def.tier]}阶 · ${TIER_NAMES[def.tier]}</div>` +
       `<h4>${escapeHtml(def.name)}<span class="kbd">${key}</span></h4>` +
       `<p>${escapeHtml(def.blurb)}</p><dl class="stats">` +
-      `<dt>Charges</dt><dd>${s.known ? `${s.charges} / ${s.max}` : `holds ${s.max}`}${bonus}${s.gifted ? ` <span style="color:var(--gold)">+${s.gifted} gifted</span>` : ''}</dd>` +
-      `<dt>Next charge</dt><dd>${charge}</dd>` +
-      `<dt>Mana / charge</dt><dd>${manaLine}</dd>` +
-      `<dt>Range</dt><dd>${fmtTiles(def.range)} from your leader</dd>` +
-      (def.radius > 0 ? `<dt>${def.aim === 'line' ? 'Width' : 'Radius'}</dt><dd>${fmtTiles(def.radius)}</dd>` : '') +
-      `<dt>Duration</dt><dd>${def.duration > 0 ? fmtSeconds(def.duration) : 'Instant'}</dd>` +
-      `<dt>Cast time</dt><dd>${fmtSeconds(def.castSeconds)}</dd>` +
-      `<dt>Target</dt><dd>${aim}${def.anywhere ? ', land or water' : ', land only'}</dd></dl>`;
+      `<dt>充能</dt><dd>${s.known ? `${s.charges} / ${s.max}` : `可容纳 ${s.max}`}${bonus}${s.gifted ? ` <span style="color:var(--gold)">+${s.gifted} 借出</span>` : ''}</dd>` +
+      `<dt>下次充能</dt><dd>${charge}</dd>` +
+      `<dt>法力 / 每层充能</dt><dd>${manaLine}</dd>` +
+      `<dt>射程</dt><dd>距首领${fmtTiles(def.range)}</dd>` +
+      (def.radius > 0 ? `<dt>${def.aim === 'line' ? '宽度' : '半径'}</dt><dd>${fmtTiles(def.radius)}</dd>` : '') +
+      `<dt>持续时间</dt><dd>${def.duration > 0 ? fmtSeconds(def.duration) : '即时'}</dd>` +
+      `<dt>施法时间</dt><dd>${fmtSeconds(def.castSeconds)}</dd>` +
+      `<dt>目标</dt><dd>${aim}${def.anywhere ? '，陆地或水面' : '，仅限陆地'}</dd></dl>`;
     if (!s.known && s.gifted === 0) html += `<div class="note">${escapeHtml(this.howToLearn(def.id))}</div>`;
     else {
       const why = this.blockedReason(def.id);
       // Charging is a state, not a fault: amber note, not a red refusal.
-      if (why) html += `<div class="${/gathering power|not charging/.test(why) ? 'note' : 'why'}">${escapeHtml(why)}</div>`;
-      if (s.known && !s.charging) html += `<div class="note">Not charging — mana goes to your other spells.</div>`;
-      html += `<div class="hint">Click or press ${key}, then click the world. Right-click this slot to ${s.charging ? 'stop' : 'resume'} charging.</div>`;
+      if (why) html += `<div class="${/积蓄力量|未在充能|没有充能可用/.test(why) ? 'note' : 'why'}">${escapeHtml(why)}</div>`;
+      if (s.known && !s.charging) html += `<div class="note">未在充能——法力会流向你的其他法术。</div>`;
+      html += `<div class="hint">点击或按下 ${key}，然后点击世界施放。右键点击此槽位可${s.charging ? '停止' : '恢复'}充能。</div>`;
     }
     return html;
   }
@@ -295,6 +295,6 @@ export class SpellBook {
       setClass(slot.el, 'armed', armed === slot.def.id);
       setClass(slot.el, 'blocked', usable && !leaderHere);
     }
-    setText(this.flow, charging > 0 ? `${charging} charging` : 'none charging');
+    setText(this.flow, charging > 0 ? `${charging} 个充能中` : '无充能进行中');
   }
 }

@@ -18,35 +18,35 @@ export function fmtClock(seconds: number): string {
   return hh > 0 ? `${hh}:${String(mm).padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
 }
 
-/** A countdown: 4.2 → "5s", 95 → "1m 35s", Infinity → "—". */
+/** A countdown: 4.2 → "5秒", 95 → "1分 35秒", Infinity → "—". */
 export function fmtEta(seconds: number): string {
   if (!Number.isFinite(seconds)) return '—';
   const s = Math.max(0, Math.ceil(seconds));
-  if (s < 60) return `${s}s`;
+  if (s < 60) return `${s}秒`;
   const m = Math.floor(s / 60);
-  return `${m}m ${String(s % 60).padStart(2, '0')}s`;
+  return `${m}分 ${String(s % 60).padStart(2, '0')}秒`;
 }
 
-/** ETA that fits a spell slot: "45s", "2m 05s", then whole minutes from ten ("14m"). */
+/** ETA that fits a spell slot: "45秒", "2分 05秒", then whole minutes from ten ("14分"). */
 export function fmtEtaShort(seconds: number): string {
-  if (Number.isFinite(seconds) && seconds >= 600) return `${Math.ceil(seconds / 60)}m`;
+  if (Number.isFinite(seconds) && seconds >= 600) return `${Math.ceil(seconds / 60)}分`;
   return fmtEta(seconds);
 }
 
-/** Mana per second, one decimal: 1.53 → "+1.5/s". */
+/** Mana per second, one decimal: 1.53 → "+1.5/秒". */
 export function fmtRate(perSecond: number): string {
-  return `+${(Math.round(perSecond * 10) / 10).toFixed(1)}/s`;
+  return `+${(Math.round(perSecond * 10) / 10).toFixed(1)}/秒`;
 }
 
-/** 1 → "1 tile", 4.5 → "4.5 tiles". */
+/** 1 → "1 格", 4.5 → "4.5 格". */
 export function fmtTiles(n: number): string {
   const v = Math.round(n * 10) / 10;
-  return `${v} ${v === 1 ? 'tile' : 'tiles'}`;
+  return `${v} 格`;
 }
 
-/** 0 → "Instant", 2.5 → "2.5s". */
+/** 0 → "即时", 2.5 → "2.5秒". */
 export function fmtSeconds(n: number): string {
-  return n <= 0 ? 'Instant' : `${Math.round(n * 10) / 10}s`;
+  return n <= 0 ? '即时' : `${Math.round(n * 10) / 10}秒`;
 }
 
 /** Player-facing name of a building (dwellings by their tier). */
@@ -64,43 +64,43 @@ type ActivityUnit = Pick<
  * the building a garrisoned unit is inside (null if unknown).
  */
 export function activityText(u: ActivityUnit, insideKind: string | null = null): string {
-  if (u.hp <= 0) return 'Fallen';
-  if (u.lifted > 0) return 'Caught in the wind';
-  if (u.pacified > 0) return 'Spellbound by a chant';
-  if (u.castSpell) return u.state === 'working' ? `Casting ${spellDef(u.castSpell).name}` : `Going to cast ${spellDef(u.castSpell).name}`;
+  if (u.hp <= 0) return '已倒下';
+  if (u.lifted > 0) return '被风潮卷起';
+  if (u.pacified > 0) return '被咏唱魅惑';
+  if (u.castSpell) return u.state === 'working' ? `正在施放${spellDef(u.castSpell).name}` : `前去施放${spellDef(u.castSpell).name}`;
   if (u.garrison >= 0 || (u.hidden && u.state === 'inside')) {
-    if (insideKind === 'shrine') return 'Praying at the shrine';
-    if (insideKind === 'tower') return 'Manning the watchtower';
-    if (insideKind && BUILDINGS[insideKind as keyof typeof BUILDINGS]?.trains) return 'In training';
-    return 'At home';
+    if (insideKind === 'shrine') return '在祭坛祈祷';
+    if (insideKind === 'tower') return '驻守瞭望塔';
+    if (insideKind && BUILDINGS[insideKind as keyof typeof BUILDINGS]?.trains) return '训练中';
+    return '在家';
   }
   switch (u.task) {
     case 'chop':
-      return u.state === 'working' ? 'Felling a tree' : 'Going to fell a tree';
+      return u.state === 'working' ? '砍伐树木' : '前去伐木';
     case 'deliverWood':
-      return 'Hauling wood';
+      return '搬运木材';
     case 'build':
-      return u.state === 'working' ? 'Building' : 'Going to build';
+      return u.state === 'working' ? '建造中' : '前去建造';
     case 'goHome':
-      return 'Heading home';
+      return '回家';
     case 'train':
-      return 'Going to train';
+      return '前去训练';
     case 'attack':
-      return u.state === 'fighting' ? 'Fighting' : 'Charging an enemy';
+      return u.state === 'fighting' ? '战斗中' : '冲向敌人';
     case 'attackBuilding':
-      return u.state === 'fighting' ? 'Wrecking a building' : 'Marching on a building';
+      return u.state === 'fighting' ? '摧毁建筑' : '扑向建筑';
     case 'worship':
-      return u.state === 'working' ? 'Communing with a stone' : 'Going to a standing stone';
+      return u.state === 'working' ? '与石阵共感' : '前往石阵';
     case 'garrison':
-      return 'Heading inside';
+      return '进入建筑';
     case 'chant':
-      return 'Chanting';
+      return '咏唱中';
     default:
       break;
   }
-  if (u.state === 'fighting') return 'Fighting';
-  if (u.state === 'moving') return u.carrying ? 'Hauling wood' : 'Walking';
-  if (u.kind === 'brave') return 'Idle';
-  if (u.kind === 'shaman') return 'Ready to cast';
-  return UNITS[u.kind].sight > 0 ? 'Standing guard' : 'Waiting';
+  if (u.state === 'fighting') return '战斗中';
+  if (u.state === 'moving') return u.carrying ? '搬运木材' : '行走中';
+  if (u.kind === 'brave') return '待命';
+  if (u.kind === 'shaman') return '随时可施法';
+  return UNITS[u.kind].sight > 0 ? '站岗中' : '等候';
 }

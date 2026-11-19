@@ -117,9 +117,9 @@ export interface Civ {
 export const CIVS: Record<CivId, Civ> = {
   forest: {
     id: 'forest',
-    name: 'Forest Tribe',
-    leaderTitle: 'the Grove-Speaker',
-    blurb: 'Thatch, totems, and a leader who listens to the trees.',
+    name: '丛林部落',
+    leaderTitle: '林语者',
+    blurb: '茅草、图腾，还有一位聆听树木的首领。',
     roof: 'thatch',
     roofColor: 0xc9a84c,
     wallColor: 0xb08d5e,
@@ -127,9 +127,9 @@ export const CIVS: Record<CivId, Civ> = {
   },
   dynasty: {
     id: 'dynasty',
-    name: 'River Dynasty',
-    leaderTitle: 'the God-King',
-    blurb: 'Sandstone, gold, and a crown that touches the sky.',
+    name: '大河王朝',
+    leaderTitle: '神王',
+    blurb: '砂岩、黄金，以及一顶触及苍穹的王冠。',
     roof: 'stepped',
     roofColor: 0xd8b36a,
     wallColor: 0xcfb284,
@@ -137,9 +137,9 @@ export const CIVS: Record<CivId, Civ> = {
   },
   north: {
     id: 'north',
-    name: 'Northmen',
-    leaderTitle: 'the Far-Seer',
-    blurb: 'Steep timber halls and weather gods with short tempers.',
+    name: '北地人',
+    leaderTitle: '远视者',
+    blurb: '陡峭的木殿，还有一群脾气火爆的天象之神。',
     roof: 'gabled',
     roofColor: 0x5e4a32,
     wallColor: 0x8a6a47,
@@ -161,9 +161,9 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
  * with more or less of a head start in followers.
  */
 export const DIFFICULTIES: Record<Difficulty, { aiEvalSeconds: number; aiCastGap: number; aiDwellings: number; redStartBraves: number; label: string }> = {
-  easy: { aiEvalSeconds: 4, aiCastGap: 16, aiDwellings: 6, redStartBraves: 6, label: 'A patient, sleepy god' },
-  normal: { aiEvalSeconds: 2, aiCastGap: 9, aiDwellings: 8, redStartBraves: 8, label: 'An even match' },
-  hard: { aiEvalSeconds: 1.3, aiCastGap: 5.5, aiDwellings: 11, redStartBraves: 11, label: 'It dreams of your extinction' },
+  easy: { aiEvalSeconds: 4, aiCastGap: 16, aiDwellings: 6, redStartBraves: 6, label: '一位耐心、昏昏欲睡的神' },
+  normal: { aiEvalSeconds: 2, aiCastGap: 9, aiDwellings: 8, redStartBraves: 8, label: '势均力敌的一战' },
+  hard: { aiEvalSeconds: 1.3, aiCastGap: 5.5, aiDwellings: 11, redStartBraves: 11, label: '它正梦想着你的覆灭' },
 };
 
 // ---------------------------------------------------------------------------

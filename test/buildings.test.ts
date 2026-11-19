@@ -25,7 +25,7 @@ describe('placement', () => {
     w.tribes.player!.wood = 100;
     let s = w.buildState('player', 'fireHut');
     expect(s.unlocked).toBe(false);
-    expect(s.reason).toMatch(/War Lodge/);
+    expect(s.reason).toMatch(/战团木屋/);
     expect(w.placeBuilding('player', 'fireHut', 40, 40)).toBe(false);
     const lodge = w.spawnBuilding('player', 'warriorHut', 50, 50, { complete: false });
     expect(w.buildState('player', 'fireHut').unlocked).toBe(false); // must be complete
@@ -40,7 +40,7 @@ describe('placement', () => {
     const w = flatWorld(rulesFor([{ id: 'player', ai: false, loadout: { buildings: ['hut'] } }, { id: 'red', ai: false }]));
     w.tribes.player!.wood = 2;
     expect(w.buildState('player', 'hut')).toMatchObject({ allowed: true, affordable: false });
-    expect(w.buildState('player', 'hut').reason).toMatch(/wood/i);
+    expect(w.buildState('player', 'hut').reason).toMatch(/木材/);
     expect(w.buildState('player', 'tower')).toMatchObject({ allowed: false });
     expect(w.buildState('player', 'tower').reason).toBeTruthy();
   });

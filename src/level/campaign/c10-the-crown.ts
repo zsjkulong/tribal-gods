@@ -39,9 +39,9 @@ export const LAYOUT = {
 export const scenario: CampaignScenario = {
   id: 'c10_the_crown',
   chapter: 10,
-  title: 'The Crown',
-  tagline: 'The last ring of land above the tide. Four peoples. One will remain.',
-  teaches: 'Everything: last tribe standing',
+  title: '王冠',
+  tagline: '潮水之上最后一圈陆地。四个部族。只有一个能留下。',
+  teaches: '一切：成为最后存活的部族',
   async build() {
     const t = new Terrain(101010);
     const { home, red, gold, violet, stones } = LAYOUT;
@@ -69,8 +69,8 @@ export const scenario: CampaignScenario = {
     }
     const S = stones;
     return makeLevel({
-      name: 'The Crown',
-      desc: 'Campaign X. A ring of land around a lagoon, four tribes, the Volcano on the Crown.',
+      name: '王冠',
+      desc: '战役十。一座环湖之岛，四个部族，王冠上的火山。',
       terrain: t,
       homes: { player: home, red, gold, violet },
       civs: { red: 'north', gold: 'dynasty', violet: 'north' },
@@ -89,7 +89,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'flatten', 'bloom', 'ward', 'lightning', 'warsong', 'swamp', 'landbridge'],
               startUnits: { brave: 10 },
@@ -97,39 +97,39 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'red', name: 'the Ashmark', ai: true,
+            id: 'red', name: '灰痕族', ai: true,
             personality: { harassAt: 4, assaultAt: 9 },
             loadout: { spells: ['blast', 'convert', 'lightning', 'warsong'], startUnits: { brave: 9 } },
           },
           {
-            id: 'gold', name: 'the Saltborn', ai: true,
+            id: 'gold', name: '盐裔', ai: true,
             personality: { harassAt: 7, assaultAt: 15, prefer: ['warden', 'firewarrior', 'warrior'] },
             loadout: { spells: ['blast', 'convert', 'ward', 'swamp'], startUnits: { brave: 9 } },
           },
           {
-            id: 'violet', name: 'the Unmoored', ai: true,
+            id: 'violet', name: '无根族', ai: true,
             personality: { harassAt: 5, assaultAt: 11, prefer: ['chanter', 'warrior'] },
             loadout: { spells: ['blast', 'convert', 'lightning', 'bloom'], startUnits: { brave: 9 } },
           },
         ],
         objectives: [
-          { objective: { type: 'destroyAll' }, text: 'Be the last tribe standing' },
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Learn Volcano on the Crown', optional: true },
+          { objective: { type: 'destroyAll' }, text: '成为最后存活的部族' },
+          { objective: { type: 'claimMonument', index: 0 }, text: '在王冠之巅学会火山', optional: true },
         ],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Wanderers on the shore east of the village. Kindle them — then the stones round the ring are waiting, and guarded.', focus: { x: LAYOUT.home.x + 10, z: LAYOUT.home.z - 3 }, actions: [] },
-          { when: { type: 'commune', index: 0 }, message: 'Someone kneels on the Crown. Whoever finishes that ritual holds the mountain’s fire.', focus: LAYOUT.centre, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '村子东岸有漂泊者。感化他们——环形诸石阵正在等待，也正被守卫着。', focus: { x: LAYOUT.home.x + 10, z: LAYOUT.home.z - 3 }, actions: [] },
+          { when: { type: 'commune', index: 0 }, message: '有人跪在了王冠之上。谁完成那场仪式，谁就握住了山峦之火。', focus: LAYOUT.centre, actions: [] },
         ],
         briefing: {
-          title: 'The Crown',
+          title: '王冠',
           body:
-            'This is the last ring of land the Long Tide has not taken, and every people that survived it is here: the Ashmark to the west, the Saltborn to the north, the Unmoored to the east. ' +
-            'In the still lagoon stands the Crown, and on it the stone of the mountain’s fire. Around the ring, the stones of quake and storm and undertow wait for whoever walks to them. ' +
-            'Everything we have learned is ours to use. There will be no more shores after this one.',
+            '这是长潮尚未夺走的最后一圈陆地，每一个熬过来的部族都在这里：西边的灰痕族，北边的盐裔，东边的无根族。' +
+            '宁静的环湖中央矗立着王冠，山峦之火的石阵在其之上。环岛四周，大地震动、风暴与暗流的石阵，正等待走向它们的人。' +
+            '我们所学的一切尽可放手使用。过了这片海岸，就再无海岸。',
           tips: [
-            'The Ashmark will come early. Towers and Warriors first, ambition second.',
-            'Only Causeway reaches the Crown. Volcano from the centre can reach any town on the ring.',
-            'Three rivals fight each other too. Let them, when you can.',
+            '灰痕族会早早来攻。先造瞭望塔和战士，野心次之。',
+            '只有石道能抵达王冠。从中心释放的火山，能覆盖环上任何一座城镇。',
+            '三个对手彼此也在争斗。但凡能让他们斗下去，就让他们斗。',
           ],
         },
       },

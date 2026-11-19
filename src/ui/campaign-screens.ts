@@ -184,10 +184,10 @@ export class CampaignMapScreen extends Overlay {
   show(nodes: MapNode[]): void {
     this.open();
     const head = el('div', 'tgc-head');
-    head.append(carved('h1', 'tgc-title', 'The Long Tide'), el('span', 'tgc-sub', `${nodes.filter((n) => n.state === 'won').length} of ${nodes.length} chapters`));
-    head.appendChild(button('Back', () => this.hooks.onClose()));
+    head.append(carved('h1', 'tgc-title', '长潮'), el('span', 'tgc-sub', `领先之路已过 ${nodes.filter((n) => n.state === 'won').length} / ${nodes.length} 章`));
+    head.appendChild(button('返回', () => this.hooks.onClose()));
     this.inner.appendChild(head);
-    const intro = el('p', 'tgc-sub', 'The sea is rising. The Lantern-folk have lost one shore already; this is the road to the last one.');
+    const intro = el('p', 'tgc-sub', '海水正在上涨。灯民已失去一片海岸——这是通往最后一片海岸的路。');
     intro.style.margin = '0 0 18px';
     this.inner.appendChild(intro);
 
@@ -204,10 +204,10 @@ export class CampaignMapScreen extends Overlay {
       if (n.state === 'won') {
         const total = n.starsTotal ?? 0;
         if (total > 0) meta.appendChild(el('div', 'tgc-stars', '★'.repeat(n.stars) + '☆'.repeat(Math.max(0, total - n.stars))));
-        meta.appendChild(el('div', undefined, `best ${formatTime(n.bestTime)}`));
-        if (n.boon) meta.appendChild(el('div', undefined, `boon: ${n.boon}`));
-      } else if (n.state === 'open') meta.appendChild(el('div', undefined, n.current ? 'next on the road' : 'open'));
-      else meta.appendChild(el('div', undefined, 'locked'));
+        meta.appendChild(el('div', undefined, `最佳成绩 ${formatTime(n.bestTime)}`));
+        if (n.boon) meta.appendChild(el('div', undefined, `遗赠：${n.boon}`));
+      } else if (n.state === 'open') meta.appendChild(el('div', undefined, n.current ? '路的前方' : '已开启'));
+      else meta.appendChild(el('div', undefined, '已锁定'));
       card.append(num, text, meta);
       if (n.state !== 'locked') card.addEventListener('click', () => this.hooks.onPick(n.id));
       trail.appendChild(card);
@@ -259,10 +259,10 @@ function drawTrail(trail: HTMLElement, cards: HTMLElement[]): void {
 export function failText(f: FailCondition): string | null {
   switch (f.type) {
     case 'tribeDestroyed': return null;
-    case 'leaderDies': return 'Your leader must not fall — there is no return this time.';
-    case 'timeLimit': return `Finish within ${formatTime(f.seconds)}.`;
-    case 'buildingLost': return `Lose every ${BUILDINGS[f.kind].name} and it is over.`;
-    case 'monumentTaken': return 'If a rival communes at the stone first, it is over.';
+    case 'leaderDies': return '你的首领不能倒下——这一次没有归路。';
+    case 'timeLimit': return `在${formatTime(f.seconds)}内完成。`;
+    case 'buildingLost': return `失去全部${BUILDINGS[f.kind].name}即告失败。`;
+    case 'monumentTaken': return '若敌对首领先一步在石阵共感，即告失败。';
   }
 }
 
@@ -278,8 +278,8 @@ export function scriptedDefeats(rules: ScenarioRules): string[] {
     if (!defeat) continue;
     const t = e.when;
     if (t.type === 'killed' && t.tribe === 'player') {
-      const who = t.kind ? `${t.count} ${UNITS[t.kind].name}${t.count === 1 ? '' : 's'}` : `${t.count} of your people`;
-      out.push(`If ${who} ${t.count === 1 ? 'dies' : 'die'}, it is over.`);
+      const who = t.kind ? `${t.count} 名${UNITS[t.kind].name}` : `你的 ${t.count} 名族人`;
+      out.push(`若${who}倒下，即告失败。`);
     } else out.push(defeat.reason);
   }
   return out;
@@ -301,17 +301,17 @@ export function describeLoadout(rules: ScenarioRules) {
     const extra = lo.extraCharges?.[id] ?? 0;
     const cost = lo.chargeCost?.[id];
     let note = '';
-    if (extra) note += ` +${extra} charge`;
-    if (cost && cost !== 1) note += cost > 1 ? ` ×${cost} cost` : ` −${Math.round((1 - cost) * 100)}% cost`;
+    if (extra) note += ` +${extra} 次充能`;
+    if (cost && cost !== 1) note += cost > 1 ? ` ×${cost} 施放消耗` : ` −${Math.round((1 - cost) * 100)}% 施放消耗`;
     return spellDef(id).name + note;
   });
-  const gifts = Object.entries(lo.gifts ?? {}).map(([id, n]) => `${spellDef(id as SpellId).name} ×${n} (free)`);
-  const buildings = lo.buildings === undefined ? 'Every building' : lo.buildings.length === 0 ? 'None — no building at all' : lo.buildings.map((k) => BUILDINGS[k].name).join(', ');
+  const gifts = Object.entries(lo.gifts ?? {}).map(([id, n]) => `${spellDef(id as SpellId).name} ×${n}（免费）`);
+  const buildings = lo.buildings === undefined ? '所有建筑' : lo.buildings.length === 0 ? '无——没有任何建筑' : lo.buildings.map((k) => BUILDINGS[k].name).join('、');
   const units: Partial<Record<UnitKind, number>> = { brave: START_BRAVES, ...(lo.startUnits ?? {}) };
   const people = (Object.entries(units) as Array<[UnitKind, number]>)
     .filter(([k, n]) => n > 0 && k !== 'shaman')
-    .map(([k, n]) => `${n} ${UNITS[k].name}${n === 1 ? '' : 's'}`);
-  if ((units.shaman ?? 1) > 0) people.unshift('your Leader');
+    .map(([k, n]) => `${n} 名${UNITS[k].name}`);
+  if ((units.shaman ?? 1) > 0) people.unshift('你的首领');
   return { spells: [...spells, ...gifts], buildings, people, wood: lo.startWood ?? START_WOOD, startBuildings: (lo.startBuildings ?? []).map((k) => BUILDINGS[k].name) };
 }
 
@@ -324,7 +324,7 @@ export class BriefingScreen extends Overlay {
     this.open();
     const b = d.rules.briefing;
     const head = el('div', 'tgc-head');
-    head.append(el('span', 'tgc-sub', `Chapter ${roman(d.chapter)}`), carved('h1', 'tgc-title', b.title));
+    head.append(el('span', 'tgc-sub', `第${roman(d.chapter)}章`), carved('h1', 'tgc-title', b.title));
     head.style.flexDirection = 'column';
     head.style.alignItems = 'flex-start';
     head.style.gap = '4px';
@@ -332,20 +332,20 @@ export class BriefingScreen extends Overlay {
 
     const grid = el('div', 'tgc-grid');
     const story = el('div', 'tgc-panel tg-panel mat-hide');
-    story.append(el('p', 'tgc-body', b.body), el('div', 'tgc-h', 'Counsel'));
+    story.append(el('p', 'tgc-body', b.body), el('div', 'tgc-h', '建言'));
     const tips = el('ul', 'tgc-list');
     for (const t of b.tips) tips.appendChild(el('li', undefined, t));
     story.appendChild(tips);
 
-    story.appendChild(el('div', 'tgc-h', 'Objectives'));
+    story.appendChild(el('div', 'tgc-h', '目标'));
     for (const o of d.rules.objectives.filter((x) => x.after === undefined)) { // later steps of the story arrive in play
       const row = el('div', `tgc-obj${o.optional ? ' optional' : ''}`);
-      row.append(el('span', 'mark', o.optional ? '☆' : '◆'), el('span', undefined, o.text + (o.optional ? ' (optional)' : '')));
+      row.append(el('span', 'mark', o.optional ? '☆' : '◆'), el('span', undefined, o.text + (o.optional ? '（可选）' : '')));
       story.appendChild(row);
     }
     const fails = [...(d.rules.fail ?? []).map((f) => failText(f)).filter((x): x is string => !!x), ...scriptedDefeats(d.rules)];
     if (fails.length) {
-      story.appendChild(el('div', 'tgc-h', 'Beware'));
+      story.appendChild(el('div', 'tgc-h', '警示'));
       for (const f of fails) {
         const row = el('div', 'tgc-obj miss');
         row.append(el('span', 'mark', '✕'), el('span', undefined, f));
@@ -360,27 +360,27 @@ export class BriefingScreen extends Overlay {
       for (const i of items) c.appendChild(el('span', `tgc-chip ${cls}`, i));
       return c;
     };
-    side.append(el('div', 'tgc-h', 'Your spells'), chips(lo.spells));
-    side.append(el('div', 'tgc-h', 'You may build'), el('div', undefined, lo.buildings));
-    side.append(el('div', 'tgc-h', 'You bring'), el('div', undefined, `${lo.people.join(', ')} · ${lo.wood} wood`));
+    side.append(el('div', 'tgc-h', '你的法术'), chips(lo.spells));
+    side.append(el('div', 'tgc-h', '可建造'), el('div', undefined, lo.buildings));
+    side.append(el('div', 'tgc-h', '你带来'), el('div', undefined, `${lo.people.join('、')} · ${lo.wood} 木材`));
     if (lo.startBuildings.length || d.level.buildings?.some((x) => x.tribe === 'player')) {
       const standing = [...(d.level.buildings ?? []).filter((x) => x.tribe === 'player').map((x) => BUILDINGS[x.kind].name), ...lo.startBuildings];
-      side.append(el('div', 'tgc-h', 'Already standing'), el('div', undefined, standing.join(', ')));
+      side.append(el('div', 'tgc-h', '已有建筑'), el('div', undefined, standing.join('、')));
     }
     const stones = d.level.monuments.map((m) => {
       const name = spellDef(m.spell).name;
-      if (m.mode === 'gift') return `${name} — gift, ${m.charges ?? 2} cast${(m.charges ?? 2) === 1 ? '' : 's'}${m.cooldown ? `, then sleeps ${formatTime(m.cooldown)}` : ''}`;
-      return `${name} — teaches${m.opensAt ? `, wakes at ${formatTime(m.opensAt)}` : ''}`;
+      if (m.mode === 'gift') return `${name} — 赠礼，可施放 ${m.charges ?? 2} 次${m.cooldown ? `，随后沉睡 ${formatTime(m.cooldown)}` : ''}`;
+      return `${name} — 传授${m.opensAt ? `，${formatTime(m.opensAt)} 时苏醒` : ''}`;
     });
-    side.append(el('div', 'tgc-h', 'The stones offer'), stones.length ? chips(stones, 'gift') : el('div', 'tgc-sub', 'No standing stones here.'));
+    side.append(el('div', 'tgc-h', '石阵的馈赠'), stones.length ? chips(stones, 'gift') : el('div', 'tgc-sub', '此处没有立石阵。'));
     const rivals = d.rules.tribes.filter((t) => t.id !== 'player');
     if (rivals.length) {
       const name = (id: TribeId) => tribeName(d.rules, id);
-      side.append(el('div', 'tgc-h', 'Others here'), el('div', undefined, rivals.map((t) => name(t.id) + (t.allies?.length ? ` (allied with ${t.allies.map(name).join(', ')})` : '')).join('; ')));
+      side.append(el('div', 'tgc-h', '此地的其他部落'), el('div', undefined, rivals.map((t) => name(t.id) + (t.allies?.length ? `（与${t.allies.map(name).join('、')}结盟）` : '')).join('；')));
     }
-    if (d.boons.length) side.append(el('div', 'tgc-h', 'Boons you carry'), chips(d.boons.map((id) => BOONS[id].name)));
+    if (d.boons.length) side.append(el('div', 'tgc-h', '你带上的遗赠'), chips(d.boons.map((id) => BOONS[id].name)));
     if (d.pendingBoon && this.hooks.onBoon) {
-      side.append(el('div', 'tgc-h', `Unclaimed boon — ${d.pendingBoon.chapterTitle}`));
+      side.append(el('div', 'tgc-h', `未领取的遗赠 — ${d.pendingBoon.chapterTitle}`));
       const grid = el('div', 'tgc-boons');
       for (const id of d.pendingBoon.offer) {
         const b = el('button', 'tgc-btn tg-btn tgc-boon');
@@ -394,7 +394,7 @@ export class BriefingScreen extends Overlay {
     this.inner.appendChild(grid);
 
     const actions = el('div', 'tgc-actions');
-    actions.append(button('Back to the map', () => this.hooks.onBack()), button('Begin', () => this.hooks.onPlay(), true));
+    actions.append(button('返回地图', () => this.hooks.onBack()), button('开始', () => this.hooks.onPlay(), true));
     this.inner.appendChild(actions);
   }
 }
@@ -428,14 +428,14 @@ export class DebriefScreen extends Overlay {
     this.open();
     const win = d.result === 'victory';
     const head = el('div');
-    head.append(el('div', 'tgc-sub', `Chapter ${roman(d.chapter)} · ${d.title}`), carved('h1', `tgc-result ${d.result}`, win ? 'Victory' : 'Defeat'), el('p', 'tgc-body', d.reason));
+    head.append(el('div', 'tgc-sub', `第${roman(d.chapter)}章 · ${d.title}`), carved('h1', `tgc-result ${d.result}`, win ? '胜利' : '战败'), el('p', 'tgc-body', d.reason));
     head.style.marginBottom = '18px';
     this.inner.appendChild(head);
 
     const panel = el('div', 'tgc-panel tg-panel mat-hide');
-    panel.appendChild(el('div', 'tgc-h', 'Time'));
-    panel.appendChild(el('div', undefined, `${formatTime(d.seconds)}${win && d.bestTime !== null ? ` · best ${formatTime(d.bestTime)}` : ''}`));
-    panel.appendChild(el('div', 'tgc-h', 'Objectives'));
+    panel.appendChild(el('div', 'tgc-h', '用时'));
+    panel.appendChild(el('div', undefined, `${formatTime(d.seconds)}${win && d.bestTime !== null ? ` · 最佳成绩 ${formatTime(d.bestTime)}` : ''}`));
+    panel.appendChild(el('div', 'tgc-h', '目标'));
     for (const o of d.objectives) {
       const row = el('div', `tgc-obj ${o.done ? 'done' : 'miss'}${o.optional ? ' optional' : ''}`);
       row.append(el('span', 'mark', o.done ? (o.optional ? '★' : '✓') : o.optional ? '☆' : '✕'), el('span', undefined, o.text));
@@ -447,7 +447,7 @@ export class DebriefScreen extends Overlay {
     if (win && d.boonOffer.length) {
       const boonPanel = el('div', 'tgc-panel tg-panel mat-hide');
       boonPanel.style.marginTop = '14px';
-      boonPanel.append(el('div', 'tgc-h', 'Choose a boon to carry forward'));
+      boonPanel.append(el('div', 'tgc-h', '选择一项遗赠携带至下一章'));
       const grid = el('div', 'tgc-boons');
       let chosen = d.boonChosen;
       const paint = () => {
@@ -471,9 +471,9 @@ export class DebriefScreen extends Overlay {
     }
 
     const actions = el('div', 'tgc-actions');
-    actions.append(button('Campaign map', () => this.hooks.onMap()), button(win ? 'Play again' : 'Try again', () => this.hooks.onRetry(), !win));
+    actions.append(button('战役地图', () => this.hooks.onMap()), button(win ? '再玩一次' : '再试一次', () => this.hooks.onRetry(), !win));
     if (win && d.hasNext) {
-      next = button('Next chapter', () => this.hooks.onNext(), true);
+      next = button('下一章', () => this.hooks.onNext(), true);
       next.disabled = d.boonOffer.length > 0 && !d.boonChosen;
       actions.appendChild(next);
     }

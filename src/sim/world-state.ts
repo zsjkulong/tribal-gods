@@ -1893,20 +1893,20 @@ export class World implements SimQueries {
   castCheck(tribe: TribeId, spell: SpellId, tx: number, tz: number): string | null {
     const t = this.tribes[tribe];
     const leader = this.leaderOf(tribe);
-    if (!t || !leader || leader.hidden) return 'Your leader is not here';
-    if (leader.task === 'worship' && leader.state === 'working') return 'Your leader is communing';
-    if (!hasCast(t.spells, t.known, spell)) return t.known.has(spell) ? 'No charges ready' : 'Spell not known';
+    if (!t || !leader || leader.hidden) return '你的首领不在这里';
+    if (leader.task === 'worship' && leader.state === 'working') return '你的首领正在共感';
+    if (!hasCast(t.spells, t.known, spell)) return t.known.has(spell) ? '没有充能可用' : '尚未知晓此法术';
     const def = spellDef(spell);
     const x = this.map.wrap(Math.round(tx));
     const z = this.map.wrap(Math.round(tz));
-    if (!def.anywhere && this.map.heightAt(x, z) < WALK_MIN_HEIGHT) return 'Must target land';
+    if (!def.anywhere && this.map.heightAt(x, z) < WALK_MIN_HEIGHT) return '必须瞄准陆地';
     if (this.distTo(leader, x, z) <= def.range) return null;
     // A spell that may land on water / another shore (Causeway at an islet):
     // walk to the nearest of OUR ground that puts the mark in range.
     const path = findPath(this.map, leader.x, leader.z, x, z, 4000, World.approachRadius(spell));
     const end = path && path.length > 0 ? path[path.length - 1] : null;
     if (!end || Math.hypot(wrapDelta(end.x - x, WORLD_SIZE), wrapDelta(end.z - z, WORLD_SIZE)) > def.range) {
-      return 'Out of range';
+      return '超出范围';
     }
     return null;
   }
@@ -1931,7 +1931,7 @@ export class World implements SimQueries {
       leader.castSpell = null;
       leader.castTarget = null;
       if (tribe === 'player') this.events.push({ type: 'denied', x: tx, z: tz });
-      return 'Out of range';
+      return '超出范围';
     }
     return null;
   }
@@ -2356,7 +2356,7 @@ export class World implements SimQueries {
   buildState(tribe: TribeId, kind: BuildingKind): BuildState {
     const t = this.tribes[tribe];
     const def = BUILDINGS[kind];
-    if (!t) return { allowed: false, unlocked: false, affordable: false, reason: 'No such tribe' };
+    if (!t) return { allowed: false, unlocked: false, affordable: false, reason: '没有这个部落' };
     const allowed = t.allowed.has(kind);
     const missing = def.requires.filter(
       (r) => !this.buildings.some((b) => b.tribe === tribe && b.kind === r && b.progress >= 1),
@@ -2364,9 +2364,9 @@ export class World implements SimQueries {
     const unlocked = missing.length === 0;
     const affordable = t.wood >= def.wood;
     let reason: string | null = null;
-    if (!allowed) reason = 'Not available in this scenario';
-    else if (!unlocked) reason = `Needs a ${missing.map((m) => BUILDINGS[m].name).join(' and a ')}`;
-    else if (!affordable) reason = `Needs ${def.wood - t.wood} more wood`;
+    if (!allowed) reason = '该场景中不可用';
+    else if (!unlocked) reason = `需要先建造${missing.map((m) => BUILDINGS[m].name).join('和')}`;
+    else if (!affordable) reason = `还需要${def.wood - t.wood}份木材`;
     return { allowed, unlocked, affordable, reason };
   }
 
@@ -3174,4 +3174,3 @@ export class World implements SimQueries {
     this.treesVersion++;
   }
 }
-

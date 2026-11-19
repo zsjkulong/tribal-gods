@@ -43,7 +43,7 @@ describe('campaign: fail conditions fire when forced', () => {
     w.hurtBuilding(shrine, 9999);
     run(w, 0.5);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/Shrine/);
+    expect(w.gameOverReason).toMatch(/祭坛/);
   });
 
   it('5 Caldera: a fully charged Volcano, cast on the raiders’ shore, wins', async () => {
@@ -68,7 +68,7 @@ describe('campaign: fail conditions fire when forced', () => {
     w.hurtUnit(w.leaderOf('player')!, 999);
     run(w, 0.5);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/leader/i);
+    expect(w.gameOverReason).toMatch(/首领/);
   });
 
   it('8 Firemount: the Ashmark commune first → defeat; the stone sleeps until minute four', async () => {
@@ -85,7 +85,7 @@ describe('campaign: fail conditions fire when forced', () => {
     w.orderWorship([red.id], 0);
     run(w, 40); // a tier-3 ritual: 35 seconds on the knees
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/stone/i);
+    expect(w.gameOverReason).toMatch(/石阵/);
   });
 
   it('8 Firemount: the half-hour runs out', async () => {
@@ -93,7 +93,7 @@ describe('campaign: fail conditions fire when forced', () => {
     w.elapsed = 1799.9;
     run(w, 0.5);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/time/i);
+    expect(w.gameOverReason).toMatch(/时间/);
   });
 
   it('9 Tide: holding the crown wins; the clock loses', async () => {
@@ -117,6 +117,6 @@ describe('campaign: fail conditions fire when forced', () => {
     w.elapsed = 899.9;
     run(w, 0.5);
     expect(w.hostile('red', 'gold')).toBe(true);
-    expect(w.messages.at(-1)?.text).toMatch(/alliance/);
+    expect(w.messages.at(-1)?.text).toMatch(/联盟/);
   });
 });

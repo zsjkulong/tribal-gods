@@ -67,7 +67,7 @@ export class BuildMenu {
 
   constructor(private readonly ctx: UiContext) {
     this.el = h('div.bm.tg-panel');
-    this.el.appendChild(h('div.tg-panel-head', { html: `${carve('Build')}<span class="cloth" style="flex:1"></span>` }));
+    this.el.appendChild(h('div.tg-panel-head', { html: `${carve('建造')}<span class="cloth" style="flex:1"></span>` }));
     const grid = h('div.bm-grid');
     for (const kind of BUILD_ORDER) {
       const def = BUILDINGS[kind];
@@ -91,7 +91,7 @@ export class BuildMenu {
       const t = this.tiles.find((x) => x.kind === kind);
       if (t) {
         const r = t.el.getBoundingClientRect();
-        toast(st.reason ?? 'Not available', r.left + r.width / 2, r.top);
+        toast(st.reason ?? '不可用', r.left + r.width / 2, r.top);
         t.el.classList.remove('deny');
         void t.el.offsetWidth;
         t.el.classList.add('deny');
@@ -109,18 +109,18 @@ export class BuildMenu {
     let html =
       `<h4>${escapeHtml(def.name)}<span class="kbd">${labelFor(`build:${kind}`)}</span></h4>` +
       `<p>${escapeHtml(def.blurb)}</p><dl class="stats">` +
-      `<dt>Cost</dt><dd>${def.wood} wood</dd>` +
-      `<dt>Footprint</dt><dd>${def.size} × ${def.size} tiles</dd>` +
-      `<dt>Build time</dt><dd>${fmtSeconds(def.buildSeconds)} of work</dd>` +
-      (def.trains ? `<dt>Trains</dt><dd>${UNITS[def.trains].name} (${UNITS[def.trains].trainWood} wood each)</dd>` : '') +
+      `<dt>造价</dt><dd>${def.wood} 木材</dd>` +
+      `<dt>占地</dt><dd>${def.size} × ${def.size} 格</dd>` +
+      `<dt>建造耗时</dt><dd>${fmtSeconds(def.buildSeconds)} 工时</dd>` +
+      (def.trains ? `<dt>可训练</dt><dd>${UNITS[def.trains].name}（每个${UNITS[def.trains].trainWood}木材）</dd>` : '') +
       `</dl>`;
     if (def.requires.length) {
       html += `<ul class="req">${def.requires
-        .map((r) => `<li class="${have(r) ? 'ok' : 'no'}">${icon(have(r) ? 'check' : 'close', 12)}Needs a ${escapeHtml(BUILDINGS[r].name)}</li>`)
+        .map((r) => `<li class="${have(r) ? 'ok' : 'no'}">${icon(have(r) ? 'check' : 'close', 12)}需要${escapeHtml(BUILDINGS[r].name)}</li>`)
         .join('')}</ul>`;
     }
     if (st.reason) html += `<div class="why">${escapeHtml(st.reason)}</div>`;
-    else html += `<div class="hint">Click, then click the ground. Shift-click to place several. Esc cancels.</div>`;
+    else html += `<div class="hint">点击选择，再点击地面放置。按住 Shift 点击可连续放置。Esc 取消。</div>`;
     return html;
   }
 

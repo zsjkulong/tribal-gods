@@ -83,7 +83,7 @@ export class SpellAim {
     const def = spellDef(spell);
     const hit = pickGroundTile(ptr.x, ptr.y, view.camera, world.map, view.target);
     const leader = world.leaderOf('player');
-    const why = hit ? this.check(spell, hit.x, hit.z) : 'Aim at the ground';
+    const why = hit ? this.check(spell, hit.x, hit.z) : '请瞄准地面';
     const col = why ? BAD : OK;
 
     this.fill.begin(col);
@@ -136,7 +136,7 @@ export class SpellAim {
     this.note.style.left = `${ptr.x}px`;
     this.note.style.top = `${ptr.y}px`;
     setClass(this.note, 'bad', !!why);
-    setText(this.noteText, why ?? (walking ? `${def.name} · leader walks into range` : `${def.name} · click to cast, shift for more`));
+    setText(this.noteText, why ?? (walking ? `${def.name} · 首领走进射程后施放` : `${def.name} · 点击施放，Shift 再次施放`));
     setText(this.noteKey, why ? '' : labelFor(`spell:${spell}`));
     this.noteKey.hidden = !!why;
   }

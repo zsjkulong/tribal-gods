@@ -54,7 +54,7 @@ export class BuildPlacer {
       const c = this.candidate;
       if (!c || c.kind !== kind) return;
       if (!c.ok || !ctx.world.placeBuilding('player', kind, c.x, c.z)) {
-        toast(c.why ?? 'Cannot build here', e.clientX, e.clientY);
+        toast(c.why ?? '此处无法建造', e.clientX, e.clientY);
         denied();
         return;
       }
@@ -70,16 +70,16 @@ export class BuildPlacer {
     const st = w.buildState('player', kind);
     if (st.reason) return st.reason;
     if (w.canPlaceBuilding('player', kind, cx, cz)) return null;
-    if (badTiles > 0) return 'Something is in the way';
-    if (laneBlocked) return 'Keep a path clear around buildings';
+    if (badTiles > 0) return '有东西挡住了路';
+    if (laneBlocked) return '建筑周围要保持通路';
     const r = (BUILDINGS[kind].size - 1) / 2;
     for (const id of w.activeTribes()) {
       const home = w.tribes[id]!.home;
       if (Math.abs(wrapDelta(cx - home.x, WORLD_SIZE)) < r + 3 && Math.abs(wrapDelta(cz - home.z, WORLD_SIZE)) < r + 3) {
-        return 'Too close to a home circle';
+        return '离部落驻地太近';
       }
     }
-    return 'The ground is too uneven';
+    return '这里地势不平';
   }
 
   update(): void {
@@ -147,6 +147,6 @@ export class BuildPlacer {
     this.note.style.left = `${ptr.x}px`;
     this.note.style.top = `${ptr.y}px`;
     setClass(this.note, 'bad', !ok);
-    setText(this.note, ok ? `${def.name} · ${def.wood} wood · click to place, shift for more  ${labelFor(`build:${kind}`)}` : why!);
+    setText(this.note, ok ? `${def.name} · 需木材 ${def.wood} · 点击放置，Shift 连续放置  ${labelFor(`build:${kind}`)}` : why!);
   }
 }

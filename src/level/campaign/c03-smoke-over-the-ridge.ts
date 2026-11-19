@@ -26,9 +26,9 @@ export const LAYOUT = {
 export const scenario: CampaignScenario = {
   id: 'c03_smoke_over_the_ridge',
   chapter: 3,
-  title: 'Smoke Over the Ridge',
-  tagline: 'Someone else’s cookfires, just over the rock. The Ashmark.',
-  teaches: 'War Lodge, warriors, holding a pass',
+  title: '岭上炊烟',
+  tagline: '岩脊那边，升起了别人家的炊烟——灰痕族。',
+  teaches: '战团木屋、战士、扼守关隘',
   async build() {
     const t = new Terrain(30303);
     const { home, red, pass, ward } = LAYOUT;
@@ -47,8 +47,8 @@ export const scenario: CampaignScenario = {
     t.pad(home.x, home.z, 8, 2.4, 5).pad(red.x, red.z, 8, 2.6, 5);
     t.addGrove(home.x - 6, home.z + 14, 10, 0.7).addGrove(red.x + 8, red.z - 14, 10, 0.7).addGrove(44, 86, 8, 0.4).addGrove(90, 40, 8, 0.4);
     return makeLevel({
-      name: 'Smoke Over the Ridge',
-      desc: 'Campaign III. One spine of rock, one pass, one rival.',
+      name: '岭上炊烟',
+      desc: '战役三。一条岩脊、一道关隘、一个对手。',
       terrain: t,
       homes: { player: home, red },
       civs: { red: 'north' },
@@ -60,7 +60,7 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'bloom', 'flatten'],
               buildings: ['hut', 'lumberyard', 'warriorHut', 'tower'],
@@ -69,7 +69,7 @@ export const scenario: CampaignScenario = {
             },
           },
           {
-            id: 'red', name: 'the Ashmark', ai: true,
+            id: 'red', name: '灰痕族', ai: true,
             personality: { passive: true, wakeAt: 480, harassAt: 4, assaultAt: 8, maxArmy: 8, maxDwellings: 4 },
             loadout: {
               spells: ['blast', 'convert'],
@@ -80,26 +80,26 @@ export const scenario: CampaignScenario = {
           },
         ],
         objectives: [
-          { objective: { type: 'destroyTribe', tribe: 'red' }, text: 'Drive the Ashmark from Twofold' },
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Learn Lightning at the stone in the pass', optional: true },
-          { objective: { type: 'buildCount', kind: 'tower', count: 2 }, text: 'Raise 2 Watchtowers', optional: true },
-          { objective: { type: 'castSpell', spell: 'lightning', count: 3 }, text: 'Call the lightning down three times', optional: true },
+          { objective: { type: 'destroyTribe', tribe: 'red' }, text: '把灰痕族赶出双屿' },
+          { objective: { type: 'claimMonument', index: 0 }, text: '在关隘的石阵学会闪电', optional: true },
+          { objective: { type: 'buildCount', kind: 'tower', count: 2 }, text: '建起2座瞭望塔', optional: true },
+          { objective: { type: 'castSpell', spell: 'lightning', count: 3 }, text: '召引闪电落下三次', optional: true },
         ],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Wanderers by the stream below the village. Kindle them — every pair of hands counts against the Ashmark.', focus: { x: 36, z: 76 }, actions: [] },
-          { when: { type: 'time', at: 40 }, message: 'The stone in the pass teaches the lightning. Kneel there before the Ashmark leader does — she will come with spears.', focus: LAYOUT.pass, actions: [] },
-          { when: { type: 'time', at: 470 }, message: 'Smoke and drums over the ridge. The Ashmark are done hiding.', focus: LAYOUT.red, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '村落下方的溪流边有漂泊者。感化他们——对抗灰痕族，每一双手都珍贵。', focus: { x: 36, z: 76 }, actions: [] },
+          { when: { type: 'time', at: 40 }, message: '关隘里的石阵记载着闪电之道。赶在灰痕族首领之前去那里跪下——她会带着长矛赶来。', focus: LAYOUT.pass, actions: [] },
+          { when: { type: 'time', at: 470 }, message: '岭那边升起了烟，响起了鼓。灰痕族不再躲藏了。', focus: LAYOUT.red, actions: [] },
         ],
         briefing: {
-          title: 'Smoke Over the Ridge',
+          title: '岭上炊烟',
           body:
-            'The far valley smokes in the mornings. The Ashmark came down from their burnt hills a season before us, and they do not share. ' +
-            'Twofold is split by a spine of rock with a single high pass, and a stone in that pass that teaches the lightning. ' +
-            'They are few yet — fewer than us — but that will not last. Build a War Lodge, raise spears, and take the valley before they fill it.',
+            '清晨，远处的山谷升起炊烟。灰痕族比我们早一季从那片烧焦的山岭上下来，他们从不与人分享。' +
+            '双屿被一条岩脊一分为二，岩脊上只有一道高隘，隘中有一块记载着闪电的石阵。' +
+            '他们人还不多——比我们少——但这不会长久。建起一座战团木屋，聚起长矛，趁山谷还没有被他们填满，把它夺过来。',
           tips: [
-            'A War Lodge turns villagers into Warriors. Queue a few, then rally them where you want them.',
-            'The pass is the short road for both of you; a Watchtower beside it sees them coming.',
-            'Keep enough villagers working — an army is only as big as the wood behind it.',
+            '战团木屋能把村民变成战士。先排几条队列，再把他们集结到你想要的地方。',
+            '这道关隘对双方都是捷径；在它旁边立一座瞭望塔，就能提前看见他们来。',
+            '让足够多的村民继续劳作——一支军队的规模，取决于背后有多少木材。',
           ],
         },
       },

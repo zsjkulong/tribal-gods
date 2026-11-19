@@ -138,7 +138,7 @@ describe('fail conditions', () => {
     w.hurtUnit(leader, 999);
     run(w, 0.2);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/leader/i);
+    expect(w.gameOverReason).toMatch(/首领/);
   });
 
   it('without leaderDies the leader returns', () => {

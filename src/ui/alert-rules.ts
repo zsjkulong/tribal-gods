@@ -82,36 +82,36 @@ export function deriveAlerts(a: Snapshot, b: Snapshot, mem: AlertMemory): Alert[
     mem.attacks = mem.attacks.filter((p) => b.t - p.t < ATTACK_COOLDOWN);
     if (!mem.attacks.some((p) => near(p.x, p.z, hit!.x, hit!.z, ATTACK_AREA))) {
       mem.attacks.push({ ...hit, t: b.t });
-      out.push({ kind: 'attack', text: 'Your people are under attack', tone: 'bad', ...hit });
+      out.push({ kind: 'attack', text: '你的子民正受到攻击', tone: 'bad', ...hit });
     }
   }
 
   // --- Leader ---
-  if (a.leaderAlive && !b.leaderAlive) out.push({ kind: 'leaderDown', text: 'Your leader has fallen', tone: 'bad' });
-  if (!a.leaderAlive && b.leaderAlive) out.push({ kind: 'leaderBack', text: 'Your leader has returned', tone: 'good' });
+  if (a.leaderAlive && !b.leaderAlive) out.push({ kind: 'leaderDown', text: '你的首领倒下了', tone: 'bad' });
+  if (!a.leaderAlive && b.leaderAlive) out.push({ kind: 'leaderBack', text: '你的首领归来了', tone: 'good' });
 
   // --- Spells learned / gifted ---
   for (const id of b.known) {
-    if (!a.known.includes(id)) out.push({ kind: 'learned', text: `Learned ${spellDef(id).name}`, tone: 'good' });
+    if (!a.known.includes(id)) out.push({ kind: 'learned', text: `学会了${spellDef(id).name}`, tone: 'good' });
   }
   for (const [id, n] of Object.entries(b.gifted) as Array<[SpellId, number]>) {
     const was = a.gifted[id] ?? 0;
-    if (n > was) out.push({ kind: 'gift', text: `A stone lends you ${n - was}× ${spellDef(id).name}`, tone: 'good' });
+    if (n > was) out.push({ kind: 'gift', text: `一座石阵借给你 ${n - was} 次${spellDef(id).name}`, tone: 'good' });
   }
 
   // --- Buildings ---
   for (const [id, bl] of b.buildings) {
     const was = a.buildings.get(id);
     if (!was) continue;
-    if (bl.done && !was.done) out.push({ kind: 'built', text: `${BUILDINGS[bl.kind].name} finished`, tone: 'info', x: bl.x, z: bl.z });
+    if (bl.done && !was.done) out.push({ kind: 'built', text: `${BUILDINGS[bl.kind].name}落成`, tone: 'info', x: bl.x, z: bl.z });
     if (bl.kind === 'hut' && bl.tier > was.tier) {
-      out.push({ kind: 'grew', text: `A dwelling grew into a ${DWELLING_TIERS[Math.min(2, bl.tier)].name}`, tone: 'good', x: bl.x, z: bl.z });
+      out.push({ kind: 'grew', text: `民居长成了${DWELLING_TIERS[Math.min(2, bl.tier)].name}`, tone: 'good', x: bl.x, z: bl.z });
     }
-    if (bl.burning && !was.burning) out.push({ kind: 'burning', text: `${BUILDINGS[bl.kind].name} is burning`, tone: 'bad', x: bl.x, z: bl.z });
+    if (bl.burning && !was.burning) out.push({ kind: 'burning', text: `${BUILDINGS[bl.kind].name}着火了`, tone: 'bad', x: bl.x, z: bl.z });
   }
   for (const [id, was] of a.buildings) {
     if (!b.buildings.has(id) && was.done) {
-      out.push({ kind: 'lost', text: `${BUILDINGS[was.kind].name} lost`, tone: 'bad', x: was.x, z: was.z });
+      out.push({ kind: 'lost', text: `${BUILDINGS[was.kind].name}已被摧毁`, tone: 'bad', x: was.x, z: was.z });
     }
   }
 
@@ -122,14 +122,14 @@ export function deriveAlerts(a: Snapshot, b: Snapshot, mem: AlertMemory): Alert[
     if (r.tribe === 'player' || ra.some((x) => x.index === r.index && x.tribe === r.tribe)) continue;
     const name = spellDef(r.spell).name;
     const who = r.who.charAt(0).toUpperCase() + r.who.slice(1);
-    out.push({ kind: 'ritual', text: `${who} ${r.who.startsWith('the ') ? 'are' : 'is'} communing at the ${name} stone`, tone: 'bad', x: r.x, z: r.z });
+    out.push({ kind: 'ritual', text: `${who}正在${name}石阵举行共感仪式`, tone: 'bad', x: r.x, z: r.z });
   }
   // (Your OWN ritual breaking is the sim's 'communeInterrupted' event — see ritualBrokenAlert —
   // because a diff can't tell a broken ritual from a finished one at a stone whose spell you knew.)
 
   // --- Objectives ---
   b.objectives.forEach((o, i) => {
-    if (o.done && a.objectives[i] && !a.objectives[i].done) out.push({ kind: 'objective', text: `Objective complete: ${o.text}`, tone: 'good' });
+    if (o.done && a.objectives[i] && !a.objectives[i].done) out.push({ kind: 'objective', text: `目标完成：${o.text}`, tone: 'good' });
   });
 
   return out;
@@ -138,9 +138,9 @@ export function deriveAlerts(a: Snapshot, b: Snapshot, mem: AlertMemory): Alert[
 /** The alert for the sim's `communeInterrupted` event when it is the player's ritual (else null). */
 export function ritualBrokenAlert(e: { type: string; tribe?: string; x: number; z: number; magnitude?: number }, spell: SpellId | null): Alert | null {
   if (e.type !== 'communeInterrupted' || e.tribe !== 'player') return null;
-  const pct = e.magnitude !== undefined ? ` at ${Math.round(e.magnitude * 100)}%` : '';
-  const where = spell ? ` at the ${spellDef(spell).name} stone` : '';
-  return { kind: 'ritualBroken', text: `Your leader's ritual${where} was broken${pct}`, tone: 'bad', x: e.x, z: e.z };
+  const pct = e.magnitude !== undefined ? `，进行到${Math.round(e.magnitude * 100)}%` : '';
+  const where = spell ? `在${spellDef(spell).name}石阵的共感仪式${pct}被强行打断` : `的共感仪式${pct}被强行打断`;
+  return { kind: 'ritualBroken', text: `你的首领${where}`, tone: 'bad', x: e.x, z: e.z };
 }
 
 /** How many casts happened between snapshots (charges + gifts that went down). */

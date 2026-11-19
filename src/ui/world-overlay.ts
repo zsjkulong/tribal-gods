@@ -302,7 +302,7 @@ export class WorldOverlay {
         setClass(s.ritual, 'idle', !r.communing);
         setClass(s.ritual, 'contested', r.communing && r.contested);
       }
-      const flag = r?.communing && r.contested ? 'Contested' : m.guardsAwake ? 'Guardians awake' : '';
+      const flag = r?.communing && r.contested ? '僵持中' : m.guardsAwake ? '守卫苏醒' : '';
       if (s.flag.textContent !== flag) s.flag.textContent = flag;
     });
   }

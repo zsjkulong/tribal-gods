@@ -179,7 +179,7 @@ describe('the ritual: communing takes time, and it can be broken', () => {
     w.monuments = [stone(20, 22)];
     w.orderWorship([leader.id], 0);
     run(w, 2);
-    expect(w.castCheck('player', 'blast', 24, 24)).toMatch(/communing/);
+    expect(w.castCheck('player', 'blast', 24, 24)).toMatch(/共感/);
     const hp = leader.hp;
     w.hurtUnit(leader, 10);
     expect(hp - leader.hp).toBeGreaterThan(10);
@@ -364,7 +364,7 @@ describe('the scenario language: triggers, actions, staged objectives', () => {
         { when: { type: 'commune', index: 0 }, delay: 2, actions: [{ type: 'message', text: 'they kneel', focus: { x: 1, z: 2 } }] },
         { when: { type: 'any', of: [{ type: 'time', at: 999 }, { type: 'killed', tribe: 'red', count: 2 }] }, actions: [{ type: 'message', text: 'two down' }] },
         { when: { type: 'joined', count: 1 }, actions: [{ type: 'message', text: 'kin' }] },
-        { when: { type: 'killed', tribe: 'player', count: 3, kind: 'brave' }, actions: [{ type: 'defeat', reason: 'Too many have fallen.' }] },
+        { when: { type: 'killed', tribe: 'player', count: 3, kind: 'brave' }, actions: [{ type: 'defeat', reason: '倒下的人太多了。' }] },
       ],
     }));
     const leader = w.spawn('shaman', 'player', 20, 20);
@@ -389,7 +389,7 @@ describe('the scenario language: triggers, actions, staged objectives', () => {
     for (let i = 0; i < 3; i++) w.spawn('brave', 'player', 40, 40 + i).hp = 0;
     run(w, 0.2);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/fallen/);
+    expect(w.gameOverReason).toMatch(/倒下/);
   });
 
   it('objectives in steps: `after` keeps one hidden until the last is done, and counts start then', () => {

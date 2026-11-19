@@ -212,7 +212,7 @@ describe('objectives & fails added for the campaign', () => {
     w.orderWorship([w.leaderOf('red')!.id], 0);
     run(w, 12);
     expect(w.gameOver).toBe('defeat');
-    expect(w.gameOverReason).toMatch(/stone/i);
+    expect(w.gameOverReason).toMatch(/石阵/);
   });
 
   it('a stone with opensAt sleeps until then', () => {

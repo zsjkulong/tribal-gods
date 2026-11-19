@@ -115,10 +115,30 @@ export function letterPath(text: string): { d: string; width: number } {
 }
 
 /**
+ * True when every character can be drawn as cut strokes — the carved Latin
+ * alphabet, digits and the small punctuation set above. Anything else
+ * (Chinese, accented Latin, emoji, …) falls back to the display face.
+ */
+export function canCarve(text: string): boolean {
+  for (const ch0 of text) {
+    if (ch0 === '\n') continue;
+    const ch = ch0 === '’' ? "'" : ch0.toUpperCase();
+    if (!G[ch]) return false;
+  }
+  return true;
+}
+
+/**
  * Carved lettering as an HTML string: an inline SVG one em tall (cap height
- * = 1em, so size it with font-size), plus the text for readers.
+ * = 1em, so size it with font-size), plus the text for readers. Text the
+ * knife can't cut (Chinese) is drawn by the display face instead, painted
+ * like a carving (see .carve-fallback in theme.css).
  */
 export function carve(text: string, cls = ''): string {
+  if (!canCarve(text)) {
+    const esc = text.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+    return `<span class="carve carve-fallback${cls ? ` ${cls}` : ''}">${esc}</span>`;
+  }
   const { d, width } = letterPath(text);
   const pad = 1.6;
   const vbW = width + pad * 2;

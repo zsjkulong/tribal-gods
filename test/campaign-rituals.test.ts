@@ -95,6 +95,6 @@ describe('stones as set pieces', () => {
     run(w, 5);
     expect(w.monuments[0].contested).toBe(true);
     expect(w.monuments[0].communeProgress).toBeLessThan(p + 0.05);
-    expect(w.messages.some((m) => /ritual has begun/.test(m.text))).toBe(true);
+    expect(w.messages.some((m) => /仪式已经开始了/.test(m.text))).toBe(true);
   });
 });

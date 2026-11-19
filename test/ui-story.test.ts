@@ -21,7 +21,7 @@ describe('scriptedDefeats', () => {
         { when: { type: 'time', at: 5 }, actions: [{ type: 'message', text: 'hello' }] },
       ],
     } as ScenarioRules;
-    expect(scriptedDefeats(rules)).toEqual(['If 10 Villagers die, it is over.', 'The tide took the Hook.']);
+    expect(scriptedDefeats(rules)).toEqual(['若10 名村民倒下，即告失败。', 'The tide took the Hook.']);
   });
 });
 
@@ -55,10 +55,10 @@ describe('objective advice', () => {
     t.spells.landbridge.charges = 0;
     w.setSpellCharging('player', 'landbridge', true);
     const waiting = objectiveAdvice(w, { type: 'castSpell', spell: 'landbridge', x: 10, z: 10, radius: 4 }, true)!;
-    expect(waiting).toMatch(/gathering power/);
+    expect(waiting).toMatch(/正在积蓄力量/);
     t.spells.landbridge.charges = 1;
     const ready = objectiveAdvice(w, { type: 'castSpell', spell: 'landbridge', x: 10, z: 10, radius: 4 }, true)!;
-    expect(ready).toMatch(/^Pick Causeway <span class="kbd">J<\/span> and click the marked place/);
+    expect(ready).toMatch(/^选择石道 <span class="kbd">J<\/span>并左键点击标记的位置/);
   });
 
   it('a stone objective follows the ritual: kneeling (with progress), held still, broken and fading', () => {
@@ -66,26 +66,26 @@ describe('objective advice', () => {
     const l = w.leaderOf('player') ?? w.spawnNearWalkable('shaman', 'player', 40, 40);
     w.monuments = [World.monumentFrom({ x: 44, z: 40, spell: 'volcano', mode: 'gift', charges: 1 })];
     const o = { type: 'claimMonument' as const, index: 0 };
-    expect(objectiveAdvice(w, o, true)).toMatch(/Select your leader .* click the Volcano stone/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/选中你的首领 .*火山 石阵/);
     l.hp = l.maxHp * 0.3;
-    expect(objectiveAdvice(w, o, true)).toMatch(/wounded \(30%\).*mends on her own/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/受伤了（30%）.*她会自行痊愈/);
     l.hp = l.maxHp;
     const m = w.monuments[0];
     m.communing = true;
     m.communer = 'player';
     m.communerId = l.id;
     m.communeProgress = 0.42;
-    expect(objectiveAdvice(w, o, true)).toMatch(/kneeling at the Volcano stone \(42%\)/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/你的首领正在火山 石阵前跪地共感（42%）/);
     m.contested = true;
-    expect(objectiveAdvice(w, o, true)).toMatch(/held still \(42%\)/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/仪式被僵持住了（42%）/);
     m.communing = false;
     m.contested = false;
     m.communer = null;
-    expect(objectiveAdvice(w, o, true)).toMatch(/broke at 42%.*kneel again/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/仪式在42%时被打断.*再次跪地共感/);
     // No leader (fallen, returning): never "select your leader".
     w.units = w.units.filter((u) => u.kind !== 'shaman');
-    expect(objectiveAdvice(w, o, true)).toMatch(/has fallen and returns/);
-    expect(objectiveAdvice(w, o, true)).not.toMatch(/Select your leader/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/你的首领已经倒下，正在归来途中/);
+    expect(objectiveAdvice(w, o, true)).not.toMatch(/选中你的首领/);
   });
 
   it('waiting for raiders with a stone open: the chip points at the stone, like the narrator', () => {
@@ -93,9 +93,9 @@ describe('objective advice', () => {
     if (!w.leaderOf('player')) w.spawnNearWalkable('shaman', 'player', 40, 40);
     w.monuments = [World.monumentFrom({ x: 44, z: 40, spell: 'lightning', mode: 'gift', charges: 3 })];
     const o = { type: 'killUnits' as const, tribe: 'violet' as const, count: 3 };
-    expect(objectiveAdvice(w, o, true)).toMatch(/Use the time: select your leader .* the Lightning stone/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/还没有敌人上岸。利用这段空隙：选中你的首领 .*闪电石阵/);
     w.monuments[0].asleep = true;
-    expect(objectiveAdvice(w, o, true)).toMatch(/None of them in sight yet/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/敌人还不见踪影/);
   });
 
   it('a victory waits a beat before its card, longer while a great spell is erupting', () => {

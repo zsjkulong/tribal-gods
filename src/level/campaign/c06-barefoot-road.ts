@@ -41,9 +41,9 @@ export const LAYOUT = {
 export const scenario: CampaignScenario = {
   id: 'c06_barefoot_road',
   chapter: 6,
-  title: 'The Barefoot Road',
-  tagline: 'No roofs, no fields. A leader, a war band, and a long gorge.',
-  teaches: 'No buildings: a war band, Ward, Kindle for mana',
+  title: '赤足之路',
+  tagline: '没有屋顶，没有田亩。只有一位首领、一支战团，和一条漫长的峡谷。',
+  teaches: '不建任何建筑：一支战团、庇护、以感化换取灵能',
   async build() {
     const t = new Terrain(60606);
     const { gorge, side, cairn, landing, lightning } = LAYOUT;
@@ -67,8 +67,8 @@ export const scenario: CampaignScenario = {
     t.addGrove(48, 96, 6, 0.5).addGrove(30, 68, 4, 0.4).addGrove(84, 66, 4, 0.3);
     const W = LAYOUT.watchHome;
     return makeLevel({
-      name: 'The Barefoot Road',
-      desc: 'Campaign VI. No buildings: bring the leader up the Long Gorge alive.',
+      name: '赤足之路',
+      desc: '战役六。不建任何建筑：把首领活着带过长峡。',
       terrain: t,
       homes: { player: landing, red: W },
       civs: { red: 'north' },
@@ -94,40 +94,40 @@ export const scenario: CampaignScenario = {
       rules: {
         tribes: [
           {
-            id: 'player', name: 'the Lantern-folk', ai: false,
+            id: 'player', name: '灯民', ai: false,
             loadout: {
               spells: ['blast', 'convert', 'ward'],
               buildings: [],
               startUnits: { brave: 0, warrior: 6, firewarrior: 2 },
             },
           },
-          { id: 'red', name: 'the Ashmark', ai: false, loadout: { spells: [], buildings: [], startUnits: { shaman: 0, brave: 0 } } },
+          { id: 'red', name: '灰痕族', ai: false, loadout: { spells: [], buildings: [], startUnits: { shaman: 0, brave: 0 } } },
         ],
         objectives: [
-          { objective: { type: 'claimMonument', index: 1 }, text: 'Bring the leader to the Cairn of First Fire' },
-          { objective: { type: 'destroyTribe', tribe: 'red' }, text: 'Leave no Ashmark watch standing', optional: true },
-          { objective: { type: 'claimMonument', index: 0 }, text: 'Take Lightning from the side-valley stone', optional: true },
+          { objective: { type: 'claimMonument', index: 1 }, text: '把首领带到初火之石冢' },
+          { objective: { type: 'destroyTribe', tribe: 'red' }, text: '不留下任何一个灰痕族的岗哨', optional: true },
+          { objective: { type: 'claimMonument', index: 0 }, text: '从侧谷的石阵取得闪电', optional: true },
         ],
         fail: [{ type: 'leaderDies' }],
         events: [
-          { when: { type: 'time', at: 2 }, message: 'Two Ashmark spears guard the gorge mouth. Ward the band, then Blast them off the road.', focus: { x: 38, z: 70 }, actions: [] },
+          { when: { type: 'time', at: 2 }, message: '两名灰痕族的长矛把守峡谷口。给战团套上庇护，然后用冲击把他们轰下大路。', focus: { x: 38, z: 70 }, actions: [] },
           {
             when: { type: 'commune', index: 1, tribe: 'player' },
-            message: 'Horns from the far end of the gorge — the Ashmark garrison is coming for the kneeling leader. Hold them off!',
+            message: '峡谷尽头响起了号角——灰痕族的驻军正朝跪拜的首领扑来。挡住他们！',
             focus: { x: 112, z: 56 },
             actions: [{ type: 'spawn', tribe: 'red', units: { warrior: 3, firewarrior: 1 }, x: 116, z: 56, march: LAYOUT.cairn }],
           },
         ],
         briefing: {
-          title: 'The Barefoot Road',
+          title: '赤足之路',
           body:
-            'The Cairn of First Fire stands at the head of the Long Gorge, and whoever sits with it learns to call burning stone out of the sky. ' +
-            'There is no ground in the gorge to build on and no time to try. Our leader goes on foot with eight spears and throwers, up a valley the Ashmark watch. ' +
-            'If she falls on the road, there is no circle to bring her back. Walk carefully.',
+            '初火之石冢立在长峡的那一头，无论谁与它相伴而坐，都能学会召引燃烧之石自天而降。' +
+            '峡谷里没有可建的地面，也没有时间去试。我们的首领先行上路，带着八名持矛者与掷火者，走上一条灰痕族注视的山谷。' +
+            '若她在路上倒下，便没有石环能让她归来。小心行走。',
           tips: [
-            'No Dwellings means little mana: every follower adds a trickle. Kindle the wanderers in the side valley to charge faster.',
-            'Stone Ward on the band before a fight halves the damage they take. Keep the leader behind the spears.',
-            'Emberthrowers outrange the towers’ spearmen — stop short of a tower and let them work.',
+            '没有民居就等于没有多少灵能：每多一名追随者，都会多出一点涓流。感化侧谷里的漂泊者，可以充得更快。',
+            '开战前给战团套上石之庇护，能让他们承受的伤害减半。让首领待在长矛之后。',
+            '掷火者的射程比塔上守军的长矛更远——在塔的射程外停下脚步，让他们干活。',
           ],
         },
       },
