@@ -92,7 +92,7 @@ export class Hints {
     this.hints = [
       {
         id: 'camera', icon: 'eye',
-        html: () => `Look around: <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> pan, <span class="kbd">Q</span><span class="kbd">E</span> rotate, the wheel zooms. ${k('centre-leader')} jumps to your leader.`,
+        html: () => `环顾四周：<span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> 平移，<span class="kbd">Q</span><span class="kbd">E</span> 旋转，滚轮缩放。${k('centre-leader')} 跳转到你的首领。`,
         when: (_c, t) => t > 1.5, done: moved,
       },
       {
@@ -102,9 +102,9 @@ export class Hints {
           const st = w().buildState('player', dwelling);
           const name = BUILDINGS[dwelling].name;
           if (!st.affordable) {
-            return `A ${name} costs ${BUILDINGS[dwelling].wood} wood; you have ${w().tribeSummary('player').wood}. Your villagers are felling trees — build one ${k(`build:${dwelling}`)} when the wood is in.`;
+            return `一间${name}需要 ${BUILDINGS[dwelling].wood} 木材；你有 ${w().tribeSummary('player').wood}。你的村民正在伐木——待木材到位后，建造一间 ${k(`build:${dwelling}`)}。`;
           }
-          return `Build a ${name}: pick it in the Build panel ${k(`build:${dwelling}`)} and click open ground. Homes breed villagers and feed your spells.`;
+          return `建造一间${name}：在建造面板中选择它 ${k(`build:${dwelling}`)}，然后点击空地。房屋会繁衍村民，并为你的法术提供法力。`;
         },
         when: (_c, t) => t > 4 && !isGuided(w()) && w().buildState('player', dwelling).allowed && w().buildState('player', dwelling).unlocked, done: ownHut,
       },
@@ -115,16 +115,16 @@ export class Hints {
           const s = teachSpell()!;
           const st = w().spellState('player', s.id);
           const key = k(`spell:${s.id}`);
-          if (!leader()) return `Your leader casts every spell. They are returning to the home circle — spells wait for them.`;
-          if (st.charges + st.gifted > 0) return `${s.name} is ready: press ${key} (or click it in the spell book), then click the world. Your leader walks into range and casts.`;
-          if (!st.charging) return `${s.name} is not charging. Right-click its stone in the spell book to pour mana into it.`;
-          return `${s.name} is gathering power — its stones fill as your people pray${Number.isFinite(st.eta) ? ` (about ${Math.ceil(st.eta)}s)` : ''}. When it glows, press ${key} and click the world.`;
+          if (!leader()) return `你的首领施放所有法术。他们正在返回家园圈——法术会等他们。`;
+          if (st.charges + st.gifted > 0) return `${s.name}已就绪：按 ${key}（或在法术书中点击它），然后点击世界。你的首领会走进施法范围并施放。`;
+          if (!st.charging) return `${s.name}尚未充能。在法术书中右键它的石阵，为其注入法力。`;
+          return `${s.name}正在积蓄力量——你的子民祈祷时，它的石阵逐渐充盈${Number.isFinite(st.eta) ? `（约 ${Math.ceil(st.eta)} 秒）` : ''}。当它发光时，按 ${key} 并点击世界。`;
         },
         when: (_c, t) => (t > 30 || ownHut()) && !isGuided(w()) && !!teachSpell(), done: () => this.armedOnce,
       },
       {
         id: 'stones', icon: 'stone',
-        html: () => `Standing stones teach spells — the marker above each shows which. Select your leader ${k('select-leader')} and ${verb()} a stone to commune. The ritual takes a while and damage breaks it: bring an escort.`,
+        html: () => `立石阵会传授法术——每座石阵上方的标记显示其法术。选中你的首领 ${k('select-leader')}，然后 ${verb()} 一座石阵进行共感。仪式需要一些时间，且受伤会打断它：请带上护卫。`,
         when: (c, t) => t > 90 && !isGuided(c.world) && !!leader() && c.world.monuments.some((m) => c.world.monumentAvailable(m)),
         done: (c) => (c.world.tribes.player?.known.size ?? 0) > this.learnedFrom || c.world.units.some((u) => u.tribe === 'player' && u.task === 'worship'),
       },
@@ -145,14 +145,14 @@ export class Hints {
       },
       {
         id: 'ritual', icon: 'shield',
-        html: () => `Your leader is communing and can't defend themselves. Any hit breaks the ritual — keep warriors beside them until it's done.`,
+        html: () => `你的首领正在共感，无法自卫。任何攻击都会打断仪式——在完成之前让战士守在旁边。`,
         when: (c) => !!ritualOfLeader(c), done: (c) => (c.world.tribes.player?.known.size ?? 0) > this.learnedFrom,
       },
       {
         id: 'select', icon: 'move',
         html: () => settings.leftClickOrders
-          ? `Drag on the ground to select your people, then click where they should go. The cursor shows what a click will do.`
-          : `Drag on the ground to select your people; right-click to send them. The cursor shows what a right-click will do.`,
+          ? `在地面上拖动以框选你的子民，然后点击他们应去的地方。光标会显示点击后的效果。`
+          : `在地面上拖动以框选你的子民；右键派他们前往。光标会显示右键的效果。`,
         when: (c, t) => t > 60 && !isGuided(c.world) && c.world.units.filter((u) => u.tribe === 'player' && !u.hidden).length > 1, done: (c) => c.selection.units.size > 1,
       },
     ];
@@ -223,7 +223,7 @@ export class Hints {
     const next = this.hints.find((x) => (x.id === OBJECTIVE_HINT || !this.seen.has(x.id)) && x.when(this.ctx, this.sinceStart));
     if (!next) return;
     this.showing = next.id;
-    const close = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': 'Dismiss hint', html: icon('close', 14) });
+    const close = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': '关闭提示', html: icon('close', 14) });
     close.addEventListener('click', () => {
       if (next.id === OBJECTIVE_HINT) {
         const cur = currentObjective(this.ctx.world, this.activatedAt);

@@ -201,7 +201,7 @@ export class CampaignController {
   /** Title of a chapter, for the Continue button. */
   titleOf(id: string): string {
     const s = campaignScenario(id);
-    return s ? `Ch. ${s.chapter} · ${s.title}` : 'Campaign';
+    return s ? `第 ${s.chapter} 章 · ${s.title}` : '战役';
   }
 
   /** Per-frame: game over → record + debrief. Cheap when idle. */

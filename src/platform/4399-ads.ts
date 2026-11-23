@@ -10,18 +10,19 @@
  *   - 插屏接口无回调，播放结束由平台接管覆盖层、玩家点击关闭。
  */
 
-export function showInterstitialAd(): void {
-  const api = (window as typeof window & { h5api?: { playInterstitialAd?: () => void } }).h5api;
-  // SDK 尚未加载完，或运行环境不在 4399 的 iframe 中 —— 静默跳过
-  // （本地开发、GitHub Pages 等都会走到这里，游戏不受任何影响）。
-  if (!api || typeof api.playInterstitialAd !== 'function' || window.parent === window) return;
-
-  try {
-    api.playInterstitialAd();
-    // eslint-disable-next-line no-console
-    console.info('[4399] 请求播放插屏广告');
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn('[4399] 插屏广告调用失败', err);
-  }
-}
+// 4399 广告已临时禁用（无广告版本）：以下整段注释掉，恢复广告时按原样还原。
+// export function showInterstitialAd(): void {
+//   const api = (window as typeof window & { h5api?: { playInterstitialAd?: () => void } }).h5api;
+//   // SDK 尚未加载完，或运行环境不在 4399 的 iframe 中 —— 静默跳过
+//   // （本地开发、GitHub Pages 等都会走到这里，游戏不受任何影响）。
+//   if (!api || typeof api.playInterstitialAd !== 'function' || window.parent === window) return;
+//
+//   try {
+//     api.playInterstitialAd();
+//     // eslint-disable-next-line no-console
+//     console.info('[4399] 请求播放插屏广告');
+//   } catch (err) {
+//     // eslint-disable-next-line no-console
+//     console.warn('[4399] 插屏广告调用失败', err);
+//   }
+// }

@@ -352,6 +352,6 @@ describe('world.loadLevel uses level.rules when no rules are passed', () => {
     const { OFFICIAL_LEVELS } = await import('../src/level/official-levels');
     const w = new World();
     await w.loadLevel(await OFFICIAL_LEVELS[1].build(), SETTINGS);
-    expect(w.rules.briefing.title).toBe('Skirmish');
+    expect(w.rules.briefing.title).toBe('遭遇战');
   });
 });

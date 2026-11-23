@@ -38,14 +38,14 @@ import { css } from './dom';
 import { icon, spellIcon, UiIconName } from './icons';
 import { toolState } from './tools';
 
-const TRIBE_NAMES: Record<TribeId, string> = { player: 'Your tribe', red: 'Red rival', gold: 'Gold rival', violet: 'Violet rival' };
+const TRIBE_NAMES: Record<TribeId, string> = { player: '你的部落', red: '红色敌对', gold: '金色敌对', violet: '紫色敌对' };
 
 css('editor', `
 .ed-bar { position: fixed; top: var(--edge); left: 50%; transform: translateX(-50%); display: none; flex-wrap: wrap; gap: 0.3rem;
   max-width: 94vw; z-index: 15; padding: 0.3rem; align-items: center; font: var(--t-sm) var(--font); }
 .ed-bar .tg-btn { min-height: 1.9rem; padding: 0 0.6rem; }
 .ed-bar .sep { width: 3px; align-self: stretch; margin: 0.15rem 0.2rem; background: repeating-linear-gradient(-35deg, #e1c088 0 2px, #8a6436 2px 4px); border-radius: 2px; }
-.ed-bar input, .ed-bar select { min-height: 1.9rem; padding: 0 0.5rem; border: 0; border-radius: 0.2rem 0.35rem; background: linear-gradient(#f3e4c4, #e0c99c); color: #24160c;
+.ed-bar select { min-height: 1.9rem; padding: 0 0.5rem; border: 0; border-radius: 0.2rem 0.35rem; background: linear-gradient(#f3e4c4, #e0c99c); color: #24160c;
   box-shadow: inset 0 1px 3px rgba(60,32,10,0.45), 0 0 0 1px #1a0e06; font: 600 var(--t-sm) var(--font); }
 .ed-status { color: var(--bone-2); margin-left: 0.3rem; font-weight: 600; }
 `);
@@ -57,8 +57,8 @@ export class Editor {
   private stoneMode: 'teach' | 'gift' = 'teach';
   private homeTribe: TribeId = 'player';
   private readonly bar: HTMLDivElement;
-  private readonly nameInput: HTMLInputElement;
-  private readonly authorInput: HTMLInputElement;
+  private editingName = '未命名星球';
+  private editingAuthor = '无名之神';
   private readonly status: HTMLSpanElement;
   private monumentBtn!: HTMLButtonElement;
 
@@ -92,12 +92,12 @@ export class Editor {
       return b;
     };
 
-    tool('Raise', 'raise', '', 'plus');
-    tool('Lower', 'lower', '', 'minus');
-    tool('Flatten', 'flatten', 'In the editor this is a brush, not a spell', 'hammer');
-    tool('Tree', 'tree', '', 'wood');
-    tool('Wanderer', 'wildman', '', 'idle');
-    this.monumentBtn = tool('Stone', 'monument', 'Place a standing stone (pick its spell and kind)', 'stone');
+    tool('抬升', 'raise', '', 'plus');
+    tool('降低', 'lower', '', 'minus');
+    tool('平整', 'flatten', '在编辑器中这是笔刷，不是法术', 'hammer');
+    tool('树木', 'tree', '', 'wood');
+    tool('漂泊者', 'wildman', '', 'idle');
+    this.monumentBtn = tool('石阵', 'monument', '放置一座立石阵（选择其法术和类型）', 'stone');
     this.select(
       SPELLS.map((s) => [s.id, s.name]),
       () => this.stoneSpell,
@@ -106,14 +106,14 @@ export class Editor {
         toolState.tool = 'monument';
         this.refresh();
       },
-      'Spell held by the next stone',
+      '下一座石阵承载的法术',
     );
-    this.select([['teach', 'teaches'], ['gift', 'gifts 2 casts']], () => this.stoneMode, (v) => {
+    this.select([['teach', '传授'], ['gift', '借出 2 次施放']], () => this.stoneMode, (v) => {
       this.stoneMode = v as 'teach' | 'gift';
       toolState.tool = 'monument';
       this.refresh();
-    }, 'Teach: the first leader to commune learns it. Gift: whoever communes gets two casts; the stone then sleeps.');
-    tool('Home', 'home', 'Move a tribe’s home circle; a new tribe joins as an AI rival', 'home');
+    }, '传授：第一位共感的首领会习得它。借出：任何共感者获得两次施放；之后石阵进入沉睡。');
+    tool('家园', 'home', '移动一个部落的家园圈；新部落会作为 AI 敌对加入', 'home');
     this.select(
       (Object.keys(TRIBE_NAMES) as TribeId[]).map((t) => [t, TRIBE_NAMES[t]]),
       () => this.homeTribe,
@@ -122,9 +122,9 @@ export class Editor {
         toolState.tool = 'home';
         this.refresh();
       },
-      'Whose home the Home tool moves',
+      '家园工具移动哪个部落的家园',
     );
-    tool('Erase', 'erase', 'Remove trees / wanderers / stones / a rival’s home', 'close');
+    tool('清除', 'erase', '移除树木 / 漂泊者 / 石阵 / 敌对部落的家园', 'close');
 
     const sep = () => {
       const s = document.createElement('span');
@@ -133,14 +133,10 @@ export class Editor {
     };
     sep();
 
-    this.nameInput = this.input('level name', 130);
-    this.authorInput = this.input('author', 90);
-    sep();
-
-    this.action('Save', () => void this.save(), 'check');
-    this.action('Copy code', () => void this.exportCode(), 'book');
-    this.action('Test', () => void this.test(), 'play', true);
-    this.action('Exit', () => hooks.onExit(), 'close');
+    this.action('保存', () => void this.save(), 'check');
+    this.action('复制代码', () => void this.exportCode(), 'book');
+    this.action('测试', () => void this.test(), 'play', true);
+    this.action('退出', () => hooks.onExit(), 'close');
 
     this.status = document.createElement('span');
     this.status.className = 'ed-status';
@@ -161,12 +157,12 @@ export class Editor {
   open(existing?: { id?: string; level: LevelData }): void {
     appState.mode = 'editor';
     this.editingId = existing?.id;
-    this.nameInput.value = existing?.level.name ?? 'Untitled Planet';
-    this.authorInput.value = existing?.level.author ?? 'anonymous god';
+    this.editingName = existing?.level.name ?? '未命名星球';
+    this.editingAuthor = existing?.level.author ?? '无名之神';
     toolState.tool = 'raise';
     this.bar.style.display = 'flex';
     this.refresh();
-    this.say('sculpt, place, then save / test');
+    this.say('雕刻地形，放置物件，然后保存 / 测试');
   }
 
   close(): void {
@@ -182,7 +178,7 @@ export class Editor {
         if (walkable(w.map, x, z)) {
           w.trees.push({ x: w.map.wrap(x), z: w.map.wrap(z), alive: true, regrow: 0, burning: 0 });
           w.treesVersion++;
-          this.say('tree planted');
+          this.say('已种植树木');
         }
         return;
       case 'wildman':
@@ -196,14 +192,14 @@ export class Editor {
           x: w.map.wrap(x), z: w.map.wrap(z), spell, mode: this.stoneMode, claimedBy: null, claimer: null, sleep: 0,
           ...(gift ? { charges: 2, cooldown: 120 } : {}),
         });
-        this.say(`Stone placed: ${gift ? 'gifts' : 'teaches'} ${spellDef(spell).name}`);
+        this.say(`石阵已放置：${gift ? '借出' : '传授'} ${spellDef(spell).name}`);
         return;
       }
       case 'home': {
         if (!walkable(w.map, x, z)) return;
         const added = !w.tribes[this.homeTribe];
         w.setHome(this.homeTribe, x, z);
-        this.say(added ? `${TRIBE_NAMES[this.homeTribe]} joins the level` : `${TRIBE_NAMES[this.homeTribe]}: home moved`);
+        this.say(added ? `${TRIBE_NAMES[this.homeTribe]} 加入了关卡` : `${TRIBE_NAMES[this.homeTribe]}：家园已移动`);
         return;
       }
       case 'erase': {
@@ -227,7 +223,7 @@ export class Editor {
           return;
         }
         const rival = this.world.activeTribes().find((t) => t !== 'player' && near(this.world.tribes[t]!.home.x, this.world.tribes[t]!.home.z));
-        if (rival) this.say(this.world.removeTribe(rival) ? `${TRIBE_NAMES[rival]} removed` : 'A level needs at least one rival');
+        if (rival) this.say(this.world.removeTribe(rival) ? `${TRIBE_NAMES[rival]} 已移除` : '关卡至少需要一个敌对部落');
         return;
       }
       default:
@@ -237,8 +233,8 @@ export class Editor {
 
   private meta() {
     return {
-      name: this.nameInput.value.trim() || 'Untitled Planet',
-      author: this.authorInput.value.trim() || 'anonymous god',
+      name: this.editingName,
+      author: this.editingAuthor,
       desc: '',
     };
   }
@@ -246,16 +242,16 @@ export class Editor {
   private async save(): Promise<void> {
     const level = await this.world.captureLevel(this.meta());
     this.editingId = saveLevel(level, this.editingId);
-    this.say(`Saved "${level.name}" to your library`);
+    this.say(`已将「${level.name}」保存到你的关卡库`);
   }
 
   private async exportCode(): Promise<void> {
     const code = await levelToCode(await this.world.captureLevel(this.meta()));
     try {
       await navigator.clipboard.writeText(code);
-      this.say(`Share code copied (${code.length} characters)`);
+      this.say(`分享代码已复制（${code.length} 个字符）`);
     } catch {
-      prompt('Copy your level code:', code); // clipboard blocked — show it instead
+      prompt('复制你的关卡代码：', code); // clipboard blocked — show it instead
     }
   }
 
@@ -276,7 +272,7 @@ export class Editor {
     }
     const spell = this.stoneSpell;
     this.monumentBtn.innerHTML = `${spellIcon(spell, 14)}<span></span>`;
-    (this.monumentBtn.lastChild as HTMLElement).textContent = 'Stone';
+    (this.monumentBtn.lastChild as HTMLElement).textContent = '石阵';
     for (const s of this.selects) s.paint();
   }
 
@@ -308,16 +304,6 @@ export class Editor {
     b.className = primary ? 'tg-btn primary' : 'tg-btn';
     b.addEventListener('click', fn);
     this.bar.appendChild(b);
-  }
-
-  private input(placeholder: string, width: number): HTMLInputElement {
-    const i = document.createElement('input');
-    i.placeholder = placeholder;
-    i.style.width = `${width}px`;
-    // Keep typing out of the game's hotkey handlers.
-    i.addEventListener('keydown', (e) => e.stopPropagation());
-    this.bar.appendChild(i);
-    return i;
   }
 
   /** Used by the library's Edit button to choose the enemy civ shown while editing. */

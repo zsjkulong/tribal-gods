@@ -80,7 +80,7 @@ export class Minimap {
 
   constructor(private readonly ctx: UiContext) {
     this.el = h('div.mm.tg-panel');
-    this.canvas = h('canvas', { 'aria-label': 'Minimap' });
+    this.canvas = h('canvas', { 'aria-label': '小地图' });
     this.el.append(this.canvas, h('div.hide'), h('div.notch'));
     this.g = this.canvas.getContext('2d')!;
     this.terrain = document.createElement('canvas');
@@ -126,11 +126,11 @@ export class Minimap {
       const m = w.monuments[idx];
       const blocked = stoneBlocked(w, m);
       const r = ritualAt(w, idx);
-      return `<div class="sub">Standing stone</div><h4>${spellIcon(m.spell, 18)}${escapeHtml(stoneName(m))}</h4><p>${escapeHtml(stoneTerms(m))}.</p>` +
-        (r ? `<p>${escapeHtml(tribeLabelOf(w, r.tribe))} communing: ${Math.round(r.progress * 100)}%</p>` : '') +
-        (blocked ? `<div class="why">${escapeHtml(blocked)}</div>` : '') + `<div class="hint">Click to look there.</div>`;
+      return `<div class="sub">立石阵</div><h4>${spellIcon(m.spell, 18)}${escapeHtml(stoneName(m))}</h4><p>${escapeHtml(stoneTerms(m))}。</p>` +
+        (r ? `<p>${escapeHtml(tribeLabelOf(w, r.tribe))} 共感中：${Math.round(r.progress * 100)}%</p>` : '') +
+        (blocked ? `<div class="why">${escapeHtml(blocked)}</div>` : '') + `<div class="hint">点击查看该处。</div>`;
     }
-    return `<h4>The planet</h4><p>Click or drag to look. Right-click (or Ctrl-click) to send your selection there.</p>`;
+    return `<h4>这颗星球</h4><p>点击或拖动查看。右键（或 Ctrl+点击）将你的部队派往该处。</p>`;
   }
 
   ping(x: number, z: number, tone: 'bad' | 'good' | 'info'): void {

@@ -14,10 +14,10 @@
  * string, Delete is only offered for levels that are yours to delete.
  */
 
-import { LevelData, codeToLevel, levelToCode } from '../level/level-format';
+import { LevelData, levelToCode } from '../level/level-format';
 import { OFFICIAL_LEVELS } from '../level/official-levels';
 import { CAMPAIGN } from '../level/campaign';
-import { deleteLevel, getRating, listLevels, saveLevel, setRating } from '../level/store';
+import { deleteLevel, getRating, listLevels, setRating } from '../level/store';
 import { css } from './dom';
 import { icon } from './icons';
 import { carve } from './lettering';
@@ -28,7 +28,7 @@ css('library', `
 .lib-inner { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
 .lib-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
 .lib-head h2 { flex: 1; margin: 0; font-size: 1.6rem; line-height: 1; }
-.lib input, .lib select { min-height: 2rem; padding: 0 0.6rem; border: 0; border-radius: 0.2rem 0.35rem; background: linear-gradient(#f3e4c4, #e0c99c); color: #24160c;
+.lib select { min-height: 2rem; padding: 0 0.6rem; border: 0; border-radius: 0.2rem 0.35rem; background: linear-gradient(#f3e4c4, #e0c99c); color: #24160c;
   box-shadow: inset 0 1px 3px rgba(60,32,10,0.45), 0 0 0 1px #1a0e06; font: 600 var(--t-sm) var(--font); }
 .lib select option { background: #f3e4c4; color: #24160c; }
 .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.9rem; }
@@ -56,7 +56,6 @@ interface CardEntry {
 export class LevelLibrary {
   private readonly overlay: HTMLDivElement;
   private readonly grid: HTMLDivElement;
-  private readonly search: HTMLInputElement;
   private readonly minStars: HTMLSelectElement;
   private readonly sortBy: HTMLSelectElement;
   private readonly shelf: HTMLSelectElement;
@@ -83,20 +82,9 @@ export class LevelLibrary {
     const title = document.createElement('h2');
     title.innerHTML = carve('关卡库');
 
-    this.search = document.createElement('input');
-    this.search.placeholder = '搜索…';
-    this.search.style.width = '10rem';
-    this.search.addEventListener('input', () => this.render());
-    this.search.addEventListener('keydown', (e) => e.stopPropagation());
-
     this.minStars = this.select(['任意星级', '★+', '★★+', '★★★+', '★★★★+', '★★★★★']);
     this.sortBy = this.select(['最新', '名称', '星级']);
     this.shelf = this.select(['全部关卡', '官方', '战役', '我的关卡']);
-
-    const importBtn = document.createElement('button');
-    importBtn.className = 'tg-btn';
-    importBtn.innerHTML = `${icon('plus', 14)}<span>导入代码</span>`;
-    importBtn.addEventListener('click', () => void this.importCode());
 
     const close = document.createElement('button');
     close.className = 'tg-btn';
@@ -106,7 +94,7 @@ export class LevelLibrary {
       hooks.onClose();
     });
 
-    header.append(title, this.search, this.shelf, this.minStars, this.sortBy, importBtn, close);
+    header.append(title, this.shelf, this.minStars, this.sortBy, close);
     inner.appendChild(header);
 
     this.grid = document.createElement('div');
@@ -158,15 +146,8 @@ export class LevelLibrary {
 
   private render(): void {
     this.grid.innerHTML = '';
-    const q = this.search.value.toLowerCase();
     const minStars = this.minStars.selectedIndex; // index doubles as the threshold
-    let entries = this.entries().filter((e) => {
-      if (getRating(e.id) < minStars) return false;
-      if (!q) return true;
-      const name = e.campaign?.title ?? e.level?.name ?? OFFICIAL_NAMES[e.id] ?? e.id;
-      const author = e.level?.author ?? '众神之怒';
-      return (name + ' ' + author).toLowerCase().includes(q);
-    });
+    let entries = this.entries().filter((e) => getRating(e.id) >= minStars);
 
     const sort = this.sortBy.value.toLowerCase();
     entries = entries.sort((a, b) => {
@@ -182,7 +163,7 @@ export class LevelLibrary {
     if (entries.length === 0) {
       const empty = document.createElement('div');
       empty.style.color = 'var(--text-3)';
-      empty.textContent = 'Nothing here. Build something in the editor, or import a friend’s code.';
+      empty.textContent = '这里空空如也。在编辑器里建造点什么，或导入朋友的代码。';
       this.grid.appendChild(empty);
     }
   }
@@ -196,7 +177,7 @@ export class LevelLibrary {
 
     const head = document.createElement('div');
     head.innerHTML =
-      `<div class="name">${escapeHtml(name)}${e.campaign ? '<span class="off">campaign</span>' : e.official ? '<span class="off">official</span>' : ''}</div>` +
+      `<div class="name">${escapeHtml(name)}${e.campaign ? '<span class="off">战役</span>' : e.official ? '<span class="off">官方</span>' : ''}</div>` +
       `<div class="by">作者：${escapeHtml(author)}</div>`;
     const blurb = document.createElement('div');
     blurb.className = 'desc';
@@ -236,7 +217,7 @@ export class LevelLibrary {
     if (e.campaign) {
       // Chapters play through the campaign (briefing, boons, progress) — once reached.
       if (!e.campaign.locked) {
-        act('Play', () => {
+        act('开始', () => {
           this.hide();
           this.hooks.onPlayScenario?.(e.id);
         }, true);
@@ -244,24 +225,24 @@ export class LevelLibrary {
       card.append(head, blurb, stars, actions);
       return card;
     }
-    act('Play', () => {
+    act('开始', () => {
       this.hide();
       void resolve().then((l) => this.hooks.onPlay(l));
     }, true);
-    act('Edit', () => {
+    act('编辑', () => {
       this.hide();
       void resolve().then((l) => this.hooks.onEdit(e.official ? undefined : e.id, l));
     });
-    act('Copy code', () => void resolve().then(async (l) => {
+    act('复制代码', () => void resolve().then(async (l) => {
       const code = await levelToCode(l);
       try {
         await navigator.clipboard.writeText(code);
       } catch {
-        prompt('Copy your level code:', code);
+        prompt('复制你的关卡代码：', code);
       }
     }));
     if (!e.official) {
-      act('Delete', () => {
+      act('删除', () => {
         deleteLevel(e.id);
         this.render();
       });
@@ -269,18 +250,6 @@ export class LevelLibrary {
 
     card.append(head, blurb, stars, actions);
     return card;
-  }
-
-  private async importCode(): Promise<void> {
-    const code = prompt('粘贴关卡代码（TG2.… 或 TG1.…）：');
-    if (!code) return;
-    try {
-      const level = await codeToLevel(code);
-      saveLevel(level);
-      this.render();
-    } catch (err) {
-      alert(`导入失败：${(err as Error).message}`);
-    }
   }
 
   private select(options: string[]): HTMLSelectElement {
@@ -299,14 +268,14 @@ export class LevelLibrary {
 
 /** Official metadata without building the whole level (cards render instantly). */
 const OFFICIAL_NAMES: Record<string, string> = {
-  official_first_light: 'First Light',
-  official_the_strait: 'The Strait',
-  official_crucible: 'The Crucible',
+  official_first_light: '初光',
+  official_the_strait: '海峡',
+  official_crucible: '熔炉',
 };
 const OFFICIAL_DESCS: Record<string, string> = {
-  official_first_light: 'A kind world to learn godhood on. The stones are near; the enemy is far.',
-  official_the_strait: 'An ocean apart. Causeway is on your shore — claim it first.',
-  official_crucible: 'One continent, one volcano, two gods. Exactly the standoff it looks like.',
+  official_first_light: '一个学习成神的温和世界。石阵近在咫尺，敌人远在天边。',
+  official_the_strait: '隔着一片海洋。石道就在你的海岸上——先夺取它。',
+  official_crucible: '一块大陆，一座火山，两位神明。正如其貌，一场对峙。',
 };
 
 function escapeHtml(s: string): string {

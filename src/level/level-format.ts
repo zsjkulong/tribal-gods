@@ -101,28 +101,28 @@ export type AnyLevelData = LevelData | LevelDataV1;
 export function validateRules(rules: unknown): void {
   const r = rules as ScenarioRules;
   const fail = (why: string) => {
-    throw new Error(`Level rules are damaged: ${why}`);
+    throw new Error(`关卡规则已损坏：${why}`);
   };
-  if (!r || typeof r !== 'object') fail('not an object');
-  if (!Array.isArray(r.tribes) || r.tribes.length === 0) fail('no tribes');
-  if (!r.tribes.some((t) => t?.id === 'player')) fail('no player tribe');
+  if (!r || typeof r !== 'object') fail('不是对象');
+  if (!Array.isArray(r.tribes) || r.tribes.length === 0) fail('缺少部落');
+  if (!r.tribes.some((t) => t?.id === 'player')) fail('缺少玩家部落');
   for (const t of r.tribes) {
-    if (!TRIBE_IDS.includes(t?.id)) fail(`unknown tribe ${String(t?.id)}`);
-    for (const s of t.loadout?.spells ?? []) if (!SPELLS.some((d) => d.id === s)) fail(`unknown spell ${s}`);
-    for (const b of t.loadout?.buildings ?? []) if (!BUILDINGS[b]) fail(`unknown building ${b}`);
-    for (const b of t.loadout?.startBuildings ?? []) if (!BUILDINGS[b]) fail(`unknown building ${b}`);
-    for (const u of Object.keys(t.loadout?.startUnits ?? {})) if (!UNITS[u as UnitKind]) fail(`unknown unit ${u}`);
+    if (!TRIBE_IDS.includes(t?.id)) fail(`未知部落 ${String(t?.id)}`);
+    for (const s of t.loadout?.spells ?? []) if (!SPELLS.some((d) => d.id === s)) fail(`未知法术 ${s}`);
+    for (const b of t.loadout?.buildings ?? []) if (!BUILDINGS[b]) fail(`未知建筑 ${b}`);
+    for (const b of t.loadout?.startBuildings ?? []) if (!BUILDINGS[b]) fail(`未知建筑 ${b}`);
+    for (const u of Object.keys(t.loadout?.startUnits ?? {})) if (!UNITS[u as UnitKind]) fail(`未知单位 ${u}`);
     for (const k of [...Object.keys(t.loadout?.extraCharges ?? {}), ...Object.keys(t.loadout?.chargeCost ?? {}), ...Object.keys(t.loadout?.gifts ?? {})]) {
-      if (!SPELLS.some((d) => d.id === k)) fail(`unknown spell ${k}`);
+      if (!SPELLS.some((d) => d.id === k)) fail(`未知法术 ${k}`);
     }
   }
-  if (!Array.isArray(r.objectives)) fail('no objectives');
-  if (!r.briefing || typeof r.briefing.title !== 'string' || !Array.isArray(r.briefing.tips)) fail('no briefing');
+  if (!Array.isArray(r.objectives)) fail('缺少目标');
+  if (!r.briefing || typeof r.briefing.title !== 'string' || !Array.isArray(r.briefing.tips)) fail('缺少战前简报');
   for (const e of r.events ?? []) {
-    if (!e?.when || !Array.isArray(e.actions)) fail('a scripted event has no trigger or actions');
+    if (!e?.when || !Array.isArray(e.actions)) fail('某个脚本事件缺少触发条件或动作');
     for (const a of e.actions) {
-      if ('spell' in a && !SPELLS.some((d) => d.id === a.spell)) fail(`unknown spell ${a.spell}`);
-      if (a.type === 'spawn') for (const u of Object.keys(a.units ?? {})) if (!UNITS[u as UnitKind]) fail(`unknown unit ${u}`);
+      if ('spell' in a && !SPELLS.some((d) => d.id === a.spell)) fail(`未知法术 ${a.spell}`);
+      if (a.type === 'spawn') for (const u of Object.keys(a.units ?? {})) if (!UNITS[u as UnitKind]) fail(`未知单位 ${u}`);
     }
   }
 }
@@ -131,10 +131,10 @@ export function validateRules(rules: unknown): void {
 export function migrateLevel(level: AnyLevelData): LevelData {
   if (level.v === 2) {
     if (level.rules !== undefined) validateRules(level.rules);
-    for (const m of level.monuments ?? []) if (!SPELLS.some((d) => d.id === m.spell)) throw new Error(`Level has a stone of unknown spell ${m.spell}`);
+    for (const m of level.monuments ?? []) if (!SPELLS.some((d) => d.id === m.spell)) throw new Error(`关卡存在未知法术 ${m.spell} 的石阵`);
     return level;
   }
-  if (level.v !== 1) throw new Error('Level is from an unknown version');
+  if (level.v !== 1) throw new Error('关卡来自未知版本');
   const out: LevelData = {
     v: 2,
     name: level.name,

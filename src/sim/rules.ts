@@ -17,16 +17,16 @@ export function skirmishRules(enemies = 1): ScenarioRules {
       ...rivals.map((id) => ({ id, ai: true })),
     ],
     objectives: [
-      { objective: { type: 'destroyAll' }, text: n === 1 ? 'Destroy the rival tribe' : 'Destroy every rival tribe' },
+      { objective: { type: 'destroyAll' }, text: n === 1 ? '消灭敌对部落' : '消灭所有敌对部落' },
     ],
     fail: [{ type: 'tribeDestroyed' }],
     briefing: {
-      title: 'Skirmish',
-      body: n === 1 ? 'One planet, two gods. Only one tribe walks away.' : `One planet, ${n + 1} gods. Only one tribe walks away.`,
+      title: '遭遇战',
+      body: n === 1 ? '一颗星球，两位神明。只有一个部落能活下去。' : `一颗星球，${n + 1} 位神明。只有一个部落能活下去。`,
       tips: [
-        'Dwellings breed villagers and feed your spells.',
-        'Train fighters at the lodges; garrison a watchtower to hold a hill.',
-        'Leaders learn new spells at the standing stones.',
+        '民居会繁衍村民，并为你的法术提供法力。',
+        '在木屋训练战士；在瞭望塔驻守以守住高地。',
+        '首领在立石阵习得新的法术。',
       ],
     },
   };

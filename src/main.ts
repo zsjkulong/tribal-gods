@@ -45,7 +45,7 @@ import { installMaterials } from './ui/materials';
 import { SculptBrush } from './ui/brush';
 import { appState } from './ui/app-state';
 import { clearSave, clock, readSave, savedTally, writeSave } from './ui/autosave';
-import { showInterstitialAd } from './platform/4399-ads';
+// import { showInterstitialAd } from './platform/4399-ads'; // 4399 广告已临时禁用
 import { CampaignController } from './ui/campaign';
 import { Editor } from './ui/editor';
 import { registerGameOverAction } from './ui/game-over';
@@ -228,7 +228,7 @@ const menu = new Menu((settings) => {
   campaign.leave();
   appState.mode = 'game';
   newWorld(settings);
-  levelAdShown = false; // 新的遭遇战，插屏只在玩家按暂停时弹出
+  // levelAdShown = false; // 4399 插屏广告已临时禁用
 });
 menu.settingsHooks = {
   inGame: () => menu.inGame,
@@ -243,7 +243,7 @@ function openGameMenu(screen: 'pause' | 'help' = 'pause'): void {
   pausedBeforeMenu = appState.paused;
   appState.paused = true;
   autosave();
-  if (screen === 'pause') payAdThisLevel(); // 暂停按钮：每关一次 4399 插屏广告
+  // if (screen === 'pause') payAdThisLevel(); // 4399 插屏广告已临时禁用
   menu.openInGame(screen);
 }
 menu.onResume = () => {
@@ -255,17 +255,18 @@ menu.onRestart = () => {
   restart();
 };
 menu.onQuit = () => quitToMenu();
-/**
+/*
  * 4399 插屏广告：每关最多弹出一次（从暂停按钮唤起）。
  * 插屏由平台接管覆盖层、玩家点击关闭，无需暂停/恢复模拟。
  * 非 4399 环境自动静默跳过。
+ * —— 4399 广告已临时禁用（无广告版本）：恢复时取消整个块与下方注释的注释 ——
  */
-let levelAdShown = false;
-function payAdThisLevel(): void {
-  if (levelAdShown) return;
-  levelAdShown = true;
-  showInterstitialAd();
-}
+// let levelAdShown = false;
+// function payAdThisLevel(): void {
+//   if (levelAdShown) return;
+//   levelAdShown = true;
+//   showInterstitialAd();
+// }
 
 function restart(): void {
   if (campaign.active) {
@@ -277,7 +278,7 @@ function restart(): void {
   } else {
     appState.mode = 'game';
     newWorld(lastStart.settings);
-    levelAdShown = false;
+    // levelAdShown = false; // 4399 插屏广告已临时禁用
   }
 }
 function quitToMenu(): void {
@@ -305,7 +306,7 @@ function autosave(): void {
   if (world.gameOver) return clearSave();
   if (world.elapsed < 5) return;
   const kind = campaign.active ? 'campaign' : lastStart.level ? 'level' : 'skirmish';
-  const what = kind === 'campaign' ? campaign.titleOf(campaign.active!) : kind === 'level' ? lastStart.level!.name : 'Skirmish';
+  const what = kind === 'campaign' ? campaign.titleOf(campaign.active!) : kind === 'level' ? lastStart.level!.name : '遭遇战';
   writeSave({
     v: 1,
     kind,
@@ -343,7 +344,7 @@ menu.onContinue = () => {
   if (at) rig.target.set(at.x * 2, 0, at.z * 2);
   rig.zoom = CAMERA.defaultZoom;
   appState.mode = 'game';
-  levelAdShown = false; // 继续游戏的这局，暂停时仍可再弹一次插屏
+  // levelAdShown = false; // 4399 插屏广告已临时禁用
 };
 addEventListener('visibilitychange', () => {
   if (document.hidden) autosave();
@@ -364,7 +365,7 @@ async function startLevel(level: LevelData, asTest = false, rules?: ScenarioRule
   } catch (err) {
     // A damaged imported level: say so and go back to the title, never a dead screen.
     console.warn('level failed to load', err);
-    alert(`This level could not be loaded: ${(err as Error).message}`);
+    alert(`无法加载此关卡：${(err as Error).message}`);
     quitToMenu();
     return false;
   }
@@ -374,7 +375,7 @@ async function startLevel(level: LevelData, asTest = false, rules?: ScenarioRule
   ui?.reset();
   appState.mode = 'game';
   // 新关卡：重置插屏额度（不打扰编辑器试玩 asTest），暂停一次后由按钮唤起。
-  if (!asTest) levelAdShown = false;
+  // if (!asTest) levelAdShown = false; // 4399 插屏广告已临时禁用
   lastStart = { level };
   testingLevel = asTest ? level : null;
   autosaveClock = 0;
@@ -444,7 +445,7 @@ menu.onCampaign = () => {
 };
 if (menu.visible) menu.show('title'); // re-render: the Campaign door is open now
 registerGameOverAction(() =>
-  campaign.active ? { label: 'Campaign debrief', primary: true, icon: 'arrowRight', run: () => campaign.handleGameOver() } : null,
+  campaign.active ? { label: '战役总结', primary: true, icon: 'arrowRight', run: () => campaign.handleGameOver() } : null,
 );
 
 const editor = new Editor(rig.camera, rig.target, world, renderer.domElement, {
@@ -469,7 +470,7 @@ menu.onEditor = () => freshEditorCanvas();
 const backBtn = document.createElement('button');
 backBtn.type = 'button';
 backBtn.className = 'tg-btn primary';
-backBtn.textContent = 'Back to the editor';
+backBtn.textContent = '返回编辑器';
 backBtn.style.cssText = 'position: fixed; top: calc(var(--edge, 1rem) + 4.2rem); left: var(--edge, 1rem); z-index: 15; display: none;';
 backBtn.addEventListener('click', () => {
   if (!lastEdit.level) return;

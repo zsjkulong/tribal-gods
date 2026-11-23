@@ -133,7 +133,7 @@ export const OFFICIAL_LEVELS: OfficialLevel[] = [
       return assemble(
         map,
         1001,
-        { name: 'First Light', desc: 'A kind world to learn godhood on. The stones are near; the enemy is far.' },
+        { name: '初光', desc: '一个学习成神的温和世界。石阵近在咫尺，敌人远在天边。' },
         homes,
         [
           { x: homes.player.x + 10, z: homes.player.z + 6, spell: 'flatten' },
@@ -180,7 +180,7 @@ export const OFFICIAL_LEVELS: OfficialLevel[] = [
       return assemble(
         map,
         2002,
-        { name: 'The Strait', desc: 'An ocean apart. Causeway is on your shore — claim it before the water stops protecting you.' },
+        { name: '海峡', desc: '隔着一片海洋。石道就在你的海岸上——趁海水还能保护你之前夺取它。' },
         homes,
         [
           { x: homes.player.x + 9, z: homes.player.z + 5, spell: 'landbridge' },
@@ -210,7 +210,7 @@ export const OFFICIAL_LEVELS: OfficialLevel[] = [
       return assemble(
         map,
         3003,
-        { name: 'The Crucible', desc: 'One continent, one volcano, two gods. It is exactly the standoff it looks like.' },
+        { name: '熔炉', desc: '一块大陆，一座火山，两位神明。正如其貌，一场对峙。' },
         homes,
         [
           { x: homes.player.x + 9, z: homes.player.z - 6, spell: 'flatten' },
