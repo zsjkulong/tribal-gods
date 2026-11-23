@@ -23,6 +23,7 @@ import {
 } from '../campaign/progress';
 import { CAMPAIGN, campaignScenario } from '../level/campaign';
 import type { LevelData } from '../level/level-format';
+import { playInterstitialAd } from '../platform/4399-ads';
 import type { ScenarioRules } from '../sim/catalog';
 import type { World } from '../sim/world-state';
 import { BriefingScreen, CampaignMapScreen, DebriefScreen, MapNode } from './campaign-screens';
@@ -119,6 +120,12 @@ export class CampaignController {
     return isUnlocked(this.store.load(), id);
   }
 
+  /** How many campaign chapters have been won (the title menu gates Skirmish on this). */
+  wonChapters(): number {
+    const p = this.store.load();
+    return CAMPAIGN.filter((s) => isCompleted(p, s.id)).length;
+  }
+
   showMap(): void {
     this.active = null;
     this.hooks.pause();
@@ -178,10 +185,13 @@ export class CampaignController {
     this.hideAll();
     const level = await this.level(id);
     const rules = rulesForPlay(this.store.load(), id, level.rules!);
-    this.active = null;
-    // The player may have quit (or started something else) while it loaded.
-    if (!(await this.hooks.startScenario(level, rules))) return false;
+    // 提前登记当前章节，让 ui.reset()（第一关界面导览）能读到场景 id。
     this.active = id;
+    // The player may have quit (or started something else) while it loaded.
+    if (!(await this.hooks.startScenario(level, rules))) {
+      this.active = null;
+      return false;
+    }
     this.lastPlayed = id;
     this.handled = false;
     this.recorded = false;
@@ -228,6 +238,8 @@ export class CampaignController {
     this.endedAt = w.elapsed;
     const optionalMet = w.objectives.map((o, i) => (o.optional && o.done ? i : -1)).filter((i) => i >= 0);
     this.store.save(recordResult(this.store.load(), id, { victory: w.gameOver === 'victory', seconds: w.elapsed, optionalMet }));
+    // 每关结束播放一次插屏广告（平台自身带频控，本地环境静默跳过）。
+    playInterstitialAd();
   }
 
   /** Open the debrief for the finished game (recording it if update() hasn't). Once per game. */

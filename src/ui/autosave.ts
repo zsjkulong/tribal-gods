@@ -27,6 +27,8 @@ export interface SavedGame {
   world: SaveData;
   /** The game-over numbers so far (ui/alerts.ts GameTally), so Continue doesn't start them over. */
   tally?: { peakPopulation: number; spellsCast: number };
+  /** Ad-unlock state (platform/4399-ads.ts): spell ad used, speed unlocked (2/3 individually). */
+  ads?: { spellAdUsed: boolean; speedUnlocked: number[] };
 }
 
 /** The saved tally if it is well-formed, else null (an old save without one still loads). */

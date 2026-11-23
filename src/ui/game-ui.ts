@@ -22,6 +22,7 @@
 import * as THREE from 'three';
 import type { LoopStats } from '../core/loop';
 import { setHighlight } from '../render/highlight';
+import { isSpeedUnlocked } from '../platform/4399-ads';
 import { TILE, WORLD_SIZE } from '../config';
 import { wrapDelta } from '../core/util';
 import { BuildingKind, SpellId, UNITS } from '../sim/catalog';
@@ -46,6 +47,7 @@ import { SelectionPanel } from './selection-panel';
 import { SpellAim } from './spell-aim';
 import { SpellBook } from './spell-book';
 import { TopBar } from './top-bar';
+import { UiTour } from './tour';
 import { WorldHover } from './world-hover';
 import { WorldOverlay } from './world-overlay';
 import { victoryBeat } from './victory-beat';
@@ -70,6 +72,8 @@ export interface GameUiHooks {
   quitToMenu(): void;
   /** True while something modal (the menu) owns the keyboard. */
   isBlocked(): boolean;
+  /** The campaign chapter id being played, if any (drives the first-chapter UI tour). */
+  scenarioId(): string | null;
 }
 
 export class GameUi {
@@ -87,6 +91,7 @@ export class GameUi {
   private readonly aim: SpellAim;
   private readonly placer: BuildPlacer;
   private readonly hints: Hints;
+  private readonly tour: UiTour;
   readonly narrator = new Narrator();
   private heardMessages = 0;
   private readonly debug: DebugOverlay;
@@ -161,6 +166,7 @@ export class GameUi {
     const centre = h('div.hud-centre', {}, this.topBar.pausedBanner, this.narrator.el);
     this.root.appendChild(centre);
     this.hints = new Hints(this.ctx, centre);
+    this.tour = new UiTour(this.root);
     this.debug = new DebugOverlay(stats, world, brushRadius);
     this.gameOver = new GameOverScreen({ onRestart: () => hooks.restart(), onMenu: () => hooks.quitToMenu() });
 
@@ -240,6 +246,8 @@ export class GameUi {
         appState.paused = !appState.paused;
       },
       setSpeed(n: number) {
+        // 2×/3× 需先通过广告解锁（顶栏按钮触发），快捷键同样受此限制。
+        if (n > 1 && !isSpeedUnlocked(n)) return;
         appState.speed = n;
         appState.paused = false;
       },
@@ -321,6 +329,7 @@ export class GameUi {
     this.alerts.reset();
     this.objectives.reset();
     this.hints.reset();
+    this.tour.begin(this.hooks.scenarioId());
     this.narrator.reset();
     this.panTo = null;
     this.heardMessages = this.ctx.world.messageSeq;
@@ -355,7 +364,8 @@ export class GameUi {
     this.worldHover.update(dt);
     this.minimap.update(dt);
     this.debug.update(dt, this.selection.units.size);
-    this.hints.update(dt);
+    if (this.tour.isActive) this.tour.update();
+    else this.hints.update(dt);
     this.alerts.update();
     this.hearScenario();
     this.drift(dt);

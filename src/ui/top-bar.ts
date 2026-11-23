@@ -12,8 +12,9 @@
  * it changes.
  */
 
+import { isSpeedUnlocked, playInterstitialAd, unlockSpeeds } from '../platform/4399-ads';
 import { SPELLS } from '../sim/catalog';
-import { fmtClock, fmtEta, fmtRate } from './format';
+import { fmtClock, fmtRate } from './format';
 import { appState, SPEEDS } from './app-state';
 import { UiContext } from './context';
 import { css, h, setClass, setText } from './dom';
@@ -64,6 +65,8 @@ export class TopBar {
   /** Game-ui moves this into the top-centre column so it stacks with the narrator and hints. */
   readonly pausedBanner: HTMLDivElement;
   private shownPaused = false;
+  /** 上次 update() 观察到的各倍速解锁签名（如 '100'），变化时刷新按钮文字。 */
+  private speedSig = '100';
 
   constructor(private readonly ctx: UiContext, parent: HTMLElement) {
     const left = h('div.tb-left.tg-panel');
@@ -106,8 +109,21 @@ export class TopBar {
 
     this.leaderStat = stat('leader', 'leader', 'leader', '首领', 'button') as HTMLButtonElement;
     this.leaderStat.classList.add('tg-hit');
-    this.leaderStat.addEventListener('click', () => ctx.actions.centreOnLeader());
-    tip(this.leaderStat, () => `<h4>你的首领 <span class="kbd">${labelFor('centre-leader')}</span></h4><p>首领能施放一切法术。只要部落还在，即便他们倒下，也会在氏族石阵处归来。</p><p class="hint">点击来查看他。</p>`);
+    this.leaderStat.addEventListener('click', () => {
+      const s = ctx.world.tribeSummary('player');
+      if (!s.leaderAlive && s.leaderRespawn > 0) {
+        playInterstitialAd();
+        ctx.world.reviveLeader('player');
+      } else {
+        ctx.actions.centreOnLeader();
+      }
+    });
+    tip(this.leaderStat, () => {
+      const s = ctx.world.tribeSummary('player');
+      return !s.leaderAlive && s.leaderRespawn > 0
+        ? `<h4>首领阵亡</h4><p>看一段广告即可让首领在氏族石阵处复活。</p>`
+        : `<h4>你的首领 <span class="kbd">${labelFor('centre-leader')}</span></h4><p>首领能施放一切法术。若他们倒下，看一段广告即可让他们在氏族石阵处复活。</p><p class="hint">点击来查看他。</p>`;
+    });
     parent.appendChild(left);
 
     // --- Right cluster: clock, speed, menu ---
@@ -122,12 +138,15 @@ export class TopBar {
     tip(this.pauseBtn, () => `<h4>${appState.paused ? '继续' : '暂停'} <span class="kbd">${labelFor('pause')}</span></h4><p>时间停止；你仍然可以环顾四周、选择单位和制定计划。</p>`);
     speed.appendChild(this.pauseBtn);
     for (const n of SPEEDS) {
-      const b = h('button.tg-btn', { type: 'button', text: `${n}×`, 'aria-label': `速度 ${n}×` });
-      b.addEventListener('click', () => ctx.actions.setSpeed(n));
-      tip(b, () => `<h4>速度 ${n}× <span class="kbd">${labelFor('speed-down')}</span><span class="kbd">${labelFor('speed-up')}</span></h4><p>${n === 1 ? '正常节奏。' : `时间以 ${n} 倍速流逝。`}</p>`);
+      const b = h('button.tg-btn', { type: 'button' });
+      b.addEventListener('click', () => this.speedClick(n));
+      tip(b, () => (n > 1 && !isSpeedUnlocked(n))
+        ? `<h4>广告</h4><p>看一段广告即可解锁 ${n}× 倍速。</p>`
+        : `<h4>速度 ${n}× <span class="kbd">${labelFor('speed-down')}</span><span class="kbd">${labelFor('speed-up')}</span></h4><p>${n === 1 ? '正常节奏。' : `时间以 ${n} 倍速流逝。`}</p>`);
       speed.appendChild(b);
       this.speedBtns.push(b);
     }
+    this.refreshSpeedBtns();
     const menu = h('button.tg-btn.icon-only', { type: 'button', 'aria-label': '菜单', html: icon('menu', 18) });
     menu.addEventListener('click', () => ctx.actions.openMenu());
     tip(menu, () => `<h4>菜单 <span class="kbd">Esc</span></h4><p>设置、玩法说明、重新开始、退出。</p>`);
@@ -137,6 +156,25 @@ export class TopBar {
     this.pausedBanner = h('div.tb-paused.tg-panel.mat-hide.passthrough', { html: carve('已暂停') });
     this.pausedBanner.hidden = true;
     parent.appendChild(this.pausedBanner);
+  }
+
+  /** 点击速度按钮：2×/3× 未解锁时先看广告，其余情况直接切换。 */
+  private speedClick(n: number): void {
+    if (n > 1 && !isSpeedUnlocked(n)) {
+      playInterstitialAd();
+      unlockSpeeds(n);
+    }
+    this.ctx.actions.setSpeed(n);
+  }
+
+  /** 按当前解锁状态刷新按钮文字：未解锁的 2×/3× 显示为「广告」。 */
+  private refreshSpeedBtns(): void {
+    this.speedBtns.forEach((b, i) => {
+      const n = SPEEDS[i];
+      const locked = n > 1 && !isSpeedUnlocked(n);
+      b.textContent = locked ? '广告' : `${n}×`;
+      b.setAttribute('aria-label', locked ? `看广告解锁 ${n}× 速度` : `速度 ${n}×`);
+    });
   }
 
   update(): void {
@@ -154,8 +192,8 @@ export class TopBar {
     setText(this.v.manaL, !idle ? '法力' : allFull ? '法术已满' : '无充能进行中');
     setText(this.v.pray, String(s.praying));
     setClass(this.prayStat, 'dim', s.praying === 0);
-    setText(this.v.leader, s.leaderAlive ? '在世' : s.leaderRespawn > 0 ? fmtEta(s.leaderRespawn) : '阵亡');
-    setText(this.v.leaderL, s.leaderAlive ? '首领' : s.leaderRespawn > 0 ? '即将归来' : '首领');
+    setText(this.v.leader, s.leaderAlive ? '在世' : s.leaderRespawn > 0 ? '复活' : '阵亡');
+    setText(this.v.leaderL, s.leaderAlive ? '首领' : s.leaderRespawn > 0 ? '看广告' : '首领');
     setClass(this.leaderStat, 'down', !s.leaderAlive);
     setText(this.v.clock, fmtClock(w.elapsed));
     setClass(this.pauseBtn, 'on', appState.paused);
@@ -163,7 +201,13 @@ export class TopBar {
       this.shownPaused = appState.paused;
       this.pauseBtn.innerHTML = icon(appState.paused ? 'play' : 'pause', 16);
     }
-    this.speedBtns.forEach((b, i) => setClass(b, 'on', !appState.paused && appState.speed === SPEEDS[i]));
+    this.speedBtns.forEach((b, i) => setClass(b, 'on', !appState.paused && appState.speed === SPEEDS[i] && !(SPEEDS[i] > 1 && !isSpeedUnlocked(SPEEDS[i]))));
+    // 各倍速解锁状态可能被重新开始 / 读档改变，检测到变化时刷新按钮文字。
+    const sig = SPEEDS.map((n) => (isSpeedUnlocked(n) ? '1' : '0')).join('');
+    if (sig !== this.speedSig) {
+      this.speedSig = sig;
+      this.refreshSpeedBtns();
+    }
     this.pausedBanner.hidden = !appState.paused;
   }
 }

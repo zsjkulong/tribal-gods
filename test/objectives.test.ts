@@ -141,7 +141,7 @@ describe('fail conditions', () => {
     expect(w.gameOverReason).toMatch(/首领/);
   });
 
-  it('without leaderDies the leader returns', () => {
+  it('without leaderDies the leader waits for an ad to revive', () => {
     const w = populated(scenario([{ type: 'survive', seconds: 100 }]));
     const leader = w.units.find((u) => u.kind === 'shaman' && u.tribe === 'player')!;
     w.hurtUnit(leader, 999);
@@ -150,6 +150,10 @@ describe('fail conditions', () => {
     expect(w.tribeSummary('player').leaderAlive).toBe(false);
     expect(w.tribeSummary('player').leaderRespawn).toBeGreaterThan(0);
     run(w, 20);
+    // 玩家首领不再自动归来，而是等待看广告（reviveLeader）复活。
+    expect(eventsOf(w, 'leaderReturn').length).toBe(0);
+    expect(w.tribeSummary('player').leaderAlive).toBe(false);
+    w.reviveLeader('player');
     expect(eventsOf(w, 'leaderReturn').length).toBe(1);
     expect(w.tribeSummary('player').leaderAlive).toBe(true);
     expect(w.gameOver).toBeNull();

@@ -8,6 +8,23 @@
 import { TRIBE_COLORS as CATALOG_TRIBE_COLORS } from './sim/catalog';
 
 // ---------------------------------------------------------------------------
+// Developer mode
+// ---------------------------------------------------------------------------
+
+/**
+ * Developer-only tools, toggled by hand in the shipped config file
+ * (public/config.js — copied into the build as config.js). There is no
+ * in-game switch, so players can never turn these on. When true, the level
+ * library and the level editor appear on the title menu.
+ *
+ * Read at module load from window.GAME_CONFIG; falls back to false outside
+ * the browser (tests).
+ */
+export const DEV_MODE =
+  typeof window !== 'undefined' &&
+  (window as unknown as { GAME_CONFIG?: { devMode?: boolean } }).GAME_CONFIG?.devMode === true;
+
+// ---------------------------------------------------------------------------
 // The world grid
 // ---------------------------------------------------------------------------
 

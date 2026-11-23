@@ -510,6 +510,16 @@ export class World implements SimQueries {
     return (this.tribes[id]?.leaderDeaths ?? 0) > 0;
   }
 
+  /** 看广告后立即复活首领（玩家阵亡后调用，等待复活状态下才有效）。 */
+  reviveLeader(id: TribeId): void {
+    const t = this.tribes[id];
+    if (!t || this.leaderOf(id) || t.shamanRespawn <= 0) return;
+    t.shamanRespawn = 0;
+    this.spawnNearWalkable('shaman', id, t.home.x, t.home.z);
+    this.events.push({ type: 'leaderReturn', x: t.home.x, z: t.home.z, tribe: id });
+    this.events.push({ type: 'convert', x: t.home.x, z: t.home.z });
+  }
+
   /** Kinds this tribe once completed and now has none of. */
   lostBuildingKinds(id: TribeId): Set<BuildingKind> {
     const t = this.tribes[id];
@@ -1098,6 +1108,8 @@ export class World implements SimQueries {
       t.manaRate = pourMana(t.spells, t.known, t.income, dt);
 
       if (t.shamanRespawn > 0 && this.tribeAlive(id)) {
+        // 玩家首领阵亡后不再自动归来：等待玩家看广告（reviveLeader）复活。
+        if (id === 'player') continue;
         t.shamanRespawn -= dt;
         if (t.shamanRespawn <= 0) {
           t.shamanRespawn = 0;

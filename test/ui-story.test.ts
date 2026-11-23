@@ -82,9 +82,9 @@ describe('objective advice', () => {
     m.contested = false;
     m.communer = null;
     expect(objectiveAdvice(w, o, true)).toMatch(/仪式在42%时被打断.*再次跪地共感/);
-    // No leader (fallen, returning): never "select your leader".
+    // No leader (fallen, awaiting an ad revival): never "select your leader".
     w.units = w.units.filter((u) => u.kind !== 'shaman');
-    expect(objectiveAdvice(w, o, true)).toMatch(/你的首领已经倒下，正在归来途中/);
+    expect(objectiveAdvice(w, o, true)).toMatch(/你的首领已经倒下——点击左上角的首领状态看一段广告让她在氏族石阵处复活/);
     expect(objectiveAdvice(w, o, true)).not.toMatch(/选中你的首领/);
   });
 

@@ -24,6 +24,7 @@
  * duration, cast time, charges, mana per charge and the live ETA.
  */
 
+import { isSpellAdUsed, markSpellAdUsed, playInterstitialAd } from '../platform/4399-ads';
 import { spellDef, SPELLS, SpellDef, SpellId, SpellState } from '../sim/catalog';
 import { UiContext } from './context';
 import { css, escapeHtml, h, setClass, setText } from './dom';
@@ -94,6 +95,16 @@ css('spell-book', `
 @keyframes sb-flash { 0% { box-shadow: 0 0 0 0 rgba(134,227,234,0.95); } 100% { box-shadow: 0 0 0 0.9rem rgba(134,227,234,0); } }
 .sb-slot.deny { animation: sb-deny 320ms var(--ease); }
 @keyframes sb-deny { 25% { transform: translateX(-3px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
+/* 广告按钮：右下角，看广告随机解锁一个尚未习得的法术。 */
+.sb-ad { width: 3.1rem; height: 3.1rem; padding: 0; border: 0; cursor: pointer; display: grid; place-items: center;
+  border-radius: 46% 54% 48% 52% / 50% 46% 54% 50%;
+  background: radial-gradient(circle at 38% 30%, rgba(255,248,232,0.35), rgba(255,248,232,0) 55%), linear-gradient(#ffd27a, #d39537);
+  color: #2a1606; font: 800 0.72rem/1 var(--font); letter-spacing: 0;
+  box-shadow: inset 0 -0.18rem 0.3rem rgba(0,0,0,0.45), 0 0 0 0.16rem #2e2a25, 0 0 0 0.22rem rgba(255,245,225,0.12), 0 0.18rem 0.3rem rgba(0,0,0,0.55);
+  transition: transform var(--fast) var(--ease), filter var(--fast); }
+.sb-ad:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.sb-ad:active { transform: translateY(1px); }
+.sb-ad.used { cursor: not-allowed; filter: saturate(0.4) brightness(0.85); }
 `);
 
 interface Slot {
@@ -112,6 +123,7 @@ export class SpellBook {
   readonly el: HTMLDivElement;
   private readonly slots: Slot[] = [];
   private readonly flow: HTMLSpanElement;
+  private adEl: HTMLButtonElement | null = null;
 
   constructor(private readonly ctx: UiContext) {
     this.el = h('div.sb.tg-panel.mat-stone');
@@ -124,6 +136,7 @@ export class SpellBook {
       tip(label, () => `<h4>第${ROMAN[tier]}阶 · ${TIER_NAMES[tier]}</h4><p>${tier === 1 ? '代价低廉、恢复迅速——可以随意使用。' : tier === 2 ? '能决定一场战斗胜负的法术。' : '重塑世界地形的法术。提前几分钟开始谋划吧。'}</p>`);
       row.appendChild(label);
       for (const def of SPELLS.filter((s) => s.tier === tier)) row.appendChild(this.slot(def));
+      if (tier === 3) row.appendChild(this.adButton());
       this.el.appendChild(row);
     }
   }
@@ -155,6 +168,36 @@ export class SpellBook {
     tip(el, () => this.tooltip(def));
     this.slots.push(slot);
     return el;
+  }
+
+  /** 面板右下角：看广告随机解锁一个尚未习得的法术（每局只能看一次）。 */
+  private adButton(): HTMLButtonElement {
+    const b = h('button.sb-ad', { type: 'button', text: '广告', 'aria-label': '看广告随机解锁法术' });
+    tip(b, () => isSpellAdUsed()
+      ? `<h4>广告</h4><p>本局已经看过广告了。</p>`
+      : `<h4>广告</h4><p>看广告可以随机解锁一个尚未习得的法术。</p>`);
+    b.addEventListener('click', () => this.watchAd());
+    this.adEl = b;
+    return b;
+  }
+
+  private watchAd(): void {
+    if (isSpellAdUsed()) return;
+    const w = this.ctx.world;
+    const locked = SPELLS.map((d) => d.id).filter((id) => !w.spellState('player', id).known);
+    const at = this.adEl?.getBoundingClientRect();
+    const cx = at ? at.left + at.width / 2 : 0;
+    const cy = at ? at.top : 0;
+    if (locked.length === 0) {
+      toast('你已经习得了这颗星球上的全部法术', cx, cy, 'info');
+      return;
+    }
+    markSpellAdUsed();
+    playInterstitialAd();
+    const id = locked[Math.floor(Math.random() * locked.length)];
+    w.tribes.player?.known.add(id);
+    w.setSpellCharging('player', id, true);
+    toast(`看广告解锁了「${spellDef(id).name}」！`, cx, cy, 'info');
   }
 
   private toggleCharging(id: SpellId): void {
@@ -296,5 +339,6 @@ export class SpellBook {
       setClass(slot.el, 'blocked', usable && !leaderHere);
     }
     setText(this.flow, charging > 0 ? `${charging} 个充能中` : '无充能进行中');
+    if (this.adEl) setClass(this.adEl, 'used', isSpellAdUsed());
   }
 }

@@ -24,7 +24,7 @@
  *   menu.onResume / onRestart / onQuit   in-game menu verbs
  */
 
-import { CIVS, CivId, DIFFICULTIES, Difficulty } from '../config';
+import { CIVS, CivId, DEV_MODE, DIFFICULTIES, Difficulty } from '../config';
 import { TRIBE_COLORS, TRIBE_IDS } from '../sim/catalog';
 import type { GameSettings } from '../sim/world-state';
 import { css, h } from './dom';
@@ -102,6 +102,8 @@ export class Menu {
   /** What the Continue button says about the saved game ("Skirmish · 12:04"), or null when there is none. */
   continueLabel: () => string | null = () => null;
   onCampaign: (() => void) | null = null;
+  /** Skirmish stays locked until a few campaign chapters are won (filled by main.ts). */
+  skirmishUnlocked: () => boolean = () => true;
   onLevels: (() => void) | null = null;
   onEditor: (() => void) | null = null;
   onResume: (() => void) | null = null;
@@ -201,9 +203,9 @@ export class Menu {
     const nav = h('nav.menu-nav', { 'aria-label': '主菜单' },
       saved ? this.navBtn('继续游戏', 'play', () => { this.hide(); this.onContinue!(); }, true, saved) : null,
       this.navBtn('战役', 'objective', this.onCampaign ? () => { this.hide(); this.onCampaign!(); } : null, !saved && !!this.onCampaign, this.onCampaign ? '' : '敬请期待'),
-      this.navBtn('遭遇战', 'attack', () => this.show('skirmish'), !this.onCampaign),
-      this.navBtn('关卡', 'book', () => { this.hide(); this.onLevels?.(); }),
-      this.navBtn('编辑器', 'hammer', () => { this.hide(); this.onEditor?.(); }),
+      this.navBtn('遭遇战', 'attack', this.skirmishUnlocked() ? () => this.show('skirmish') : null, !this.onCampaign, this.skirmishUnlocked() ? '' : '完成三关战役解锁'),
+      DEV_MODE ? this.navBtn('关卡', 'book', () => { this.hide(); this.onLevels?.(); }) : null,
+      DEV_MODE ? this.navBtn('编辑器', 'hammer', () => { this.hide(); this.onEditor?.(); }) : null,
       this.navBtn('设置', 'settings', () => this.show('settings')),
       this.navBtn('玩法说明', 'info', () => this.show('help')),
     );

@@ -46,7 +46,7 @@ function spellAdvice(world: World, spell: SpellId, where: string): string {
   const def = spellDef(spell);
   const s = world.spellState('player', spell);
   if (!s.known && s.gifted === 0) return `${def.name}还不属于你——立石阵或主线剧情会带来它。`;
-  if (!world.leaderOf('player')) return `你的首领负责施放${def.name}；他正在归来途中，回到氏族石阵。`;
+  if (!world.leaderOf('player')) return `你的首领负责施放${def.name}；她已倒下——点击左上角的首领状态看一段广告让她复活。`;
   if (s.charges + s.gifted === 0) {
     if (!s.charging) return `${def.name}未在充能：在法术书中右键点击它来注入法力。`;
     return `${def.name}正在积蓄力量${Number.isFinite(s.eta) ? `（约${Math.ceil(s.eta)}秒）` : ''}。当它的符文石亮起时，按下${k(`spell:${spell}`)}并${where}。`;
@@ -69,10 +69,9 @@ function quietAdvice(world: World, click: string): string {
   return `敌人还不见踪影。让战士留在村寨附近，并保持一个法术处于充能状态。`;
 }
 
-/** The leader is dead and returning: say so (never "select your leader" when there is none). */
-function leaderAway(world: World, then: string): string {
-  const back = world.tribeSummary('player').leaderRespawn;
-  return `你的首领已经倒下，正在归来途中，回到氏族石阵${back > 0 ? `（${Math.ceil(back)}秒后）` : ''}——${then}。被打断的仪式正在缓缓消逝。`;
+/** The leader is dead: say to revive her with an ad (never "select your leader" when there is none). */
+function leaderAway(then: string): string {
+  return `你的首领已经倒下——点击左上角的首领状态看一段广告让她在氏族石阵处复活，${then}。被打断的仪式正在缓缓消逝。`;
 }
 
 /** Strongest first: what to hit a host with when the leader holds it. */
@@ -110,7 +109,7 @@ export function objectiveAdvice(world: World, o: Objective, leftClickOrders: boo
       return `壮大部落：民居${k('build:hut')}只要有空位就会孕育新的村民。`;
     case 'claimMonument': {
       const m = world.monuments[o.index];
-      if (!world.leaderOf('player')) return leaderAway(world, '然后派她回到石阵');
+      if (!world.leaderOf('player')) return leaderAway('然后派她回到石阵');
       const name = m ? `${spellDef(m.spell).name} ` : '';
       const pct = (p: number | undefined) => `${Math.round((p ?? 0) * 100)}%`;
       if (m?.communing && m.communer === 'player') {
@@ -130,7 +129,7 @@ export function objectiveAdvice(world: World, o: Objective, leftClickOrders: boo
       return `选中你的首领${k('select-leader')}并${click}${name}石阵。带上战士：她若被击中，仪式就会被打断。`;
     }
     case 'leaderReach':
-      if (!world.leaderOf('player')) return leaderAway(world, '然后带她走过去');
+      if (!world.leaderOf('player')) return leaderAway('然后带她走过去');
       return `选中你的首领${k('select-leader')}并${click}故事所指向的地面。`;
     case 'rescueStranded': {
       const cb = world.spellState('player', 'landbridge');

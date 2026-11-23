@@ -45,6 +45,7 @@ import { installMaterials } from './ui/materials';
 import { SculptBrush } from './ui/brush';
 import { appState } from './ui/app-state';
 import { clearSave, clock, readSave, savedTally, writeSave } from './ui/autosave';
+import { resetAdState, restoreAdState, snapshotAdState } from './platform/4399-ads';
 // import { showInterstitialAd } from './platform/4399-ads'; // 4399 广告已临时禁用
 import { CampaignController } from './ui/campaign';
 import { Editor } from './ui/editor';
@@ -207,6 +208,7 @@ let lastSeed = querySeed ?? 0;
 function newWorld(settings?: Parameters<World['reset']>[1], seed = querySeed ?? Math.floor(Math.random() * 1e9)): void {
   startToken++;
   lastSeed = seed;
+  resetAdState();
   world.reset(seed, settings);
   worldChanged();
   centerOnHome();
@@ -314,6 +316,7 @@ function autosave(): void {
     ...(kind === 'level' ? { level: lastStart.level } : {}),
     label: `${what} · ${clock(world.elapsed)}`,
     world: saveWorld(world),
+    ads: snapshotAdState(),
     ...(ui ? { tally: { ...ui.alerts.tally } } : {}),
   });
 }
@@ -332,6 +335,7 @@ menu.onContinue = () => {
   }
   worldChanged();
   ui?.reset();
+  restoreAdState(g.ads);
   // Game-over numbers carry on from where the save left them.
   const tally = savedTally(g);
   if (ui && tally) Object.assign(ui.alerts.tally, tally);
@@ -370,6 +374,7 @@ async function startLevel(level: LevelData, asTest = false, rules?: ScenarioRule
     return false;
   }
   if (token !== startToken) return false;
+  resetAdState();
   worldChanged();
   centerOnHome();
   ui?.reset();
@@ -443,6 +448,7 @@ menu.onCampaign = () => {
   appState.mode = 'menu';
   campaign.showMap();
 };
+menu.skirmishUnlocked = () => campaign.wonChapters() >= 3;
 if (menu.visible) menu.show('title'); // re-render: the Campaign door is open now
 registerGameOverAction(() =>
   campaign.active ? { label: '战役总结', primary: true, icon: 'arrowRight', run: () => campaign.handleGameOver() } : null,
@@ -548,6 +554,7 @@ ui = new GameUi(world, { camera: rig.camera, target: rig.target, map: world.map 
   restart,
   quitToMenu,
   isBlocked: () => menu.visible,
+  scenarioId: () => campaign.active,
 }, () => brush.radius);
 
 // Automation handle (tools/shot.mjs, tests, the console). Not a game API.

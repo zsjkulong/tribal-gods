@@ -45,6 +45,9 @@ export function runUntilOver(w: World, seconds: number, dt = 1 / 15): number {
   const n = Math.round(seconds / dt);
   for (let i = 0; i < n && !w.gameOver; i++) {
     w.tick(dt);
+    // The player's leader no longer auto-revives; the bot "watches the ad".
+    const s = w.tribeSummary('player');
+    if (!s.leaderAlive && s.leaderRespawn > 0) w.reviveLeader('player');
     if (w.events.length > 500) w.events.length = 0;
   }
   return w.elapsed;
