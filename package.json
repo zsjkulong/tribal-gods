@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "build:4399": "vite build --base=./",
-    "pack:4399": "vite build --base=./ && powershell -NoProfile -Command \"Compress-Archive -Path dist/* -DestinationPath tribal-gods-4399.zip -Force\""
+    "pack:4399": "vite build --base=./ && tar -a -c -f tribal-gods-4399.zip -C dist *"
   },
   "dependencies": {
     "three": "^0.182.0"
